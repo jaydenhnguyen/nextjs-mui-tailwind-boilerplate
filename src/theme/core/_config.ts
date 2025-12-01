@@ -1,7 +1,6 @@
 import { PaletteColor, CommonColors } from '@mui/material';
 
 type ThemeConfig = {
-  fontFamily: Record<'primary' | 'secondary', string>;
   palette: Record<
     'primary' | 'secondary' | 'info' | 'success' | 'warning' | 'error',
     PaletteColor & { lighter: string; darker: string }
@@ -13,10 +12,6 @@ type ThemeConfig = {
 };
 
 export const themeConfig: ThemeConfig = {
-  fontFamily: {
-    primary: 'DM Sans Variable',
-    secondary: 'Barlow',
-  },
   palette: {
     primary: {
       lighter: '#E0E7FE',

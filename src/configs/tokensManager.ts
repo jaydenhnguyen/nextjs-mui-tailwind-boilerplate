@@ -1,4 +1,4 @@
-import { CookieKey } from 'src/shared';
+import { CookieKey } from 'src/shared/constants';
 import { envVariables } from './environment';
 import { CookiesStorage, cookiesStorage } from './cookies';
 
@@ -10,8 +10,7 @@ type StoreTokensParams = {
 };
 
 class TokensManager {
-  constructor(private readonly cookiesStorage: CookiesStorage) {
-  }
+  constructor(private readonly cookiesStorage: CookiesStorage) {}
 
   setAccessToken(accessToken: string, ttl = envVariables.ACCESS_TOKEN_TTL) {
     this.cookiesStorage.setCookieData(CookieKey.AccessToken, accessToken, ttl);
@@ -29,19 +28,16 @@ class TokensManager {
     return this.cookiesStorage.get(CookieKey.RefreshToken) ?? null;
   }
 
-  storeTokens(
-    {
-      accessToken,
-      refreshToken,
-      accessTokenTTL = envVariables.ACCESS_TOKEN_TTL,
-      refreshTokenTTL = envVariables.REFRESH_TOKEN_TTL,
-    }: StoreTokensParams,
-  ) {
+  storeTokens({
+    accessToken,
+    refreshToken,
+    accessTokenTTL = envVariables.ACCESS_TOKEN_TTL,
+    refreshTokenTTL = envVariables.REFRESH_TOKEN_TTL,
+  }: StoreTokensParams) {
     if (accessToken) this.setAccessToken(accessToken, accessTokenTTL);
 
     if (refreshToken) this.setRefreshToken(refreshToken, refreshTokenTTL);
   }
-
 
   isAuthenticated() {
     const accessToken = this.getAccessToken();
