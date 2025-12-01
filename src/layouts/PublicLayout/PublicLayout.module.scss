@@ -1,0 +1,15 @@
+.wrapper {
+  @apply min-h-screen flex flex-col;
+}
+
+.main-wrapper {
+  @apply flex-1 bg-hero-bg mt-[4.125rem];
+}
+
+.footer-wrapper {
+  @apply py-4 mt-auto;
+
+  .footer-content {
+    @apply flex justify-between flex-wrap gap-y-2
+  }
+}

@@ -1,10 +1,10 @@
 import { TypographyVariantsOptions } from '@mui/material';
-import { themeConfig } from './_config';
 import { FontExtendType } from 'src/theme/types';
 import { pxToRem, setFont, responsiveFontSizes } from 'src/theme/helpers';
+import { geistMono, geistSans } from '../fonts';
 
-const primaryFont = setFont(themeConfig.fontFamily.primary);
-const secondaryFont = setFont(themeConfig.fontFamily.secondary);
+const primaryFont = setFont(geistSans.style.fontFamily);
+const secondaryFont = setFont(geistMono.style.fontFamily);
 
 export const typography: TypographyVariantsOptions & FontExtendType = {
   fontFamily: primaryFont,
