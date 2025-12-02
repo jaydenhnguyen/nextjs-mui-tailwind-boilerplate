@@ -2,8 +2,8 @@ import * as React from 'react';
 import { useRouter } from 'next/router';
 import { tokenManager } from 'src/configs';
 import { APP_ROUTES } from 'src/shared/constants';
-import classes from './PrivateLayout.module.scss';
 import { Box, Container, Typography } from '@mui/material';
+import classes from './PrivateLayout.module.scss';
 
 export function PrivateLayout({ children }: { children: React.ReactElement }) {
   const router = useRouter();
@@ -26,16 +26,20 @@ export function PrivateLayout({ children }: { children: React.ReactElement }) {
   return (
     <Box className={classes['wrapper']}>
       {/* Header */}
-      <Box component="header">
-        <Typography variant="subtitle1" fontWeight={600}>
-          THIS IS PUBLIC HEADER
-        </Typography>
+      <Box component="header" className={classes['header']}>
+        <Container maxWidth="lg" className="!p-0">
+          <Box className={classes['header-inner']}>
+            <Typography variant="subtitle1" className={classes['header-title']}>
+              THIS IS PRIVATE HEADER
+            </Typography>
+          </Box>
+        </Container>
       </Box>
 
-      {/* Main content */}
-      <Box component="main" flex={1} className={classes['content-area']}>
-        <Container maxWidth="lg" style={{ padding: 0 }}>
-          {children}
+      {/* Content */}
+      <Box component="main" className={classes['main']}>
+        <Container maxWidth="lg" className="!p-0">
+          <Box className={classes['content-box']}>{children}</Box>
         </Container>
       </Box>
     </Box>
