@@ -1,0 +1,9 @@
+.wrapper {
+  @apply flex items-end;
+}
+
+.number-input {
+  input {
+    @apply border-l-0;
+  }
+}

@@ -1,0 +1,10 @@
+.wrapper {
+  input {
+    @apply pl-[15px];
+  }
+}
+
+.prefix-box-wrapper {
+  @apply border border-solid pr-[15px] pl-[1.5px] border-y-0 border-l-0 border-[#0000001F];
+  @apply self-end h-[56px] flex items-center text-app-secondary-dtxt;
+}
