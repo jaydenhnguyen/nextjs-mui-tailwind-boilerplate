@@ -3,6 +3,8 @@
 }
 
 .number-input {
+  @apply w-full;
+
   input {
     @apply border-l-0;
   }

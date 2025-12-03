@@ -1,4 +1,5 @@
 import * as React from 'react';
+import classNames from 'classnames';
 import { Box, TextField, TextFieldProps } from '@mui/material';
 import { useController, FieldValues, Control, Path } from 'react-hook-form';
 
@@ -26,7 +27,7 @@ export function ControlledTextField<T extends FieldValues>({
   });
 
   return (
-    <Box className={containerClass}>
+    <Box className={classNames('w-full', containerClass)}>
       <TextField
         value={value ?? ''}
         onChange={onChange}

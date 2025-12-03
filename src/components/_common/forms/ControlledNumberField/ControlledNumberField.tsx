@@ -1,8 +1,9 @@
 import * as React from 'react';
-import { useController, FieldValues, Control, Path } from 'react-hook-form';
-import { MUINumberField } from './components';
 import { Box } from '@mui/material';
+import classNames from 'classnames';
+import { useController, FieldValues, Control, Path } from 'react-hook-form';
 import { NumberField as BaseNumberField } from '@base-ui-components/react/number-field';
+import { MUINumberField } from './components';
 
 export type ControlledNumberFieldProps<T extends FieldValues> = {
   control: Control<T>;
@@ -34,7 +35,7 @@ export function ControlledNumberField<T extends FieldValues>({
   });
 
   return (
-    <Box className={containerClass}>
+    <Box className={classNames('w-full', containerClass)}>
       <MUINumberField
         label={label}
         size={size}

@@ -12,9 +12,20 @@ export const base: ThemeOptions = {
   components: {
     MuiButton: {
       styleOverrides: {
-        outlined: {
+        root: {
+          padding: 0,
           '&.Mui-disabled': {
-            color: themeConfig.palette.grey['500'],
+            color: themeConfig.darkText.disabled, // Light mode
+          },
+        },
+      },
+    },
+    MuiIconButton: {
+      styleOverrides: {
+        root: {
+          padding: 0,
+          '&.Mui-disabled': {
+            color: themeConfig.darkText.disabled, // Light mode
           },
         },
       },

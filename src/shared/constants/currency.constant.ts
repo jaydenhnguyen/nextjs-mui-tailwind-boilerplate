@@ -5,7 +5,7 @@ export enum CurrencyType {
 }
 
 export const CurrencySign = {
-  [CurrencyType.USD]: '$',
-  [CurrencyType.CAD]: 'CA$',
-  [CurrencyType.EUR]: '€',
+  [CurrencyType.USD]: 'US $',
+  [CurrencyType.CAD]: 'CA $',
+  [CurrencyType.EUR]: 'EU €',
 };

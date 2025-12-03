@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Box } from '@mui/material';
+import classNames from 'classnames';
 import { FieldValues } from 'react-hook-form';
 import { CurrencySign, CurrencyType } from 'src/shared/constants';
 import { ControlledNumberField, ControlledNumberFieldProps } from '../forms';
@@ -16,12 +17,13 @@ export function CurrencyInput<T extends FieldValues>({ currencyType, ...props }:
         control={props.control}
         name={props.name}
         label="Amount"
-        containerClass={classes['number-input']}
+        containerClass={classNames(classes['number-input'], props.containerClass)}
         prefix={CurrencySign[currencyType]}
         format={{
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
         }}
+        step={0.01}
       />
     </Box>
   );

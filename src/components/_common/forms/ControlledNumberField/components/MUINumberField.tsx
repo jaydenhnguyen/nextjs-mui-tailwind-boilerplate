@@ -51,6 +51,7 @@ export function MUINumberField({
           required={state.required}
           error={error}
           variant="outlined"
+          className={'w-full'}
         >
           {props.children}
         </FormControl>
