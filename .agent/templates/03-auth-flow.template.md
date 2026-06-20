@@ -13,6 +13,8 @@ It is the source of truth for:
 - refresh-token behavior
 - current user/session loading
 
+**Apps without authentication:** skip this template's auth wiring; use **`PublicLayout` only** and do not create `PrivateLayout`.
+
 ---
 
 # 1. Auth Architecture

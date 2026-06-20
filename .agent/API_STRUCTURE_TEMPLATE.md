@@ -52,7 +52,7 @@ Backend API
 | Models/types   | `<root>/modules/<Feature>/models/`                | Request/response/UI types                               |
 | Hooks          | `<root>/modules/<Feature>/hooks/`                 | React Query wrappers; side effects (toasts, callbacks)  |
 | UI             | `<root>/modules/<Feature>/`, `<root>/components/` | Render UI; orchestrate hooks only                       |
-| Pages/routes   | `<root>/pages/` or `app/`                         | Thin wrappers; delegate to modules                      |
+| Pages/routes   | `<root>/pages/` only (**Pages Router**)            | Thin wrappers; delegate to modules                      |
 
 ### 1.3 Core rules
 
@@ -776,3 +776,22 @@ When applying this template to a specific repo, generate a repo-specific doc wit
 6. **Feature modules** — per feature: hooks, which API functions they call
 7. **Hook conventions** — naming, queryKey patterns, on-demand fetch rules
 8. **Adaptation notes** — deviations from this template
+
+---
+
+## 14. Adaptation notes (fill per repo)
+
+Record project-specific deviations in **that repo's** `.cursor/` or README — not in this generic template.
+
+| Topic | What to document |
+|-------|------------------|
+| Routing | Pages Router vs App Router; entry routes |
+| Auth | Provider, guards, or none |
+| API layer | REST client path, or not used |
+| Layouts | Public only vs Public + Private + Admin |
+| State | Context/providers location |
+| Stack extras | No backend, localStorage-only, etc. |
+
+See §13 for the full repo-doc outline agents should generate when onboarding a project.
+
+---

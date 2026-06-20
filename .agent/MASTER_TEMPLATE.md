@@ -5,7 +5,7 @@ This folder is the source of truth for how this boilerplate should be used, exte
 Before making any implementation, the AI agent must:
 
 1. Read this `MASTER_TEMPLATE.md`
-2. Read the relevant files inside `.ai/templates`
+2. Read the relevant files inside `.agent/templates`
 3. Inspect the existing codebase patterns before introducing new patterns
 
 ---
@@ -30,8 +30,8 @@ Every new feature should feel like it belongs to the same codebase.
 When making decisions, follow this order strictly:
 
 1. Existing codebase conventions
-2. Rules inside `.ai/templates`
-3. Existing examples inside `.ai/examples`
+2. Rules inside `.agent/templates`
+3. Existing examples inside `.agent/examples`
 4. General best practices
 
 Do not introduce a new architecture unless explicitly requested.
@@ -50,7 +50,8 @@ Each feature owns:
 - models
 - feature components
 - constants
-- utilities
+
+Reusable utilities, domain services, and app context live outside modules — see `01-project-structure.template.md` §3.6, §3.11, §9.
 
 Example:
 
@@ -60,7 +61,6 @@ src/modules/Books/
 ├── hooks/
 ├── models/
 ├── constants/
-├── utils/
 ├── Books.tsx
 └── index.ts
 ```
@@ -95,39 +95,30 @@ export default function BooksPage() {
 
 ---
 
-## 3.3 API flow
+## 3.2 Routing & layouts
 
-All API calls must follow this flow:
+This boilerplate uses **Next.js Pages Router** and standard layouts **`PublicLayout`** / **`PrivateLayout`** (plus optional **`AdminLayout`**).
 
-```txt
-Component/Page
-    ↓
-Feature Hook
-    ↓
-API Client
-    ↓
-Shared Request Client
-    ↓
-Backend
-```
+**Canonical rules:** `01-project-structure.template.md` §1.1 (routing), §3.8 (layouts). **Examples:** `examples/layout-example.md`.
 
-Components and pages must never call HTTP directly.
+Summary:
+
+- Routes in `src/pages/` with `_app.tsx`, `_document.tsx`, and `Page.getLayout`
+- No `src/app/` or App Router route files unless explicitly requested
+- Layout folders: exactly 3 files each; header/footer/sidebar chrome in `src/components/`
+- With auth: `PublicLayout` + `PrivateLayout`; without auth: `PublicLayout` only
 
 ---
 
-## 3.4 Shared vs Feature ownership
+## 3.3 Shared vs feature ownership
 
-### Global folders are ONLY for reusable logic
+**Canonical rules:** `01-project-structure.template.md` §3.6 (`context/`), §3.10–§3.11 (`services/`, `shared/`), §9 (decision rules).
 
-Examples:
+Summary:
 
-```txt
-src/components/
-src/hooks/
-src/shared/
-```
-
-These should contain generic reusable logic only.
+- Modules own UI, hooks, models, constants
+- `src/shared/utils/`, `src/shared/services/`, `src/context/` hold reusable or app-level logic
+- Do not nest `context/`, domain `services/`, or promotable `utils/` inside modules
 
 ### Feature-specific logic belongs inside modules
 
@@ -149,80 +140,53 @@ unless truly reusable across multiple features.
 
 ---
 
+## 3.4 API flow
+
+All API calls must follow this flow:
+
+```txt
+Component/Page
+    ↓
+Feature Hook
+    ↓
+API Client
+    ↓
+Shared Request Client
+    ↓
+Backend
+```
+
+Components and pages must never call HTTP directly.
+
+---
+
+## 3.5 Styling (summary)
+
+MUI + Tailwind + SCSS Modules. Full rules: `04-mui-theme.template.md`, `05-tailwind-style.template.md`.
+
+---
+
 # 4. Current Expected Project Structure
 
-Example:
+Example (see `01-project-structure.template.md` for ownership rules):
 
 ```txt
 src/
 ├── apis/
-│   ├── auth/
-│   ├── books/
-│   ├── orders/
-│   └── index.ts
-│
 ├── components/
-│   ├── Button/
-│   ├── Modal/
-│   ├── Table/
-│   └── Form/
-│
 ├── configs/
-│   ├── request.ts
-│   ├── environment.ts
-│   └── tokenManager.ts
-│
+├── context/
 ├── hooks/
-│   ├── useDebounce.ts
-│   ├── useDisclosure.ts
-│   └── useWindowSize.ts
-│
 ├── layouts/
-│   ├── PrivateLayout/
-│   ├── PublicLayout/
-│   └── index.ts
-│
 ├── modules/
-│   ├── Books/
-│   │   ├── components/
-│   │   ├── hooks/
-│   │   ├── models/
-│   │   ├── constants/
-│   │   ├── utils/
-│   │   ├── Books.tsx
-│   │   └── index.ts
-│   │
-│   ├── Cart/
-│   ├── Users/
-│   └── Admin/
-│
 ├── pages/
-│
 ├── providers/
-│   ├── AppProvider.tsx
-│   ├── AuthProvider.tsx
-│   └── QueryProvider.tsx
-│
 ├── shared/
 │   ├── constants/
-│   ├── enums/
-│   ├── models/
-│   ├── types/
-│   └── utils/
-│
+│   ├── utils/
+│   └── services/
 ├── styles/
-│   ├── _app.scss
-│   ├── _core.scss
-│   └── tailwind.scss
-│
-├── theme/
-│   ├── core/
-│   ├── fonts/
-│   ├── helpers/
-│   ├── types/
-│   └── AppThemeProvider.tsx
-│
-└── types/
+└── theme/
 ```
 
 ---
@@ -233,15 +197,15 @@ Always read the relevant template files before implementation.
 
 | Concern                  | Template                           |
 |--------------------------|------------------------------------|
-| Project structure        | `01-project-structure.template.md` |
+| Project structure, routing, layouts | `01-project-structure.template.md` |
 | API architecture         | `02-api-structure.template.md`     |
 | Authentication           | `03-auth-flow.template.md`         |
 | MUI theme usage          | `04-mui-theme.template.md`         |
 | Tailwind/SCSS usage      | `05-tailwind-style.template.md`    |
 | Component architecture   | `06-component-rules.template.md`   |
 | Forms & validation       | `07-form-handling.template.md`     |
-| Routing/layout rules     | `08-routing-layout.template.md`    |
-| Naming/import/code style | `09-code-style.template.md`        |
+| Naming/import/code style | `08-code-style.template.md`        |
+| Layout `getLayout` examples | `examples/layout-example.md`    |
 
 ---
 
@@ -332,20 +296,7 @@ Feature-specific hooks must stay inside modules.
 
 # 8. Styling Rules
 
-The project uses:
-
-- MUI
-- Tailwind
-- SCSS
-
-Rules:
-
-- Reuse theme values before hardcoding
-- Prefer existing spacing and typography scale
-- Prefer Tailwind utility classes for layout
-- Use SCSS for complex styling only
-- Reuse shared components before creating new UI
-- Do not introduce another styling system
+See §3.5 and `04-mui-theme.template.md`, `05-tailwind-style.template.md`.
 
 ---
 
@@ -396,6 +347,7 @@ Do NOT:
 
 - Call APIs directly inside components/pages
 - Put business logic inside pages
+- Use App Router (`src/app/`, `layout.tsx`, `page.tsx` as route files)
 - Create one-off HTTP clients
 - Create duplicate hooks/utilities
 - Hardcode API paths

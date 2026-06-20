@@ -1,4 +1,4 @@
-Read all files inside `.ai/templates/`.
+Read all files inside `.agent/templates/`.
 
 Generate a full CRUD feature module.
 

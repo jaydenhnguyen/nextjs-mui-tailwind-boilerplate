@@ -17,7 +17,18 @@ It teaches:
 
 # Core Philosophy
 
-Layouts are app shell wrappers.
+**Canonical layout rules:** `01-project-structure.template.md` §3.8. This file shows implementation examples only.
+
+Layouts are app shell wrappers named **`PublicLayout`** and **`PrivateLayout`** (plus optional **`AdminLayout`**).
+
+| Authentication | Layouts |
+|----------------|---------|
+| Yes | `PublicLayout` + `PrivateLayout` |
+| No | `PublicLayout` only — remove / do not create `PrivateLayout` |
+
+Do not use custom shell names (`AppShell`, `DashboardLayout`, etc.) as substitutes.
+
+Each layout folder contains **exactly 3 files** (`Layout.tsx`, `Layout.module.scss`, `index.ts`). Header, footer, sidebar, and nav chrome belong in `src/components/`.
 
 They own:
 
@@ -70,32 +81,27 @@ ProductList / ProductFilters
 
 ```txt
 src/
+├── components/
+│   ├── PublicHeader/
+│   ├── PublicFooter/
+│   ├── PrivateHeader/
+│   ├── PrivateSidebar/
+│   └── ...
+│
 ├── layouts/
 │   ├── PublicLayout/
 │   │   ├── PublicLayout.tsx
 │   │   ├── PublicLayout.module.scss
-│   │   ├── components/
-│   │   │   ├── PublicHeader/
-│   │   │   ├── PublicFooter/
-│   │   │   └── MobileNavDrawer/
 │   │   └── index.ts
 │   │
 │   ├── PrivateLayout/
 │   │   ├── PrivateLayout.tsx
 │   │   ├── PrivateLayout.module.scss
-│   │   ├── components/
-│   │   │   ├── PrivateHeader/
-│   │   │   ├── Sidebar/
-│   │   │   └── MobileSidebarDrawer/
 │   │   └── index.ts
 │   │
 │   ├── AdminLayout/
 │   │   ├── AdminLayout.tsx
 │   │   ├── AdminLayout.module.scss
-│   │   ├── components/
-│   │   │   ├── AdminHeader/
-│   │   │   ├── AdminSidebar/
-│   │   │   └── AdminMobileDrawer/
 │   │   └── index.ts
 │   │
 │   └── index.ts
@@ -108,8 +114,8 @@ src/
 | Concern                  | Owner                                     |
 |--------------------------|-------------------------------------------|
 | Route shell              | `src/layouts`                             |
-| Header/footer/sidebar    | layout components                         |
-| Mobile drawer navigation | layout components                         |
+| Header/footer/sidebar    | `src/components`                          |
+| Mobile drawer navigation | `src/components`                          |
 | Auth route guard         | `PrivateLayout`                           |
 | Public auth redirect     | `PublicLayout`                            |
 | Admin permission guard   | `AdminLayout`                             |
@@ -132,8 +138,8 @@ Use for:
 ```tsx
 import * as React from 'react';
 
-import { PublicFooter } from './components/PublicFooter';
-import { PublicHeader } from './components/PublicHeader';
+import { PublicFooter } from 'src/components/PublicFooter';
+import { PublicHeader } from 'src/components/PublicHeader';
 
 import classes from './PublicLayout.module.scss';
 
@@ -197,8 +203,8 @@ import { useRouter } from 'next/router';
 import { tokenManager } from 'src/configs/tokenManager';
 import { APP_ROUTES } from 'src/shared/constants';
 
-import { PrivateHeader } from './components/PrivateHeader';
-import { Sidebar } from './components/Sidebar';
+import { PrivateHeader } from 'src/components/PrivateHeader';
+import { Sidebar } from 'src/components/PrivateSidebar';
 
 import classes from './PrivateLayout.module.scss';
 
@@ -287,8 +293,8 @@ import { tokenManager } from 'src/configs/tokenManager';
 import { APP_ROUTES, USER_ROLE } from 'src/shared/constants';
 import { useGetCurrentUser } from 'src/modules/Authentication/hooks';
 
-import { AdminHeader } from './components/AdminHeader';
-import { AdminSidebar } from './components/AdminSidebar';
+import { AdminHeader } from 'src/components/AdminHeader';
+import { AdminSidebar } from 'src/components/AdminSidebar';
 
 import classes from './AdminLayout.module.scss';
 

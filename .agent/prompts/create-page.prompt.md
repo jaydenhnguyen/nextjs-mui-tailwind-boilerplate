@@ -1,4 +1,4 @@
-Read all files inside `.ai/templates/`.
+Read all files inside `.agent/templates/`.
 
 Generate a new page route.
 
@@ -33,6 +33,4 @@ Use:
 
 Do NOT:
 
-- introduce App Router patterns
-- use layout.tsx/page.tsx
 - create giant pages

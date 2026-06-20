@@ -939,6 +939,8 @@ export function useCreateBookForm() {
 
 # 27. Page and Component Rules
 
+Pages must follow `01-project-structure.template.md` §3.9 (thin pages, `getLayout`).
+
 Pages must not call:
 
 - API clients

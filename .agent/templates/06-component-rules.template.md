@@ -33,7 +33,7 @@ Feature composition
     ↓
 Module screen
     ↓
-Page route
+Page route (src/pages/)
 ```
 
 The goal is:
@@ -57,11 +57,13 @@ Is it reusable across multiple features/modules?
 └─ NO  → src/modules/<Feature>/components/
 ```
 
-If the component belongs to app shell/chrome:
+If the component belongs to app shell/chrome (header, footer, sidebar, nav drawer):
 
 ```txt
-src/layouts/
+src/components/
 ```
+
+Layout **shell files** only live in `src/layouts/<LayoutName>/` (exactly 3 files — no nested `components/`).
 
 Examples:
 
@@ -71,8 +73,8 @@ Examples:
 | `Modal`           | `src/components/Modal`                            |
 | `ProductCard`     | `src/modules/Products/components/ProductCard`     |
 | `CheckoutSummary` | `src/modules/Checkout/components/CheckoutSummary` |
-| `Header`          | `src/layouts/PublicLayout/components/Header`      |
-| `Sidebar`         | `src/layouts/AdminLayout/components/Sidebar`      |
+| `Header`          | `src/components/PublicHeader`                     |
+| `Sidebar`         | `src/components/PrivateSidebar`                   |
 
 Do NOT create:
 
@@ -116,6 +118,7 @@ src/components/
 ├── EmptyState/
 ├── ErrorState/
 ├── LoadingState/
+├── PublicHeader/
 ├── SectionTitle/
 └── Form/
 ```
@@ -151,15 +154,30 @@ src/modules/Products/components/
 
 ---
 
-## Layout components
+## Layout shell files
 
 Location:
 
 ```txt
-src/layouts/
+src/layouts/<LayoutName>/
+├── <LayoutName>.tsx
+├── <LayoutName>.module.scss
+└── index.ts
 ```
 
-Use for:
+Each layout folder has **exactly these 3 files**. No nested `components/` subfolders.
+
+Layout chrome (header, footer, sidebar, nav) belongs in `src/components/`:
+
+```txt
+src/components/
+├── PublicHeader/
+├── PublicFooter/
+├── PrivateHeader/
+└── PrivateSidebar/
+```
+
+Use layouts for:
 
 - app shell
 - header
@@ -167,7 +185,8 @@ Use for:
 - sidebar
 - navigation
 - route wrappers
-- layout-specific providers
+- layout-level auth guards
+- composing header/footer/sidebar from `src/components/`
 
 ---
 

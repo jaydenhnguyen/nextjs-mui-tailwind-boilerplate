@@ -33,6 +33,21 @@ The project must always be responsive and mobile-friendly by default.
 
 ---
 
+## 1.1 Routing — Pages Router ONLY (mandatory)
+
+This boilerplate uses **Next.js Pages Router**. App Router is **forbidden**.
+
+| Required | Forbidden |
+|----------|-----------|
+| `src/pages/` | `src/app/` |
+| `_app.tsx`, `_document.tsx` | `app/layout.tsx`, `app/page.tsx` |
+| `Page.getLayout` | App Router layouts, route groups |
+| `next/head` | `metadata` / `generateMetadata` exports |
+
+Do not create `src/app/` or migrate to App Router unless explicitly requested.
+
+---
+
 # 2. Top-Level Structure
 
 Expected structure:
@@ -248,6 +263,8 @@ Do not place UI components or feature logic here.
 
 Contains React Context definitions and providers when Context is the selected state solution.
 
+Do **not** place app-level or cross-module context inside `src/modules/<Feature>/context/`. Use `src/context/` and compose providers in `src/providers/`.
+
 Example:
 
 ```txt
@@ -352,17 +369,39 @@ Feature-specific hooks must stay inside their module.
 
 ## 3.8 `src/layouts`
 
-Contains reusable page layouts.
-
-Example:
+Contains reusable page layouts. Use **only** the standard layout names below.
 
 ```txt
 src/layouts/
-├── PublicLayout/
-├── PrivateLayout/
-├── AdminLayout/
+├── PublicLayout/      # guest / unauthenticated / no-auth apps
+├── PrivateLayout/     # authenticated users (omit if no auth)
+├── AdminLayout/       # optional — role-protected admin shell
 └── index.ts
 ```
+
+### Layout selection
+
+| App has authentication? | Layouts to include |
+|-------------------------|-------------------|
+| Yes | `PublicLayout` + `PrivateLayout` (+ `AdminLayout` if needed) |
+| No | `PublicLayout` only — **do not** add `PrivateLayout` |
+
+Pages attach layouts via `Page.getLayout`. `_app.tsx` must support the `getLayout` pattern.
+
+Do **not** create alternate primary shells (`AppShell`, `DashboardLayout`, etc.) instead of `PublicLayout` / `PrivateLayout`.
+
+Each layout folder contains **exactly 3 files**:
+
+```txt
+src/layouts/PublicLayout/
+├── PublicLayout.tsx
+├── PublicLayout.module.scss
+└── index.ts
+```
+
+Do **not** nest `components/` inside `src/layouts/<Layout>/`. Header, footer, sidebar, and nav chrome belong in `src/components/` (e.g. `PublicHeader`, `PrivateSidebar`).
+
+Layouts compose shared components from `src/components/`; they do not own sub-component folders.
 
 Use this folder for:
 
@@ -385,12 +424,16 @@ Layouts must not:
 - contain feature business logic
 - call APIs directly
 - own module state
+- wrap feature modules internally (use `getLayout` on the page instead)
+- include nested `components/` folders — put `PublicHeader`, `PrivateSidebar`, etc. in `src/components/`
+
+Header, footer, sidebar, and navigation UI live in `src/components/`, not under `src/layouts/`.
 
 ---
 
 ## 3.9 `src/pages`
 
-Contains Next.js Pages Router files.
+Contains **Next.js Pages Router** files only. Do not use `src/app/` or App Router conventions.
 
 Pages should be thin wrappers.
 
@@ -430,7 +473,7 @@ BooksPage.getLayout = function getLayout(page: React.ReactElement) {
 
 ## 3.10 `src/services`
 
-Contains external service integrations only.
+Contains **external** service integrations only (third-party SDKs).
 
 Examples:
 
@@ -453,15 +496,11 @@ src/services/
 └── socket/
 ```
 
-Do not use `services` for normal API calls.
+Do not use `src/services/` for normal backend API calls (use `src/apis/`).
 
-Normal backend API calls belong in:
+Do not use `src/services/` for domain/business logic classes — those belong in `src/shared/services/`.
 
-```txt
-src/apis/
-```
-
-If the project does not use external services, remove this folder.
+If the project does not use external SDK integrations, remove this folder.
 
 ---
 
@@ -476,6 +515,7 @@ Shared may contain:
 - models
 - types
 - utils
+- services (domain/business logic — not external SDK wrappers)
 - hooks if they are not placed in `src/hooks`
 - form helpers
 - API helpers
@@ -490,6 +530,7 @@ src/shared/
 ├── models/
 ├── types/
 ├── utils/
+├── services/
 ├── validations/
 └── helpers/
 ```
@@ -502,7 +543,27 @@ src/components/
 
 Do not move logic into `shared` too early.
 
-Only move something to `shared` when:
+Move utilities to `src/shared/utils/` when:
+
+- they are generic helpers (datetime, formatting, pagination, notify, etc.)
+- they are intended for reuse across modules (even if only one module uses them today)
+- promoting them avoids duplication as the app grows
+
+Move domain services to `src/shared/services/` when:
+
+- they orchestrate business rules (parse, analyze, filter, chart builders)
+- they may be reused by multiple modules or hooks
+- they should not live inside a feature module folder
+
+Keep utilities inside `src/modules/<Feature>/utils/` only when they are **strictly** single-feature mappers or glue with no realistic cross-module reuse.
+
+Keep services inside modules only when they are **strictly** feature-local and will never be composed at app level.
+
+App-level React Context belongs in `src/context/`, not `src/modules/<Feature>/context/`.
+
+When shared utils depend on domain types, co-locate or move those types to `src/shared/models/` so `shared` does not import from `modules`.
+
+Only move other shared concerns when:
 
 - it is used by at least two modules
 - it is not strongly tied to one domain
@@ -609,11 +670,14 @@ src/modules/<ModuleName>/
 ├── hooks/
 ├── models/
 ├── constants/
-├── utils/
 ├── <ModuleName>.tsx
 ├── <module-name>.module.scss
 └── index.ts
 ```
+
+Optional `utils/` only for strictly module-local mappers. Reusable utilities belong in `src/shared/utils/`.
+
+Do **not** put `context/` or domain `services/` inside modules when they are app-level or reusable — use `src/context/` and `src/shared/services/` instead.
 
 Example:
 
@@ -634,8 +698,6 @@ src/modules/Books/
 │   └── index.ts
 ├── constants/
 │   └── books.constants.ts
-├── utils/
-│   └── books.mapper.ts
 ├── Books.tsx
 ├── books.module.scss
 └── index.ts
@@ -830,7 +892,7 @@ Keep local:
 ```txt
 modules/Books/components/BookCard
 modules/Books/hooks/useGetBooks
-modules/Books/utils/bookMapper.ts
+modules/Books/utils/bookMapper.ts   # only if strictly feature-local
 ```
 
 Move global:
@@ -839,6 +901,7 @@ Move global:
 components/Card
 hooks/useDebounce
 shared/utils/formatCurrency.ts
+shared/utils/datetime.ts
 shared/constants/appRoutes.ts
 ```
 

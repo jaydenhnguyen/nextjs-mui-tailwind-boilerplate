@@ -18,7 +18,7 @@ understand how the architecture should be implemented in practice.
 Templates inside:
 
 ```txt
-.ai/templates/
+.agent/templates/
 ```
 
 define:
@@ -30,7 +30,7 @@ define:
 Examples inside:
 
 ```txt
-.ai/examples/
+.agent/examples/
 ```
 
 demonstrate:
@@ -100,11 +100,7 @@ Examples are intentionally:
 
 ## Pages
 
-Pages are:
-
-- route entry points
-- layout composition points
-- SEO entry points
+Pages are route entry points. See `01-project-structure.template.md` §3.9 and `examples/layout-example.md` for routing and `getLayout` rules.
 
 Pages should NOT:
 
@@ -130,7 +126,8 @@ Each feature owns:
 - schemas
 - models
 - constants
-- utilities
+
+Reusable utilities, services, and app context belong in `src/shared/` and `src/context/` — see `01-project-structure.template.md`.
 
 ---
 
@@ -191,7 +188,7 @@ Examples should demonstrate:
 Recommended AI workflow:
 
 ```txt
-1. Read .ai/templates/*
+1. Read .agent/templates/*
 2. Read relevant examples
 3. Inspect existing project structure
 4. Reuse existing patterns
@@ -236,7 +233,7 @@ Examples are NOT:
 
 All examples must remain aligned with:
 
-- `.ai/templates/`
+- `.agent/templates/`
 - current project conventions
 - current engineering standards
 

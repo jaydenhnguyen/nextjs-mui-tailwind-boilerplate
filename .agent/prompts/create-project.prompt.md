@@ -1,7 +1,7 @@
 Read all files inside:
 
 ```txt
-.ai/templates/
+.agent/templates/
 ```
 
 Then act as a senior frontend engineer and architect.
@@ -38,23 +38,7 @@ The generated project must:
 
 # Mandatory Architecture Rules
 
-The project MUST follow ALL conventions inside:
-
-```txt
-.ai/templates/
-```
-
-including:
-
-- project structure
-- API architecture
-- auth flow
-- MUI theme conventions
-- Tailwind conventions
-- component rules
-- form handling
-- routing/layout rules
-- code style conventions
+Follow **all** conventions in `.agent/templates/` and `MASTER_TEMPLATE.md`. Do not invent alternate rules here.
 
 ---
 
@@ -116,7 +100,6 @@ Each feature owns:
 - forms
 - models
 - constants
-- utilities
 
 ---
 
@@ -195,19 +178,7 @@ SCSS Modules + Tailwind @apply
 
 ## Routing
 
-Use:
-
-- Next.js Pages Router
-- getLayout pattern
-- centralized APP_ROUTES
-- layout-based auth structure
-
-Do NOT use:
-
-- App Router
-- layout.tsx
-- page.tsx
-- server components
+Follow `01-project-structure.template.md` §1.1 and §3.8, and `examples/layout-example.md`.
 
 ---
 

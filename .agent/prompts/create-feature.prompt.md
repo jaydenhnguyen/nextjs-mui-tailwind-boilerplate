@@ -1,4 +1,4 @@
-Read all files inside `.ai/templates/`.
+Read all files inside `.agent/templates/`.
 
 Strictly follow:
 
