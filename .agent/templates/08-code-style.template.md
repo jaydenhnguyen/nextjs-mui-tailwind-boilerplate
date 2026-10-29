@@ -685,13 +685,8 @@ Avoid:
 Correct:
 
 ```ts
-export async function createProduct(
-  payload: CreateProductRequest,
-): Promise<CreateProductResponse> {
-  return await request.post(
-    PRODUCTS_ENDPOINTS.CREATE_PRODUCT,
-    payload,
-  );
+export async function createProduct(payload: CreateProductRequest): Promise<CreateProductResponse> {
+  return await http.post<CreateProductResponse, CreateProductRequest>(PRODUCTS_ENDPOINTS.CREATE_PRODUCT, payload);
 }
 ```
 

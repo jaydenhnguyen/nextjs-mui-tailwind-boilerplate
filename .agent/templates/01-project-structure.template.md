@@ -37,12 +37,12 @@ The project must always be responsive and mobile-friendly by default.
 
 This boilerplate uses **Next.js Pages Router**. App Router is **forbidden**.
 
-| Required | Forbidden |
-|----------|-----------|
-| `src/pages/` | `src/app/` |
-| `_app.tsx`, `_document.tsx` | `app/layout.tsx`, `app/page.tsx` |
-| `Page.getLayout` | App Router layouts, route groups |
-| `next/head` | `metadata` / `generateMetadata` exports |
+| Required                    | Forbidden                               |
+|-----------------------------|-----------------------------------------|
+| `src/pages/`                | `src/app/`                              |
+| `_app.tsx`, `_document.tsx` | `app/layout.tsx`, `app/page.tsx`        |
+| `Page.getLayout`            | App Router layouts, route groups        |
+| `next/head`                 | `metadata` / `generateMetadata` exports |
 
 Do not create `src/app/` or migrate to App Router unless explicitly requested.
 
@@ -381,10 +381,10 @@ src/layouts/
 
 ### Layout selection
 
-| App has authentication? | Layouts to include |
-|-------------------------|-------------------|
-| Yes | `PublicLayout` + `PrivateLayout` (+ `AdminLayout` if needed) |
-| No | `PublicLayout` only — **do not** add `PrivateLayout` |
+| App has authentication? | Layouts to include                                           |
+|-------------------------|--------------------------------------------------------------|
+| Yes                     | `PublicLayout` + `PrivateLayout` (+ `AdminLayout` if needed) |
+| No                      | `PublicLayout` only — **do not** add `PrivateLayout`         |
 
 Pages attach layouts via `Page.getLayout`. `_app.tsx` must support the `getLayout` pattern.
 

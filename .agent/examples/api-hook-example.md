@@ -149,28 +149,18 @@ export type GetProductsResponse = {
 ## apis/products/get-products.ts
 
 ```ts
-import { request } from 'src/configs/request';
+import { http } from 'src/configs/request';
 
 import { GetProductsRequest } from 'src/modules/Products/models/get-products.request';
 import { GetProductsResponse } from 'src/modules/Products/models/get-products.response';
 
 import { PRODUCTS_ENDPOINTS } from './endpoints';
 
-type Params = {
-  payload: GetProductsRequest;
-};
-
-export async function getProducts({
-                                    payload,
-                                  }: Params): Promise<GetProductsResponse> {
-  return request.get(
-    PRODUCTS_ENDPOINTS.GET_PRODUCTS,
-    {
-      params: payload,
-    },
-  );
-}
+export const getProducts = (params: GetProductsRequest, signal?: AbortSignal) =>
+  http.get<GetProductsResponse>(PRODUCTS_ENDPOINTS.GET_PRODUCTS, { params, signal });
 ```
+
+`http` helpers return the response body and always throw `ApiError`. See `02-api-structure.template.md` §7 and §24.
 
 ---
 

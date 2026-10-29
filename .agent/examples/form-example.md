@@ -261,9 +261,10 @@ Rules:
 ## useCreateProduct.ts
 
 ```ts
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { createProduct } from 'src/apis/products';
+import { useAppMutation } from 'src/hooks';
 
 import { PRODUCT_QUERY_KEYS } from '../constants';
 import { CreateProductRequest } from '../models';
@@ -271,24 +272,14 @@ import { CreateProductRequest } from '../models';
 export function useCreateProduct(onSuccess?: () => void) {
   const queryClient = useQueryClient();
 
-  const { mutate, status, error, isPending } = useMutation({
+  return useAppMutation({
     mutationFn: (payload: CreateProductRequest) => createProduct(payload),
-
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [PRODUCT_QUERY_KEYS.GET_PRODUCT_LIST],
-      });
-
+    meta: { successMessage: 'Product created' },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: [PRODUCT_QUERY_KEYS.GET_PRODUCT_LIST] });
       onSuccess?.();
     },
   });
-
-  return {
-    mutate,
-    status,
-    error,
-    isLoading: isPending,
-  };
 }
 ```
 
@@ -296,8 +287,9 @@ Rules:
 
 - mutation hook owns server write
 - mutation hook owns invalidation
-- mutation hook may show toast
+- error toasts are automatic; success toast via `meta: { successMessage }`
 - mutation hook may execute success callback
+- the component uses `isPending` from the result
 
 ---
 
@@ -338,7 +330,7 @@ export function CreateProductForm({ onSuccess }: Props): React.ReactElement {
     onSuccess?.();
   }, [reset, onSuccess]);
 
-  const { mutate, isLoading } = useCreateProduct(handleSuccess);
+  const { mutate, isPending } = useCreateProduct(handleSuccess);
 
   const handleSubmit = React.useCallback(
     (payload: CreateProductRequest) => {
@@ -372,7 +364,7 @@ export function CreateProductForm({ onSuccess }: Props): React.ReactElement {
       <ControlErrorMessage control={control} name="root.server" />
 
       <div className={classes['form-actions']}>
-        <Button type="submit" variant="contained" loading={isLoading}>
+        <Button type="submit" variant="contained" loading={isPending}>
           Create Product
         </Button>
       </div>
@@ -469,35 +461,17 @@ Rules:
 
 # Server Field Error Example
 
-If backend returns field errors:
-
-```ts
-type ServerFieldError = {
-  fieldErrors?: Record<string, string>;
-  message?: string;
-};
-```
-
-Handle with `setError`:
+Every API error is an `ApiError` whose `fieldErrors` are already parsed and camelCased. Map it with one call:
 
 ```tsx
-const form = useCreateProductForm();
-const { setError } = form;
+import { applyApiErrorToForm } from 'src/shared/utils';
 
+const form = useCreateProductForm();
 const { mutate } = useCreateProduct();
 
 const handleSubmit = (payload: CreateProductRequest) => {
   mutate(payload, {
-    onError: (error: ServerFieldError) => {
-      if (error.fieldErrors) {
-        Object.entries(error.fieldErrors).forEach(([field, message]) => {
-          setError(field as keyof CreateProductRequest, { type: 'server', message });
-        });
-        return;
-      }
-
-      setError('root.server', { message: error.message ?? 'Something went wrong, please try again' });
-    },
+    onError: (error) => applyApiErrorToForm(form.setError, error),
   });
 };
 ```

@@ -1,118 +1,102 @@
 import qs from 'qs';
-import isNil from 'lodash/isNil';
-import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
+import isPlainObject from 'lodash/isPlainObject';
+import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 import camelcaseKeys from 'camelcase-keys';
 import { StatusCodes } from 'http-status-codes';
-import { env } from './env';
+import { toApiError } from 'src/shared/utils/apiError';
+import { apiConfig } from './api.config';
 import { tokenManager } from './tokenManager';
 
+const toCamelCase = (data: unknown) =>
+  apiConfig.camelCaseResponse && (isPlainObject(data) || Array.isArray(data))
+    ? camelcaseKeys(data as Record<string, unknown>, { deep: true })
+    : data;
+
 export const request = axios.create({
-  timeout: 10000,
-  baseURL: env.API_URL,
-  headers: {
-    Accept: 'application/json',
-    'Content-Type': 'application/json',
-    'Cache-Control': 'no-cache',
-    'X-Requested-With': 'XMLHttpRequest',
-  },
+  baseURL: apiConfig.baseURL,
+  timeout: apiConfig.timeout,
+  withCredentials: apiConfig.authStrategy === 'cookie',
+  headers: { Accept: 'application/json' },
   paramsSerializer: (params) => qs.stringify(params, { arrayFormat: 'brackets' }),
 });
 
-function backToLogin() {
-  tokenManager.removeAllCredentials();
-  // window.location.href = APP_ROUTES.LOGIN;
+let sessionExpiredHandler = () => tokenManager.removeAllCredentials();
+
+export function onSessionExpired(handler: () => void) {
+  sessionExpiredHandler = handler;
+}
+
+let refreshPromise: Promise<void> | null = null;
+
+async function refreshSession() {
+  if (!apiConfig.refreshPath) throw new Error('No refresh endpoint configured');
+
+  if (apiConfig.authStrategy === 'cookie') {
+    await axios.post(apiConfig.refreshPath, undefined, { baseURL: apiConfig.baseURL, withCredentials: true });
+    return;
+  }
+
+  const refreshToken = tokenManager.getRefreshToken();
+  if (!refreshToken) throw new Error('No refresh token');
+
+  const response = await axios.post(apiConfig.refreshPath, { refreshToken }, { baseURL: apiConfig.baseURL });
+  const tokens = toCamelCase(response.data) as { accessToken: string; refreshToken?: string };
+  tokenManager.storeTokens(tokens);
+}
+
+// Parallel 401s share one refresh call, so the session-expired handler also runs only once.
+function refreshSessionOnce() {
+  refreshPromise ??= refreshSession()
+    .catch((error: unknown) => {
+      sessionExpiredHandler();
+      throw error;
+    })
+    .finally(() => {
+      refreshPromise = null;
+    });
+  return refreshPromise;
 }
 
 request.interceptors.request.use((config) => {
-  const accessToken = tokenManager.getAccessToken();
-
-  if (!isNil(accessToken)) config.headers.Authorization = `Bearer ${accessToken}`;
-
+  if (apiConfig.authStrategy === 'bearer') {
+    const accessToken = tokenManager.getAccessToken();
+    if (accessToken) config.headers.Authorization = `Bearer ${accessToken}`;
+  }
   return config;
 });
 
-let isRefreshingAccessToken = false;
-let queue: ((token: string) => void)[] = [];
-
-function subscribe(cb: (token: string) => void) {
-  queue.push(cb);
-}
-
-function flushQueue(token: string) {
-  queue.forEach((cb) => cb(token));
-  queue = [];
-}
-
-async function refreshTokenFlow(refreshToken: string, originalRequest: InternalAxiosRequestConfig) {
-  // If already refreshing, add this request to queue
-  if (isRefreshingAccessToken) {
-    return new Promise((resolve) => {
-      subscribe((newToken) => {
-        originalRequest.headers.Authorization = `Bearer ${newToken}`;
-        resolve(request(originalRequest));
-      });
-    });
-  }
-
-  try {
-    isRefreshingAccessToken = true;
-
-    const response = await axios.post(`${env.API_URL}/auth/refresh`, {
-      refreshToken,
-    });
-
-    const { accessToken: newAccessToken, refreshToken: newRefreshToken } = response.data;
-
-    tokenManager.storeTokens({ accessToken: newAccessToken, refreshToken: newRefreshToken });
-
-    return { newAccessToken, newRefreshToken };
-  } catch (e) {
-    throw e;
-  } finally {
-    isRefreshingAccessToken = false;
-  }
-}
-
 request.interceptors.response.use(
-  (response) => camelcaseKeys(response.data),
+  (response) => (response.config.responseType === 'blob' ? response.data : toCamelCase(response.data)),
 
   async (error: AxiosError) => {
-    const originalRequest = error.config;
+    if (error.response) error.response.data = toCamelCase(error.response.data);
 
-    const errorResponse = error.response as {
-      status: number;
-      data: {
-        code: string;
-        message: string;
-      };
-    };
-    const status = errorResponse?.status;
+    const config = error.config;
+    const isUnauthorized = error.response?.status === StatusCodes.UNAUTHORIZED;
 
-    if (status !== StatusCodes.UNAUTHORIZED) {
-      return Promise.reject(error.response?.data);
-    }
+    if (!isUnauthorized || !config || config.skipAuthRefresh) throw toApiError(error);
 
-    const refreshToken = tokenManager.getRefreshToken();
-
-    // If no refresh token → force logout
-    if (isNil(refreshToken) || isNil(originalRequest)) {
-      backToLogin();
-      return Promise.reject(error.response?.data);
+    if (config._isRetry || !apiConfig.refreshPath) {
+      sessionExpiredHandler();
+      throw toApiError(error);
     }
 
     try {
-      const { newAccessToken } = (await refreshTokenFlow(refreshToken, originalRequest)) as {
-        newAccessToken: string;
-        newRefreshToken: string;
-      };
-
-      flushQueue(newAccessToken);
-
-      originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-      return request(originalRequest);
-    } catch (err) {
-      tokenManager.removeAllCredentials();
-      return Promise.reject(error.response?.data);
+      await refreshSessionOnce();
+    } catch {
+      throw toApiError(error);
     }
+
+    return request({ ...config, _isRetry: true });
   },
 );
+
+export const http = {
+  get: <T>(url: string, config?: AxiosRequestConfig) => request.get<T, T>(url, config),
+  delete: <T = void>(url: string, config?: AxiosRequestConfig) => request.delete<T, T>(url, config),
+  post: <T, B = unknown>(url: string, body?: B, config?: AxiosRequestConfig) =>
+    request.post<T, T, B>(url, body, config),
+  put: <T, B = unknown>(url: string, body?: B, config?: AxiosRequestConfig) => request.put<T, T, B>(url, body, config),
+  patch: <T, B = unknown>(url: string, body?: B, config?: AxiosRequestConfig) =>
+    request.patch<T, T, B>(url, body, config),
+};

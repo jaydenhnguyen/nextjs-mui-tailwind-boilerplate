@@ -197,18 +197,18 @@ src/
 
 Always read the relevant template files before implementation.
 
-| Concern                  | Template                           |
-|--------------------------|------------------------------------|
+| Concern                             | Template                           |
+|-------------------------------------|------------------------------------|
 | Project structure, routing, layouts | `01-project-structure.template.md` |
-| API architecture         | `02-api-structure.template.md`     |
-| Authentication           | `03-auth-flow.template.md`         |
-| MUI theme usage          | `04-mui-theme.template.md`         |
-| Tailwind/SCSS usage      | `05-tailwind-style.template.md`    |
-| Component architecture   | `06-component-rules.template.md`   |
-| Forms & validation       | `07-form-handling.template.md`     |
-| Naming/import/code style | `08-code-style.template.md`        |
-| Animation & transitions  | `09-motion.template.md`            |
-| Layout `getLayout` examples | `examples/layout-example.md`    |
+| API architecture                    | `02-api-structure.template.md`     |
+| Authentication                      | `03-auth-flow.template.md`         |
+| MUI theme usage                     | `04-mui-theme.template.md`         |
+| Tailwind/SCSS usage                 | `05-tailwind-style.template.md`    |
+| Component architecture              | `06-component-rules.template.md`   |
+| Forms & validation                  | `07-form-handling.template.md`     |
+| Naming/import/code style            | `08-code-style.template.md`        |
+| Animation & transitions             | `09-motion.template.md`            |
+| Layout `getLayout` examples         | `examples/layout-example.md`       |
 
 ---
 

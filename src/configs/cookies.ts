@@ -1,31 +1,28 @@
 import Cookies from 'js-cookie';
-import isNil from 'lodash/isNil';
-import { addSeconds } from 'date-fns';
 
-export class CookiesStorage {
-  private readonly cookies;
+type SetOptions = {
+  expiresIn?: number;
+  path?: string;
+};
 
-  constructor() {
-    this.cookies = Cookies;
-  }
+const isHttps = () => typeof window !== 'undefined' && window.location.protocol === 'https:';
 
+// Any script on the page can read these, so never store anything that would hurt if leaked.
+export const cookieStorage = {
   get(key: string): string | undefined {
-    return this.cookies.get(key) as string | undefined;
-  }
+    return Cookies.get(key);
+  },
 
-  setCookieData(key: string, data: string | number | null | undefined, expireIn?: number, path?: string) {
-    if (isNil(data)) return;
+  set(key: string, value: string, { expiresIn, path = '/' }: SetOptions = {}) {
+    Cookies.set(key, value, {
+      path,
+      sameSite: 'lax',
+      secure: isHttps(),
+      expires: expiresIn === undefined ? undefined : new Date(Date.now() + expiresIn * 1000),
+    });
+  },
 
-    const domain = window.location.hostname;
-    const expires = addSeconds(new Date(), expireIn ?? 3600);
-
-    return this.cookies.set(key, data.toString(), { domain, expires, path: path ?? '/' });
-  }
-
-  clearCookieData(key: string, path = '/'): void {
-    const domain = window.location.hostname;
-    this.cookies.remove(key, { domain, path: path ?? '/' });
-  }
-}
-
-export const cookiesStorage = new CookiesStorage();
+  remove(key: string, path = '/') {
+    Cookies.remove(key, { path });
+  },
+};

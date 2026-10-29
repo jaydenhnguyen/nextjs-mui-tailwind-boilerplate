@@ -1,14 +1,54 @@
-import { QueryClient } from '@tanstack/react-query';
+import { toast } from 'react-toastify';
+import { StatusCodes } from 'http-status-codes';
+import { MutationCache, QueryCache, QueryClient } from '@tanstack/react-query';
+import { ApiError, toApiError } from 'src/shared/utils/apiError';
+
+const MAX_RETRIES = 2;
+
+// A 4xx would just fail the same way again, so only temporary failures are retried.
+function shouldRetry(failureCount: number, error: unknown) {
+  const apiError = toApiError(error);
+  const isTemporary = apiError.kind === 'network' || apiError.kind === 'timeout' || apiError.isServerError;
+  return isTemporary && failureCount < MAX_RETRIES;
+}
+
+// 401 is handled by the session-expired flow and a canceled request isn't a real failure, so neither gets a toast.
+function shouldToast(error: ApiError) {
+  return error.kind !== 'canceled' && error.status !== StatusCodes.UNAUTHORIZED;
+}
+
+const showErrorToast = (error: ApiError) => toast.error(error.message, { toastId: error.message });
 
 export function createQueryClient() {
   return new QueryClient({
+    queryCache: new QueryCache({
+      onError: (error, query) => {
+        const apiError = toApiError(error);
+        // A failed first load is shown by the page itself, so only failed background refetches get a toast.
+        if (query.meta?.silent || query.state.data === undefined || !shouldToast(apiError)) return;
+        showErrorToast(apiError);
+      },
+    }),
+    mutationCache: new MutationCache({
+      onSuccess: (_data, _variables, _context, mutation) => {
+        const message = mutation.meta?.successMessage;
+        if (message) toast.success(message);
+      },
+      onError: (error, _variables, _context, mutation) => {
+        const apiError = toApiError(error);
+        if (mutation.meta?.silent || !shouldToast(apiError)) return;
+        showErrorToast(apiError);
+      },
+    }),
     defaultOptions: {
       queries: {
+        staleTime: 60 * 1000,
+        gcTime: 5 * 60 * 1000,
+        retry: shouldRetry,
         refetchOnWindowFocus: false,
-        refetchOnReconnect: 'always',
-        retry: 0,
-        staleTime: 0,
-        gcTime: 0,
+      },
+      mutations: {
+        retry: false,
       },
     },
   });

@@ -428,39 +428,31 @@ useCreateProduct
 Example mutation hook:
 
 ```ts
-import {useMutation, useQueryClient} from '@tanstack/react-query';
-import {createProduct} from 'src/apis/products';
-import {CreateProductRequest} from '../models';
+import { useQueryClient } from '@tanstack/react-query';
+import { createProduct } from 'src/apis/products';
+import { useAppMutation } from 'src/hooks';
+import { CreateProductRequest } from '../models';
 
 export function useCreateProduct(onSuccess?: () => void) {
   const queryClient = useQueryClient();
 
-  const {mutate, status, error, isPending} = useMutation({
+  return useAppMutation({
     mutationFn: (payload: CreateProductRequest) => createProduct(payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['getProductList'],
-      });
-
+    meta: { successMessage: 'Product created' },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['getProductList'] });
       onSuccess?.();
     },
   });
-
-  return {
-    mutate,
-    status,
-    error,
-    isLoading: isPending,
-  };
 }
 ```
 
 Rules:
 
 - mutation hook calls API client
-- form component calls mutation hook
+- form component calls mutation hook and uses its `isPending` for the submit button
 - API client stays in `src/apis`
-- mutation hook may show toast
+- error toasts are automatic; a success toast is `meta: { successMessage }`
 - mutation hook may invalidate cache
 - mutation hook may execute callback
 
@@ -480,7 +472,7 @@ export function CreateProductForm() {
   const form = useCreateProductForm();
   const { control, reset } = form;
 
-  const { mutate, isLoading } = useCreateProduct(() => reset());
+  const { mutate, isPending } = useCreateProduct(() => reset());
 
   const onSubmit = (payload: CreateProductRequest) => {
     mutate(payload);
@@ -491,7 +483,7 @@ export function CreateProductForm() {
       <ControlTextField control={control} name="name" label="Product name" required fullWidth />
       {/* more fields */}
 
-      <Button type="submit" variant="contained" loading={isLoading}>
+      <Button type="submit" variant="contained" loading={isPending}>
         Save
       </Button>
     </Form>
@@ -586,30 +578,20 @@ There are three error layers:
 | Error Type            | Source       | Handled By                           |
 |-----------------------|--------------|--------------------------------------|
 | Client validation     | zod          | field helper text                    |
-| Server field errors   | API response | `setError`                           |
-| Global request errors | API response | mutation `onError` toast/error state |
+| Server field errors   | API response | `applyApiErrorToForm` → `setError`   |
+| Global request errors | API response | automatic mutation error toast       |
 
-Example server field error mapping:
+Every API error is an `ApiError` with camelCased `fieldErrors` (see `02-api-structure.template.md` §24). Map it in one line:
 
 ```ts
-onError: (error: ErrorResponse & { fieldErrors?: Record<string, string> }) => {
-  if (error.fieldErrors) {
-    Object.entries(error.fieldErrors).forEach(([field, message]) => {
-      setError(field as Path<CreateProductRequest>, {
-        type: 'server',
-        message,
-      });
-    });
+import { applyApiErrorToForm } from 'src/shared/utils';
 
-    return;
-  }
-
-  notify({
-    message: error.message || 'Something went wrong',
-    type: ToastType.error,
-  });
-};
+mutate(values, {
+  onError: (error) => applyApiErrorToForm(form.setError, error),
+});
 ```
+
+It puts each field error under its field and anything else in `root.server`. The automatic error toast still shows; add `meta: { silent: true }` to the mutation if the form message alone is enough.
 
 Form-level server errors (not tied to one field) go in `root`:
 
@@ -637,7 +619,7 @@ Rules:
 Use mutation loading state for submit buttons.
 
 ```tsx
-<Button type="submit" disabled={isLoading}>
+<Button type="submit" loading={isPending}>
   Save
 </Button>
 ```
@@ -847,7 +829,7 @@ Example:
   </DialogContent>
   <DialogActions>
     <Button onClick={handleClose}>Cancel</Button>
-    <Button type="submit" form="create-product-form" loading={isLoading}>
+    <Button type="submit" form="create-product-form" loading={isPending}>
       Save
     </Button>
   </DialogActions>

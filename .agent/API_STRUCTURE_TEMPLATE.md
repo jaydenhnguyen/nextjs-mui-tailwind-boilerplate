@@ -1,5 +1,7 @@
 # API Structure Template
 
+> **For this repo, `templates/02-api-structure.template.md` wins wherever the two disagree.** It describes the code that actually exists here (`http` helpers, `ApiError`, `useAppQuery` / `useAppMutation`, automatic toasts). This file is the generic, project-agnostic version.
+
 Use this file as the **single source of truth** for how to handle API calling in a web application.
 It is **project-agnostic** — adapt paths, names, and stack details to each repo.
 
@@ -52,7 +54,7 @@ Backend API
 | Models/types   | `<root>/modules/<Feature>/models/`                | Request/response/UI types                               |
 | Hooks          | `<root>/modules/<Feature>/hooks/`                 | React Query wrappers; side effects (toasts, callbacks)  |
 | UI             | `<root>/modules/<Feature>/`, `<root>/components/` | Render UI; orchestrate hooks only                       |
-| Pages/routes   | `<root>/pages/` only (**Pages Router**)            | Thin wrappers; delegate to modules                      |
+| Pages/routes   | `<root>/pages/` only (**Pages Router**)           | Thin wrappers; delegate to modules                      |
 
 ### 1.3 Core rules
 
@@ -783,14 +785,14 @@ When applying this template to a specific repo, generate a repo-specific doc wit
 
 Record project-specific deviations in **that repo's** `.cursor/` or README — not in this generic template.
 
-| Topic | What to document |
-|-------|------------------|
-| Routing | Pages Router vs App Router; entry routes |
-| Auth | Provider, guards, or none |
-| API layer | REST client path, or not used |
-| Layouts | Public only vs Public + Private + Admin |
-| State | Context/providers location |
-| Stack extras | No backend, localStorage-only, etc. |
+| Topic        | What to document                         |
+|--------------|------------------------------------------|
+| Routing      | Pages Router vs App Router; entry routes |
+| Auth         | Provider, guards, or none                |
+| API layer    | REST client path, or not used            |
+| Layouts      | Public only vs Public + Private + Admin  |
+| State        | Context/providers location               |
+| Stack extras | No backend, localStorage-only, etc.      |
 
 See §13 for the full repo-doc outline agents should generate when onboarding a project.
 

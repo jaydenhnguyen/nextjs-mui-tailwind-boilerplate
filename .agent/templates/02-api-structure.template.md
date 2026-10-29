@@ -32,18 +32,22 @@ Do not introduce a new API pattern unless explicitly requested.
 
 # 2. Folder Ownership
 
-| Concern                         | Location                                                        |
-|---------------------------------|-----------------------------------------------------------------|
-| API client functions            | `src/apis/<domain>/`                                            |
-| Endpoint constants              | `src/apis/<domain>/endpoints.ts`                                |
-| Shared HTTP client              | `src/configs/request.ts`                                        |
-| Token manager                   | `src/configs/tokenManager.ts`                                   |
-| Query client config             | `src/configs/queryClient.ts`                                    |
-| Feature hooks                   | `src/modules/<Feature>/hooks/`                                  |
-| Feature request/response models | `src/modules/<Feature>/models/`                                 |
-| Shared API types                | `src/shared/types/`                                             |
-| Shared API helpers              | `src/shared/utils/`                                             |
-| Shared React Query wrapper      | `src/shared/hooks/useAppQuery.ts` or `src/hooks/useAppQuery.ts` |
+| Concern                                               | Location                                                        |
+|-------------------------------------------------------|-----------------------------------------------------------------|
+| API client functions                                  | `src/apis/<domain>/`                                            |
+| Endpoint constants                                    | `src/apis/<domain>/endpoints.ts`                                |
+| Shared HTTP client + `http` helpers                   | `src/configs/request.ts`                                        |
+| API settings (auth strategy, refresh path, camelCase) | `src/configs/api.config.ts`                                     |
+| Token manager                                         | `src/configs/tokenManager.ts`                                   |
+| Cookies                                               | `src/configs/cookies.ts`                                        |
+| Query client config (defaults, global toasts)         | `src/configs/queryClient.ts`                                    |
+| `ApiError`, error messages, `applyApiErrorToForm`     | `src/shared/utils/apiError.ts`                                  |
+| localStorage / sessionStorage                         | `src/shared/utils/webStorage.ts`, `src/hooks/useStoredState.ts` |
+| Feature hooks                                         | `src/modules/<Feature>/hooks/`                                  |
+| Feature request/response models                       | `src/modules/<Feature>/models/`                                 |
+| Shared API types                                      | `src/shared/types/`                                             |
+| Shared API helpers                                    | `src/shared/utils/`                                             |
+| Shared React Query wrappers                           | `src/hooks/useAppQuery.ts`, `src/hooks/useAppMutation.ts`       |
 
 ---
 
@@ -214,23 +218,35 @@ Expected location:
 src/configs/request.ts
 ```
 
-The request client is responsible for:
+The request client already handles:
 
-- base URL
-- auth token injection
-- request interceptors
-- response interceptors
-- global error normalization
-- handling `401 Unauthorized`
-- clearing session when needed
-- redirecting to login when needed
+- base URL and timeout (`apiConfig` in `src/configs/api.config.ts`)
+- auth: `Authorization: Bearer` header (`authStrategy: 'bearer'`) or httpOnly cookies via `withCredentials` (`authStrategy: 'cookie'`)
+- deep camelCase of response bodies (`camelCaseResponse`)
+- turning **every** failure into an `ApiError` (see §24)
+- `401`: refreshes the session once (parallel requests share one refresh call), retries the request once, and if that fails calls the handler registered with `onSessionExpired()`
+- `skipAuthRefresh: true` on a request config turns that off (use it for the login call)
+
+API functions call the typed `http` helpers. They return the response body directly and always throw `ApiError`:
+
+```ts
+import { http } from 'src/configs/request';
+
+http.get<Book[]>(BOOK_ENDPOINTS.LIST, { params, signal });
+http.post<Book, CreateBookRequest>(BOOK_ENDPOINTS.CREATE, payload);
+http.put / http.patch / http.delete
+```
+
+Use `params` for query strings (arrays become `tags[]=a&tags[]=b`) instead of building URLs by hand, and pass React Query's `signal` so leaving a page cancels its requests.
+
+Uploads: pass a `FormData` body; the content type is set automatically. Downloads: `responseType: 'blob'` (blobs are not camelCased).
 
 API functions must not create their own Axios/fetch instance.
 
 Correct:
 
 ```ts
-import {request} from 'src/configs/request';
+import { http } from 'src/configs/request';
 ```
 
 Incorrect:
@@ -254,9 +270,8 @@ Do not manually attach tokens inside every API function.
 Correct:
 
 ```ts
-export const getCurrentUser = async (): Promise<GetCurrentUserResponse> => {
-  return await request.get(AUTH_ENDPOINTS.ME);
-};
+export const getCurrentUser = (signal?: AbortSignal) =>
+  http.get<GetCurrentUserResponse>(AUTH_ENDPOINTS.ME, { signal });
 ```
 
 Incorrect:
@@ -272,6 +287,21 @@ export const getCurrentUser = async () => {
   });
 };
 ```
+
+## 8.1 Browser Storage
+
+Never call `localStorage` / `sessionStorage` / `document.cookie` directly. They're missing during server render and can throw (private mode, blocked site data, full quota).
+
+| Need | Use |
+|------|-----|
+| Auth tokens (`bearer` strategy) | `tokenManager` |
+| Other cookies | `cookieStorage` from `src/configs/cookies.ts` (sameSite=lax, secure on https, host-only) |
+| Read/write a value outside React | `localStore` / `sessionStore` from `src/shared/utils/webStorage.ts` |
+| State that should survive reloads (UI prefs, drafts, last filter) | `useStoredState(key, initialValue, { storage })` from `src/hooks` |
+
+Keys are prefixed with `NEXT_PUBLIC_APP_KEY` automatically. `useStoredState` syncs across components and tabs and renders `initialValue` first, so there's no hydration mismatch.
+
+Do not store secrets or personal data in web storage: any script on the page can read it.
 
 ---
 
@@ -299,7 +329,8 @@ Every API function must:
 - use explicit request type
 - use explicit response type
 - use endpoint constants
-- use the shared request client
+- use the `http` helpers
+- accept an optional `signal` for GET requests
 - stay thin
 - contain no UI logic
 - contain no toast logic
@@ -310,38 +341,24 @@ Every API function must:
 Example:
 
 ```ts
-import {request} from 'src/configs/request';
-import {buildListingRequestPayload} from 'src/shared/utils';
+import { http } from 'src/configs/request';
 import {
   GetBookListRequest,
   GetBookListResponse,
+  GetBookDetailResponse,
   CreateBookRequest,
   CreateBookResponse,
 } from 'src/modules/Books/models';
-import {BOOK_ENDPOINTS} from './endpoints';
+import { BOOK_ENDPOINTS } from './endpoints';
 
-export const getBookList = async (
-  payload: GetBookListRequest,
-): Promise<GetBookListResponse> => {
-  const query = buildListingRequestPayload(payload);
-  const url = `${BOOK_ENDPOINTS.GET_BOOK_LIST}?${query}`;
+export const getBookList = (params: GetBookListRequest, signal?: AbortSignal) =>
+  http.get<GetBookListResponse>(BOOK_ENDPOINTS.GET_BOOK_LIST, { params, signal });
 
-  return await request.get(url);
-};
+export const getBookDetail = (id: string, signal?: AbortSignal) =>
+  http.get<GetBookDetailResponse>(`${BOOK_ENDPOINTS.GET_BOOK_DETAIL}/${encodeURIComponent(id)}`, { signal });
 
-export const getBookDetail = async (
-  id: string,
-): Promise<GetBookDetailResponse> => {
-  const url = `${BOOK_ENDPOINTS.GET_BOOK_DETAIL}/${id.trim()}`;
-
-  return await request.get(url);
-};
-
-export const createBook = async (
-  payload: CreateBookRequest,
-): Promise<CreateBookResponse> => {
-  return await request.post(BOOK_ENDPOINTS.CREATE_BOOK, payload);
-};
+export const createBook = (payload: CreateBookRequest) =>
+  http.post<CreateBookResponse, CreateBookRequest>(BOOK_ENDPOINTS.CREATE_BOOK, payload);
 ```
 
 ---
@@ -448,29 +465,16 @@ src/shared/utils/
 
 Examples:
 
-- query string builder
 - pagination mapper
-- error normalizer
 - object cleaner
-- search param serializer
+- mappers between server and form shapes
 
-Example:
+Already provided:
 
-```ts
-export function buildListingRequestPayload(payload: ListingRequest): string {
-  const params = new URLSearchParams();
+- `ApiError`, `toApiError`, `isApiError`, `applyApiErrorToForm`, `API_ERROR_MESSAGES` (`apiError.ts`)
+- `localStore`, `sessionStore` (`webStorage.ts`)
 
-  Object.entries(payload).forEach(([key, value]) => {
-    if (value !== undefined && value !== null && value !== '') {
-      params.append(key, String(value));
-    }
-  });
-
-  return params.toString();
-}
-```
-
-List endpoints must use the shared helper when available.
+Query strings don't need a helper: pass an object as `params` to the `http` helpers (empty values are skipped).
 
 ---
 
@@ -485,79 +489,48 @@ Do not call TanStack `useQuery` directly inside feature hooks unless explicitly 
 Correct:
 
 ```ts
-import {useAppQuery} from 'src/shared/hooks/useAppQuery';
+import { useAppQuery } from 'src/hooks';
 ```
-
-or, if the project places shared hooks globally:
-
-```ts
-import {useAppQuery} from 'src/hooks/useAppQuery';
-```
-
-Follow the existing repo location first.
 
 Incorrect:
 
 ```ts
-import {useQuery} from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 ```
 
 ---
 
-# 15. useAppQuery Expected API
+# 15. useAppQuery / useAppMutation API
 
-The wrapper should use a single object parameter.
-
-Expected usage:
+Both take **exactly the same options object as TanStack's `useQuery` / `useMutation`** and return the same result, so the [TanStack Query docs](https://tanstack.com/query/latest/docs/framework/react/reference/useQuery) apply as-is. They exist so app-wide behaviour lives in one place.
 
 ```ts
-useAppQuery<TData>({
-  queryKey,
-  queryFn,
-  options,
-});
+useAppQuery({ queryKey, queryFn, enabled, select, staleTime, meta, ... });
+useAppMutation({ mutationFn, onSuccess, onError, meta, ... });
 ```
 
-Example implementation style:
+App-wide defaults (`src/configs/queryClient.ts`):
 
-```ts
-import {
-  QueryKey,
-  UseQueryOptions,
-  useQuery,
-} from '@tanstack/react-query';
+| Setting | Value | Why |
+|---------|-------|-----|
+| `staleTime` | 1 minute | data is reused across pages without refetching instantly |
+| `gcTime` | 5 minutes | unused data is kept for quick back-navigation |
+| `retry` (queries) | up to 2 times, only for network / timeout / 5xx | a 4xx will fail the same way again |
+| `retry` (mutations) | off | never repeat a write automatically |
+| `refetchOnWindowFocus` | off | |
+| `error` type | `ApiError` | registered globally in `src/types/react-query.d.ts` |
 
-type UseAppQueryParams<TData> = {
-  queryKey: QueryKey;
-  queryFn: () => Promise<TData>;
-  options?: Omit<UseQueryOptions<TData>, 'queryKey' | 'queryFn'>;
-};
+`meta` options:
 
-export function useAppQuery<TData>({
-                                     queryKey,
-                                     queryFn,
-                                     options,
-                                   }: UseAppQueryParams<TData>) {
-  const query = useQuery<TData>({
-    queryKey,
-    queryFn,
-    ...options,
-  });
+| Option | Where | Effect |
+|--------|-------|--------|
+| `meta: { silent: true }` | query or mutation | no automatic error toast |
+| `meta: { successMessage: 'Saved' }` | mutation | success toast |
 
-  return {
-    data: query.data,
-    status: query.status,
-    error: query.error,
-    isLoading: query.isLoading,
-    isFetching: query.isFetching,
-    isError: query.isError,
-    isSuccess: query.isSuccess,
-    refetch: query.refetch,
-  };
-}
-```
+Automatic toasts:
 
-The exact implementation may follow the existing boilerplate, but the feature hook usage must stay consistent.
+- **Mutations**: error toast with `error.message`, except 401 (session flow handles it) and canceled requests.
+- **Queries**: error toast only when a **background refetch** fails while old data is on screen. A failed first load is shown by the page itself.
 
 ---
 
@@ -648,18 +621,14 @@ Query hooks should be thin wrappers around `useAppQuery`.
 Example:
 
 ```ts
-import {getBookList} from 'src/apis/books';
-import {useAppQuery} from 'src/shared/hooks/useAppQuery';
-import {GetBookListRequest} from '../models';
+import { getBookList } from 'src/apis/books';
+import { useAppQuery } from 'src/hooks';
+import { GetBookListRequest } from '../models';
 
-export function useGetBookList({
-                                 payload,
-                               }: {
-  payload: GetBookListRequest;
-}) {
+export function useGetBookList({ payload }: { payload: GetBookListRequest }) {
   return useAppQuery({
     queryKey: ['getBookList', payload],
-    queryFn: () => getBookList(payload),
+    queryFn: ({ signal }) => getBookList(payload, signal),
   });
 }
 ```
@@ -667,16 +636,14 @@ export function useGetBookList({
 Detail example:
 
 ```ts
-import {getBookDetail} from 'src/apis/books';
-import {useAppQuery} from 'src/shared/hooks/useAppQuery';
+import { getBookDetail } from 'src/apis/books';
+import { useAppQuery } from 'src/hooks';
 
-export function useGetBookDetail({id}: { id: string }) {
+export function useGetBookDetail({ id }: { id: string }) {
   return useAppQuery({
     queryKey: ['getBookDetail', id],
-    queryFn: () => getBookDetail(id),
-    options: {
-      enabled: Boolean(id),
-    },
+    queryFn: ({ signal }) => getBookDetail(id, signal),
+    enabled: Boolean(id),
   });
 }
 ```
@@ -684,58 +651,38 @@ export function useGetBookDetail({id}: { id: string }) {
 On-demand query example:
 
 ```ts
-export function useGetBookDetailOnDemand({id}: { id: string }) {
+export function useGetBookDetailOnDemand({ id }: { id: string }) {
   return useAppQuery({
     queryKey: ['getBookDetail', id],
-    queryFn: () => getBookDetail(id),
-    options: {
-      enabled: false,
-    },
+    queryFn: ({ signal }) => getBookDetail(id, signal),
+    enabled: false,
   });
 }
 ```
+
+Options go directly in the object (TanStack style). There is no nested `options` key.
 
 ---
 
 # 20. Query Hook Return Shape
 
-Query hooks should return the normalized shape from `useAppQuery`.
+Query hooks return the `useAppQuery` result as-is (`data`, `error`, `isPending`, `isFetching`, `isError`, `refetch`, …). Do not destructure and rebuild it.
 
-Expected return shape:
-
-```ts
-{
-  data,
-    status,
-    error,
-    isLoading,
-    isFetching,
-    isError,
-    isSuccess,
-    refetch,
-}
-```
-
-Do not create inconsistent return shapes per hook.
-
-If data unwrapping is needed, do it consistently.
-
-Example:
+If the backend wraps payloads (e.g. `{ data: [...] }`), unwrap with `select`, consistently across the project:
 
 ```ts
-return {
-  ...query,
-  data: query.data?.data,
-};
+return useAppQuery({
+  queryKey: ['getBookList', payload],
+  queryFn: ({ signal }) => getBookList(payload, signal),
+  select: (response) => response.data,
+});
 ```
-
-Only unwrap response data if the project convention does this consistently.
 
 ---
 
 # 21. Mutation Hook Rule
 
-Mutation hooks should use TanStack `useMutation` directly.
+Mutation hooks use `useAppMutation`.
 
 Mutation hooks must live inside:
 
@@ -746,32 +693,26 @@ src/modules/<Feature>/hooks/
 Example:
 
 ```ts
-import {useMutation, useQueryClient} from '@tanstack/react-query';
-import {createBook} from 'src/apis/books';
-import {CreateBookRequest} from '../models';
+import { useQueryClient } from '@tanstack/react-query';
+import { createBook } from 'src/apis/books';
+import { useAppMutation } from 'src/hooks';
+import { CreateBookRequest } from '../models';
 
 export function useCreateBook(onSuccess?: () => void) {
   const queryClient = useQueryClient();
 
-  const {mutate, status, error, isPending} = useMutation({
+  return useAppMutation({
     mutationFn: (payload: CreateBookRequest) => createBook(payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['getBookList'],
-      });
-
+    meta: { successMessage: 'Book created' },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['getBookList'] });
       onSuccess?.();
     },
   });
-
-  return {
-    mutate,
-    status,
-    error,
-    isLoading: isPending,
-  };
 }
 ```
+
+Use `isPending` from the result for the submit button's loading state.
 
 ---
 
@@ -779,8 +720,7 @@ export function useCreateBook(onSuccess?: () => void) {
 
 Mutation hooks may:
 
-- show success toast
-- show error toast
+- show a success toast with `meta: { successMessage }` (error toasts are automatic)
 - invalidate query cache
 - redirect after success
 - call success/error callbacks
@@ -853,36 +793,55 @@ Rules:
 
 Layer responsibility:
 
-| Layer          | Responsibility                         |
-|----------------|----------------------------------------|
-| Request client | normalize errors, handle global `401`  |
-| API client     | pass through errors                    |
-| Query hook     | expose error state                     |
-| Mutation hook  | show user-facing error toast if needed |
-| Component      | render error UI if needed              |
+| Layer          | Responsibility                                                    |
+|----------------|-------------------------------------------------------------------|
+| Request client | turn every failure into `ApiError`, refresh on `401`              |
+| API client     | pass errors through                                               |
+| Query client   | retry temporary failures, show automatic toasts                   |
+| Query hook     | expose `error` / `isError`                                        |
+| Mutation hook  | add `meta` (`silent`, `successMessage`) or extra `onError` if needed |
+| Component      | render error UI for failed first loads; map form errors           |
+| Error boundary | `ErrorFallback` with "Try again" for render crashes               |
 
-Shared error type example:
+Every error from the API layer is an `ApiError` (`src/shared/utils/apiError.ts`):
+
+| Field | Meaning |
+|-------|---------|
+| `kind` | `'http' \| 'network' \| 'timeout' \| 'canceled' \| 'unknown'` |
+| `status` | HTTP status for `kind: 'http'` |
+| `message` | user-facing text: the server's message for 4xx, a friendly fallback for 5xx/network/timeout |
+| `code` | machine-readable code from the server, if any |
+| `fieldErrors` | `{ [fieldPath]: message }` from validation responses (camelCased) |
+| `data` | the raw response body |
+| `isServerError`, `hasFieldErrors` | shortcuts |
+
+The server body is read by one function, `parseErrorBody` in `apiError.ts`. It understands `{ message }`, `{ message: string[] }`, `{ error }`, `{ code }`, `{ errors | fieldErrors: { field: msg | msg[] } }` and `{ errors: [{ field, message }] }`. If your backend differs, change that function only. Fallback messages live in `API_ERROR_MESSAGES` next to it.
+
+Status handling:
+
+| Status | What happens |
+|--------|--------------|
+| 401 | refresh once → retry; if that fails, `onSessionExpired` handler (clears tokens; the auth flow redirects to login). No toast. |
+| 403 / 404 / 409 / 429 | `ApiError` with the server message or a friendly fallback; mutation toast |
+| 422 / 400 with field errors | `error.fieldErrors`; map onto the form with `applyApiErrorToForm(form.setError, error)` |
+| 5xx | retried twice for queries; friendly message (server text is hidden) |
+| network / timeout | retried twice for queries; friendly message |
+| canceled | ignored, no toast |
+
+Form example:
 
 ```ts
-export type ErrorResponse = {
-  message: string;
-  error?: string;
-  statusCode?: number;
-};
-```
+const { mutate } = useCreateBook();
 
-Mutation error example:
-
-```ts
-onError: (error: ErrorResponse) => {
-  notify({
-    message: error.message || 'Something went wrong',
-    type: ToastType.error,
+const onSubmit = (values: CreateBookRequest) =>
+  mutate(values, {
+    onError: (error) => applyApiErrorToForm(form.setError, error),
   });
-};
 ```
 
-Do not catch and swallow errors inside API functions.
+Field errors show under their fields; anything else lands in `root.server` (render it with `<ControlErrorMessage name="root.server" />`).
+
+Do not catch and swallow errors inside API functions. Do not define per-feature error types for HTTP errors; use `ApiError`.
 
 ---
 
@@ -894,9 +853,9 @@ Components decide how to render loading UI.
 
 Use:
 
-- `isLoading` for first load
+- `isPending` for first load (no data yet)
 - `isFetching` for background refetch
-- `isLoading` from mutation hooks during submit/create/update/delete
+- `isPending` from mutation hooks during submit/create/update/delete
 
 Components should not create their own duplicate loading state for API calls unless there is a clear UI reason.
 
@@ -1162,30 +1121,20 @@ export const BOOK_ENDPOINTS = {
 ```ts
 // src/apis/books/books.ts
 
-import {request} from 'src/configs/request';
-import {buildListingRequestPayload} from 'src/shared/utils';
+import { http } from 'src/configs/request';
 import {
   CreateBookRequest,
   CreateBookResponse,
   GetBookListRequest,
   GetBookListResponse,
 } from 'src/modules/Books/models';
-import {BOOK_ENDPOINTS} from './endpoints';
+import { BOOK_ENDPOINTS } from './endpoints';
 
-export const getBookList = async (
-  payload: GetBookListRequest,
-): Promise<GetBookListResponse> => {
-  const query = buildListingRequestPayload(payload);
-  const url = `${BOOK_ENDPOINTS.GET_BOOK_LIST}?${query}`;
+export const getBookList = (params: GetBookListRequest, signal?: AbortSignal) =>
+  http.get<GetBookListResponse>(BOOK_ENDPOINTS.GET_BOOK_LIST, { params, signal });
 
-  return await request.get(url);
-};
-
-export const createBook = async (
-  payload: CreateBookRequest,
-): Promise<CreateBookResponse> => {
-  return await request.post(BOOK_ENDPOINTS.CREATE_BOOK, payload);
-};
+export const createBook = (payload: CreateBookRequest) =>
+  http.post<CreateBookResponse, CreateBookRequest>(BOOK_ENDPOINTS.CREATE_BOOK, payload);
 ```
 
 ---
@@ -1206,18 +1155,14 @@ export * from './endpoints';
 ```ts
 // src/modules/Books/hooks/useGetBookList.ts
 
-import {getBookList} from 'src/apis/books';
-import {useAppQuery} from 'src/shared/hooks/useAppQuery';
-import {GetBookListRequest} from '../models';
+import { getBookList } from 'src/apis/books';
+import { useAppQuery } from 'src/hooks';
+import { GetBookListRequest } from '../models';
 
-export function useGetBookList({
-                                 payload,
-                               }: {
-  payload: GetBookListRequest;
-}) {
+export function useGetBookList({ payload }: { payload: GetBookListRequest }) {
   return useAppQuery({
     queryKey: ['getBookList', payload],
-    queryFn: () => getBookList(payload),
+    queryFn: ({ signal }) => getBookList(payload, signal),
   });
 }
 ```
@@ -1229,30 +1174,22 @@ export function useGetBookList({
 ```ts
 // src/modules/Books/hooks/useCreateBook.ts
 
-import {useMutation, useQueryClient} from '@tanstack/react-query';
-import {createBook} from 'src/apis/books';
-import {CreateBookRequest} from '../models';
+import { useQueryClient } from '@tanstack/react-query';
+import { createBook } from 'src/apis/books';
+import { useAppMutation } from 'src/hooks';
+import { CreateBookRequest } from '../models';
 
 export function useCreateBook(onSuccess?: () => void) {
   const queryClient = useQueryClient();
 
-  const {mutate, status, error, isPending} = useMutation({
+  return useAppMutation({
     mutationFn: (payload: CreateBookRequest) => createBook(payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['getBookList'],
-      });
-
+    meta: { successMessage: 'Book created' },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['getBookList'] });
       onSuccess?.();
     },
   });
-
-  return {
-    mutate,
-    status,
-    error,
-    isLoading: isPending,
-  };
 }
 ```
 
@@ -1265,7 +1202,11 @@ Do NOT:
 - call API clients directly inside components
 - call request client directly inside components
 - call request client directly inside hooks
-- use `useQuery` directly in feature hooks
+- use `useQuery` / `useMutation` directly in feature hooks (use `useAppQuery` / `useAppMutation`)
+- use `axios`, `fetch` or `request` in API functions (use `http`)
+- touch `localStorage`, `sessionStorage` or `document.cookie` directly (see §8.1)
+- show error toasts manually for API errors (they're automatic)
+- invent per-feature HTTP error types (use `ApiError`)
 - create feature hooks inside `src/hooks`
 - create endpoint strings inside components
 - create endpoint strings inside hooks
@@ -1285,8 +1226,10 @@ When creating or updating API logic:
 
 - use `src/apis/<domain>` for API client functions
 - use `src/modules/<Feature>/hooks` for feature hooks
-- use `useAppQuery` for all query hooks
-- use `useMutation` for mutation hooks
+- use `useAppQuery` for all query hooks, passing `signal` to the API function
+- use `useAppMutation` for mutation hooks
+- use `http` helpers from `src/configs/request`
+- map form errors with `applyApiErrorToForm`
 - use `src/modules/<Feature>/models` for request/response types
 - use endpoint constants
 - use the shared request client

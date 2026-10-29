@@ -1,6 +1,6 @@
 import { CookieKey } from 'src/shared/constants/auth.constant';
 import { env } from './env';
-import { CookiesStorage, cookiesStorage } from './cookies';
+import { cookieStorage } from './cookies';
 
 type StoreTokensParams = {
   accessToken: string;
@@ -9,24 +9,15 @@ type StoreTokensParams = {
   refreshTokenTTL?: number;
 };
 
-class TokenManager {
-  constructor(private readonly cookiesStorage: CookiesStorage) {}
-
-  setAccessToken(accessToken: string, ttl = env.ACCESS_TOKEN_TTL) {
-    this.cookiesStorage.setCookieData(CookieKey.AccessToken, accessToken, ttl);
-  }
-
-  setRefreshToken(refreshToken: string, ttl = env.REFRESH_TOKEN_TTL) {
-    this.cookiesStorage.setCookieData(CookieKey.RefreshToken, refreshToken, ttl);
-  }
-
+// Only used with apiConfig.authStrategy = 'bearer'. With 'cookie', the backend owns the tokens.
+export const tokenManager = {
   getAccessToken(): string | null {
-    return this.cookiesStorage.get(CookieKey.AccessToken) ?? null;
-  }
+    return cookieStorage.get(CookieKey.AccessToken) ?? null;
+  },
 
   getRefreshToken(): string | null {
-    return this.cookiesStorage.get(CookieKey.RefreshToken) ?? null;
-  }
+    return cookieStorage.get(CookieKey.RefreshToken) ?? null;
+  },
 
   storeTokens({
     accessToken,
@@ -34,21 +25,16 @@ class TokenManager {
     accessTokenTTL = env.ACCESS_TOKEN_TTL,
     refreshTokenTTL = env.REFRESH_TOKEN_TTL,
   }: StoreTokensParams) {
-    if (accessToken) this.setAccessToken(accessToken, accessTokenTTL);
-
-    if (refreshToken) this.setRefreshToken(refreshToken, refreshTokenTTL);
-  }
+    cookieStorage.set(CookieKey.AccessToken, accessToken, { expiresIn: accessTokenTTL });
+    if (refreshToken) cookieStorage.set(CookieKey.RefreshToken, refreshToken, { expiresIn: refreshTokenTTL });
+  },
 
   isAuthenticated() {
-    const accessToken = this.getAccessToken();
-    const refreshToken = this.getRefreshToken();
-    return !!accessToken || !!refreshToken;
-  }
+    return !!tokenManager.getAccessToken() || !!tokenManager.getRefreshToken();
+  },
 
   removeAllCredentials() {
-    this.cookiesStorage.clearCookieData(CookieKey.AccessToken);
-    this.cookiesStorage.clearCookieData(CookieKey.RefreshToken);
-  }
-}
-
-export const tokenManager = new TokenManager(cookiesStorage);
+    cookieStorage.remove(CookieKey.AccessToken);
+    cookieStorage.remove(CookieKey.RefreshToken);
+  },
+};

@@ -1,11 +1,12 @@
 import * as React from 'react';
 import { ToastContainer } from 'react-toastify';
 import { ErrorBoundary } from 'react-error-boundary';
-import { QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider, QueryErrorResetBoundary } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { createQueryClient } from 'src/configs';
 import { AppThemeProvider } from 'src/theme';
 import { UserContextProvider } from 'src/context';
+import { ErrorFallback } from 'src/components/ErrorFallback';
 
 type Props = {
   children: React.ReactNode;
@@ -17,9 +18,13 @@ export function AppProviders({ children }: Props) {
   return (
     <QueryClientProvider client={queryClient}>
       <AppThemeProvider>
-        <ErrorBoundary FallbackComponent={() => <p>Some errors happened</p>}>
-          <UserContextProvider>{children}</UserContextProvider>
-        </ErrorBoundary>
+        <QueryErrorResetBoundary>
+          {({ reset }) => (
+            <ErrorBoundary FallbackComponent={ErrorFallback} onReset={reset}>
+              <UserContextProvider>{children}</UserContextProvider>
+            </ErrorBoundary>
+          )}
+        </QueryErrorResetBoundary>
         <ToastContainer
           position="top-right"
           autoClose={3000}

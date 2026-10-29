@@ -1,8 +1,6 @@
 import { z } from 'zod';
 
-// App-wide default validation messages. A message written in a schema always wins over these,
-// and anything not handled here falls back to zod's own wording.
-// This is also the place to plug in translations later.
+// A message written in a schema always wins over these.
 export function setupZod() {
   z.config({
     customError: (issue) => {
