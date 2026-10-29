@@ -1,5 +1,5 @@
-import { CookieKey } from 'src/shared/constants';
-import { envVariables } from './environment';
+import { CookieKey } from 'src/shared/constants/auth.constant';
+import { env } from './env';
 import { CookiesStorage, cookiesStorage } from './cookies';
 
 type StoreTokensParams = {
@@ -9,14 +9,14 @@ type StoreTokensParams = {
   refreshTokenTTL?: number;
 };
 
-class TokensManager {
+class TokenManager {
   constructor(private readonly cookiesStorage: CookiesStorage) {}
 
-  setAccessToken(accessToken: string, ttl = envVariables.ACCESS_TOKEN_TTL) {
+  setAccessToken(accessToken: string, ttl = env.ACCESS_TOKEN_TTL) {
     this.cookiesStorage.setCookieData(CookieKey.AccessToken, accessToken, ttl);
   }
 
-  setRefreshToken(refreshToken: string, ttl = envVariables.REFRESH_TOKEN_TTL) {
+  setRefreshToken(refreshToken: string, ttl = env.REFRESH_TOKEN_TTL) {
     this.cookiesStorage.setCookieData(CookieKey.RefreshToken, refreshToken, ttl);
   }
 
@@ -31,8 +31,8 @@ class TokensManager {
   storeTokens({
     accessToken,
     refreshToken,
-    accessTokenTTL = envVariables.ACCESS_TOKEN_TTL,
-    refreshTokenTTL = envVariables.REFRESH_TOKEN_TTL,
+    accessTokenTTL = env.ACCESS_TOKEN_TTL,
+    refreshTokenTTL = env.REFRESH_TOKEN_TTL,
   }: StoreTokensParams) {
     if (accessToken) this.setAccessToken(accessToken, accessTokenTTL);
 
@@ -51,4 +51,4 @@ class TokensManager {
   }
 }
 
-export const tokenManager = new TokensManager(cookiesStorage);
+export const tokenManager = new TokenManager(cookiesStorage);

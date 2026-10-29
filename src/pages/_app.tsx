@@ -3,15 +3,14 @@ import Head from 'next/head';
 import { NextPage } from 'next';
 import { AppProps } from 'next/app';
 import { EmotionCache } from '@emotion/react';
-import { ToastContainer } from 'react-toastify';
 import { AppCacheProvider } from '@mui/material-nextjs/v16-pagesRouter';
 import 'src/styles/_app.scss';
 import 'src/styles/_core.scss';
 import 'src/styles/tailwind.scss';
 import { siteConfig } from 'src/configs';
 import { useScrollToTop } from 'src/hooks';
-import { AllAppContexts, UserContextProvider } from 'src/context';
-import { AppThemeProvider, createAppEmotionCache } from 'src/theme';
+import { AppProviders } from 'src/providers';
+import { createAppEmotionCache } from 'src/theme';
 
 export type NextPageWithLayout<P = object, IP = P> = NextPage<P, IP> & {
   getLayout?: (page: React.ReactElement) => React.ReactNode;
@@ -39,20 +38,7 @@ function App({ Component, pageProps, emotionCache = clientEmotionCache }: AppPro
         <link rel="icon" href={faviconHref} />
       </Head>
 
-      <AllAppContexts>
-        <AppThemeProvider>
-          <ToastContainer
-            position="top-right"
-            autoClose={3000}
-            hideProgressBar
-            newestOnTop
-            closeOnClick
-            pauseOnFocusLoss
-            pauseOnHover
-          />
-          <UserContextProvider>{getLayout(<Component {...pageProps} />)}</UserContextProvider>
-        </AppThemeProvider>
-      </AllAppContexts>
+      <AppProviders>{getLayout(<Component {...pageProps} />)}</AppProviders>
     </AppCacheProvider>
   );
 }

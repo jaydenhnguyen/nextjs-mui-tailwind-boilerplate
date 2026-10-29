@@ -3,12 +3,12 @@ import isNil from 'lodash/isNil';
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import camelcaseKeys from 'camelcase-keys';
 import { StatusCodes } from 'http-status-codes';
-import { envVariables } from './environment';
-import { tokenManager } from './tokensManager';
+import { env } from './env';
+import { tokenManager } from './tokenManager';
 
 export const request = axios.create({
   timeout: 10000,
-  baseURL: envVariables.BASE_API_URL,
+  baseURL: env.API_URL,
   headers: {
     Accept: 'application/json',
     'Content-Type': 'application/json',
@@ -24,14 +24,12 @@ function backToLogin() {
 }
 
 request.interceptors.request.use((config) => {
-    const accessToken = tokenManager.getAccessToken();
+  const accessToken = tokenManager.getAccessToken();
 
-    if (!isNil(accessToken)) config.headers.Authorization = `Bearer ${accessToken}`;
+  if (!isNil(accessToken)) config.headers.Authorization = `Bearer ${accessToken}`;
 
-    return config;
-  },
-);
-
+  return config;
+});
 
 let isRefreshingAccessToken = false;
 let queue: ((token: string) => void)[] = [];
@@ -59,7 +57,7 @@ async function refreshTokenFlow(refreshToken: string, originalRequest: InternalA
   try {
     isRefreshingAccessToken = true;
 
-    const response = await axios.post(`${envVariables.BASE_API_URL}/auth/refresh`, {
+    const response = await axios.post(`${env.API_URL}/auth/refresh`, {
       refreshToken,
     });
 
@@ -103,9 +101,9 @@ request.interceptors.response.use(
     }
 
     try {
-      const { newAccessToken } = await refreshTokenFlow(refreshToken, originalRequest) as {
-        newAccessToken: string,
-        newRefreshToken: string
+      const { newAccessToken } = (await refreshTokenFlow(refreshToken, originalRequest)) as {
+        newAccessToken: string;
+        newRefreshToken: string;
       };
 
       flushQueue(newAccessToken);

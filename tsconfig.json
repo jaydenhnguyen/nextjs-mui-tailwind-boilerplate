@@ -2,14 +2,7 @@
   "compilerOptions": {
     "incremental": false,
     "target": "ESNext",
-    "lib": [
-      "DOM",
-      "DOM.Iterable",
-      "ESNext",
-      "ESNext.Intl",
-      "ES2017.Intl",
-      "ES2018.Intl"
-    ],
+    "lib": ["DOM", "DOM.Iterable", "ESNext", "ESNext.Intl", "ES2017.Intl", "ES2018.Intl"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -34,14 +27,6 @@
       }
     ]
   },
-  "include": [
-    "global.d.ts",
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    ".next/types/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
 }

@@ -1,6 +1,6 @@
-import { envVariables } from 'src/configs';
+import { env } from 'src/configs/env';
 
 export const CookieKey = {
-  AccessToken: `${envVariables.APP_NAME}_accessToken`,
-  RefreshToken: `${envVariables.APP_NAME}_refreshToken`,
+  AccessToken: `${env.APP_KEY}_accessToken`,
+  RefreshToken: `${env.APP_KEY}_refreshToken`,
 };
