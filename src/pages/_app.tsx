@@ -11,6 +11,7 @@ import { setupZod, siteConfig } from 'src/configs';
 import { useScrollToTop } from 'src/hooks';
 import { AppProviders } from 'src/providers';
 import { createAppEmotionCache } from 'src/theme';
+import { Seo } from 'src/components/Seo';
 
 export type NextPageWithLayout<P = object, IP = P> = NextPage<P, IP> & {
   getLayout?: (page: React.ReactElement) => React.ReactNode;
@@ -35,10 +36,10 @@ function App({ Component, pageProps, emotionCache = clientEmotionCache }: AppPro
   return (
     <AppCacheProvider emotionCache={emotionCache}>
       <Head>
-        <title>{siteConfig.name}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="icon" href={faviconHref} />
       </Head>
+      <Seo />
 
       <AppProviders>{getLayout(<Component {...pageProps} />)}</AppProviders>
     </AppCacheProvider>

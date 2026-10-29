@@ -197,13 +197,13 @@ Rules:
 Correct:
 
 ```ts
-request.get(BOOK_ENDPOINTS.GET_BOOK_LIST);
+http.get<GetBookListResponse>(BOOK_ENDPOINTS.GET_BOOK_LIST);
 ```
 
 Incorrect:
 
 ```ts
-request.get('/books');
+http.get<GetBookListResponse>('/books');
 ```
 
 ---

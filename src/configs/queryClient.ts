@@ -1,7 +1,7 @@
-import { toast } from 'react-toastify';
 import { StatusCodes } from 'http-status-codes';
 import { MutationCache, QueryCache, QueryClient } from '@tanstack/react-query';
 import { ApiError, toApiError } from 'src/shared/utils/apiError';
+import { notify } from 'src/shared/utils/notify';
 
 const MAX_RETRIES = 2;
 
@@ -17,7 +17,7 @@ function shouldToast(error: ApiError) {
   return error.kind !== 'canceled' && error.status !== StatusCodes.UNAUTHORIZED;
 }
 
-const showErrorToast = (error: ApiError) => toast.error(error.message, { toastId: error.message });
+const showErrorToast = (error: ApiError) => notify.error(error.message);
 
 export function createQueryClient() {
   return new QueryClient({
@@ -32,7 +32,7 @@ export function createQueryClient() {
     mutationCache: new MutationCache({
       onSuccess: (_data, _variables, _context, mutation) => {
         const message = mutation.meta?.successMessage;
-        if (message) toast.success(message);
+        if (message) notify.success(message);
       },
       onError: (error, _variables, _context, mutation) => {
         const apiError = toApiError(error);

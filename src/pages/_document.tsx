@@ -3,6 +3,7 @@ import InitColorSchemeScript from '@mui/material/InitColorSchemeScript';
 import { DocumentHeadTags, DocumentHeadTagsProps, documentGetInitialProps } from '@mui/material-nextjs/v16-pagesRouter';
 import { siteConfig } from 'src/configs/site.config';
 import { DEFAULT_THEME_MODE } from 'src/theme/theme';
+import { themeConfig } from 'src/theme/core/_config';
 import { createAppEmotionCache } from 'src/theme/emotionCache';
 
 // Imports here skip the 'src/theme' barrel on purpose, because Next.js doesn't allow next/font inside _document.
@@ -11,6 +12,9 @@ export default function AppDocument(props: DocumentProps & DocumentHeadTagsProps
     <Html lang={siteConfig.locale} suppressHydrationWarning>
       <Head>
         <DocumentHeadTags {...props} />
+        <link rel="manifest" href="/manifest.webmanifest" />
+        <meta name="theme-color" media="(prefers-color-scheme: light)" content={themeConfig.light.background.default} />
+        <meta name="theme-color" media="(prefers-color-scheme: dark)" content={themeConfig.dark.background.default} />
       </Head>
 
       <body>

@@ -1,0 +1,11 @@
+.root {
+  @apply mx-auto flex min-h-[60vh] max-w-lg flex-col items-center justify-center gap-3 text-center animate-fade-in;
+}
+
+.code {
+  @apply text-base font-semibold;
+}
+
+.action {
+  @apply mt-4;
+}

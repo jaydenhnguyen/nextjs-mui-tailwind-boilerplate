@@ -92,7 +92,7 @@ When two neighbors change at once, give them different treatments (one fades and
 - Anything that unmounts must stay mounted until its exit animation finishes (keep the last content, or use MUI transitions / `motion`'s `AnimatePresence`).
 - MUI components (`Collapse`, `Fade`, `Grow`, `Slide`, `Dialog`, `Menu`) already animate. Use them instead of hand-rolling.
 - Orchestrated, staggered, layout or gesture animations: use `motion` (`motion/react`).
-- Loading states: wait ~200ms before showing a spinner, and keep it up at least ~400ms once shown, so it never flashes.
+- Loading states: wait ~200ms before showing a spinner so fast loads never flash one. `LoadingState` already does this; content then fades in (`animate-fade-in`).
 
 ---
 

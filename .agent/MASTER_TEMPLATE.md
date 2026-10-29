@@ -209,6 +209,8 @@ Always read the relevant template files before implementation.
 | Naming/import/code style            | `08-code-style.template.md`        |
 | Animation & transitions             | `09-motion.template.md`            |
 | Layout `getLayout` examples         | `examples/layout-example.md`       |
+| Shared components (Seo, QueryState, useConfirm, notify, layouts, navigation) | `src/components/README.md` |
+| Form components                     | `src/components/Form/README.md`    |
 
 ---
 

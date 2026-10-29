@@ -6,3 +6,4 @@ export * from './tokenManager';
 export * from './queryClient';
 export * from './zod';
 export * from './site.config';
+export * from './navigation.config';

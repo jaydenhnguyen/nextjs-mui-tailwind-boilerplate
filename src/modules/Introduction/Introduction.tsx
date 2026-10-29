@@ -12,7 +12,7 @@ export function Introduction(): React.ReactElement {
     tokenManager.storeTokens({ accessToken: 'dummy access token', refreshToken: 'dummy refresh token' });
 
     return router.replace(APP_ROUTES.HOME);
-  }, []);
+  }, [router]);
 
   return (
     <Box className={classes['wrapper']}>

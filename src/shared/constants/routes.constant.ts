@@ -1,9 +1,9 @@
-// NOTE: these constants below must be matched with the pages folder structure
-
+// Must match the folder structure in src/pages.
 export const APP_ROUTES = {
-  // Public routes
   INTRODUCTION: '/intro',
-
-  // Private routes
   HOME: '/home',
 };
+
+export const SITEMAP_ROUTES = [APP_ROUTES.INTRODUCTION];
+
+export const NO_INDEX_ROUTES = [APP_ROUTES.HOME];

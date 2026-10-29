@@ -1,0 +1,15 @@
+.root {
+  @apply mt-auto border-0 border-t border-solid border-divider bg-background-paper;
+}
+
+.inner {
+  @apply mx-auto flex max-w-screen-xl flex-col gap-4 px-4 py-6 md:flex-row md:items-center md:justify-between md:px-6;
+}
+
+.links {
+  @apply flex flex-wrap gap-x-6 gap-y-2;
+}
+
+.link {
+  @apply text-sm text-text-secondary no-underline transition-colors duration-150 hover:text-text-primary;
+}

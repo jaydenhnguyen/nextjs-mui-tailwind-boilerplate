@@ -1,0 +1,8 @@
+// The 200ms delay keeps fast loads from flashing a spinner.
+.root {
+  @apply flex min-h-40 w-full items-center justify-center py-8 animate-[fade-in_200ms_ease-out_200ms_both];
+}
+
+.full-screen {
+  @apply min-h-screen;
+}

@@ -1,0 +1,11 @@
+.root {
+  @apply mx-auto flex max-w-md flex-col items-center gap-2 px-4 py-12 text-center animate-fade-in;
+}
+
+.icon {
+  @apply mb-2 text-5xl text-text-secondary;
+}
+
+.action {
+  @apply mt-4;
+}
