@@ -1,6 +1,7 @@
 // Must match the folder structure in src/pages.
 export const APP_ROUTES = {
   INTRODUCTION: '/intro',
+  LOGIN: '/login',
   HOME: '/home',
 };
 

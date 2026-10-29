@@ -240,10 +240,15 @@ Examples:
 
 ```txt
 src/configs/
-├── request.ts
-├── environment.ts
+├── env.ts                validated env vars
+├── api.config.ts         auth strategy, refresh path, timeouts
+├── request.ts            axios client + http helpers
 ├── tokenManager.ts
-└── queryClient.ts
+├── cookies.ts
+├── queryClient.ts
+├── zod.ts                default validation messages
+├── site.config.ts        name, URL, SEO, socials
+└── navigation.config.ts  menu links
 ```
 
 Use this folder for:
@@ -270,19 +275,18 @@ Example:
 ```txt
 src/context/
 ├── UIContext.tsx
-├── AuthContext.tsx
 └── CartContext.tsx
 ```
 
-Context is preferred for simple or medium app-level state.
+The folder doesn't exist until a project needs it. Context is preferred for simple or medium app-level **client** state.
 
 Use Context for:
 
 - UI state
-- auth user/session state
-- theme-related runtime state
 - simple cart state
 - layout state
+
+Not for server data: the signed-in user lives in React Query (`useAuth`, see `03-auth-flow.template.md`), and other API data does too.
 
 Example:
 
@@ -343,7 +347,7 @@ Allowed examples:
 ```txt
 src/hooks/
 ├── useDebounce.ts
-├── useDisclosure.ts
+├── useOpenState.ts
 ├── usePagination.ts
 ├── useWindowSize.ts
 └── index.ts

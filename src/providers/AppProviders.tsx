@@ -4,10 +4,10 @@ import { QueryClientProvider, QueryErrorResetBoundary } from '@tanstack/react-qu
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { createQueryClient } from 'src/configs';
 import { AppThemeProvider } from 'src/theme';
-import { UserContextProvider } from 'src/context';
 import { AppToaster } from 'src/components/AppToaster';
 import { ConfirmProvider } from 'src/components/ConfirmDialog';
 import { ErrorFallback } from 'src/components/ErrorFallback';
+import { SessionWatcher } from 'src/modules/Authentication';
 
 type Props = {
   children: React.ReactNode;
@@ -18,12 +18,13 @@ export function AppProviders({ children }: Props) {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <SessionWatcher />
       <AppThemeProvider>
         <ConfirmProvider>
           <QueryErrorResetBoundary>
             {({ reset }) => (
               <ErrorBoundary FallbackComponent={ErrorFallback} onReset={reset}>
-                <UserContextProvider>{children}</UserContextProvider>
+                {children}
               </ErrorBoundary>
             )}
           </QueryErrorResetBoundary>

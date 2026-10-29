@@ -211,6 +211,7 @@ Always read the relevant template files before implementation.
 | Layout `getLayout` examples         | `examples/layout-example.md`       |
 | Shared components (Seo, QueryState, useConfirm, notify, layouts, navigation) | `src/components/README.md` |
 | Form components                     | `src/components/Form/README.md`    |
+| Shared hooks and formatting         | `src/hooks/README.md`              |
 
 ---
 
@@ -290,7 +291,7 @@ Allowed examples:
 
 ```txt
 useDebounce
-useDisclosure
+useOpenState
 usePagination
 useWindowSize
 ```

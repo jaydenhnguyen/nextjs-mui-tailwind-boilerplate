@@ -1,0 +1,15 @@
+.root {
+  @apply flex min-h-[70vh] items-center justify-center animate-fade-in;
+}
+
+.card {
+  @apply w-full max-w-md p-6 md:p-8;
+}
+
+.heading {
+  @apply mb-6 flex flex-col gap-2;
+}
+
+.form {
+  @apply flex flex-col gap-1;
+}

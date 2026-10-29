@@ -196,59 +196,44 @@ Use for:
 - private booking flows
 - protected user pages
 
+The real one is `src/layouts/PrivateLayout/PrivateLayout.tsx`. A variant with a sidebar keeps the same guard:
+
 ```tsx
 import * as React from 'react';
 import { useRouter } from 'next/router';
 
-import { tokenManager } from 'src/configs/tokenManager';
 import { APP_ROUTES } from 'src/shared/constants';
+import { ErrorState } from 'src/components/ErrorState';
+import { LoadingState } from 'src/components/LoadingState';
+import { useAuth } from 'src/modules/Authentication';
 
-import { PrivateHeader } from 'src/components/PrivateHeader';
-import { Sidebar } from 'src/components/PrivateSidebar';
+import { Sidebar } from '../components/Sidebar';
 
 import classes from './PrivateLayout.module.scss';
 
-type Props = {
-  children: React.ReactNode;
-};
-
-export function PrivateLayout({
-  children,
-}: Props): React.ReactElement | null {
+export function PrivateLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const { isAuthenticated, isChecking, sessionError, retry } = useAuth();
 
-  const isAuthenticated = tokenManager.isAuthenticated();
+  const shouldRedirect = !isChecking && !isAuthenticated && !sessionError;
 
   React.useEffect(() => {
-    if (!isAuthenticated) {
-      router.replace({
-        pathname: APP_ROUTES.LOGIN,
-        query: {
-          redirect: router.asPath,
-        },
-      });
-    }
-  }, [isAuthenticated, router]);
+    if (shouldRedirect) void router.replace({ pathname: APP_ROUTES.LOGIN, query: { redirect: router.asPath } });
+  }, [shouldRedirect, router]);
 
-  if (!isAuthenticated) {
-    return null;
-  }
+  if (sessionError) return <ErrorState error={sessionError} onRetry={() => void retry()} />;
+  if (!isAuthenticated) return <LoadingState fullScreen />;
 
   return (
     <div className={classes['private-layout']}>
       <Sidebar />
-
-      <div className={classes['private-layout__content']}>
-        <PrivateHeader />
-
-        <main className={classes['private-layout__main']}>
-          {children}
-        </main>
-      </div>
+      <main className={classes['private-layout__main']}>{children}</main>
     </div>
   );
 }
 ```
+
+Never decide "signed in" from `tokenManager` in a layout; use `useAuth`.
 
 ---
 
@@ -285,64 +270,24 @@ Use for:
 - role-protected pages
 - internal management screens
 
+Build it on top of `PrivateLayout` (which already handles sign-in) and add the role check with `<Can>`:
+
 ```tsx
 import * as React from 'react';
-import { useRouter } from 'next/router';
 
-import { tokenManager } from 'src/configs/tokenManager';
-import { APP_ROUTES, USER_ROLE } from 'src/shared/constants';
-import { useGetCurrentUser } from 'src/modules/Authentication/hooks';
+import { ROLES } from 'src/shared/enums';
+import { StatusPage } from 'src/components/StatusPage';
+import { Can } from 'src/modules/Authentication';
 
-import { AdminHeader } from 'src/components/AdminHeader';
-import { AdminSidebar } from 'src/components/AdminSidebar';
+import { PrivateLayout } from '../PrivateLayout';
 
-import classes from './AdminLayout.module.scss';
-
-type Props = {
-  children: React.ReactNode;
-};
-
-export function AdminLayout({
-  children,
-}: Props): React.ReactElement | null {
-  const router = useRouter();
-  const isAuthenticated = tokenManager.isAuthenticated();
-
-  const { data: currentUser, isLoading } = useGetCurrentUser({
-    enabled: isAuthenticated,
-  });
-
-  React.useEffect(() => {
-    if (!isAuthenticated) {
-      router.replace(APP_ROUTES.LOGIN);
-      return;
-    }
-
-    if (!isLoading && currentUser && currentUser.role !== USER_ROLE.ADMIN) {
-      router.replace(APP_ROUTES.NOT_FOUND);
-    }
-  }, [currentUser, isAuthenticated, isLoading, router]);
-
-  if (!isAuthenticated || isLoading) {
-    return null;
-  }
-
-  if (currentUser?.role !== USER_ROLE.ADMIN) {
-    return null;
-  }
-
+export function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className={classes['admin-layout']}>
-      <AdminSidebar />
-
-      <div className={classes['admin-layout__content']}>
-        <AdminHeader />
-
-        <main className={classes['admin-layout__main']}>
-          {children}
-        </main>
-      </div>
-    </div>
+    <PrivateLayout>
+      <Can role={[ROLES.ADMIN, ROLES.SUPER_ADMIN]} fallback={<StatusPage code={403} title="No access" />}>
+        {children}
+      </Can>
+    </PrivateLayout>
   );
 }
 ```

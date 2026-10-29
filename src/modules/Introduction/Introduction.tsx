@@ -1,27 +1,21 @@
-import * as React from 'react';
-import { useRouter } from 'next/router';
-import { Box, Button, Typography } from '@mui/material';
-import { tokenManager } from 'src/configs';
+import Link from 'next/link';
+import { Button, Typography } from '@mui/material';
+import { siteConfig } from 'src/configs';
 import { APP_ROUTES } from 'src/shared/constants';
 import classes from './Introduction.module.scss';
 
-export function Introduction(): React.ReactElement {
-  const router = useRouter();
-
-  const handleLoginSuccess = React.useCallback(() => {
-    tokenManager.storeTokens({ accessToken: 'dummy access token', refreshToken: 'dummy refresh token' });
-
-    return router.replace(APP_ROUTES.HOME);
-  }, [router]);
-
+export function Introduction() {
   return (
-    <Box className={classes['wrapper']}>
-      <Typography variant="subtitle1" fontWeight={600}>
-        THIS IS PUBLIC INTRODUCTION PAGE
+    <section className={classes['wrapper']}>
+      <Typography variant="h2" component="h1">
+        {siteConfig.name}
       </Typography>
-      <Button variant={'contained'} onClick={handleLoginSuccess}>
-        Go to Private
+      <Typography color="text.secondary" className={classes['description']}>
+        {siteConfig.description}
+      </Typography>
+      <Button component={Link} href={APP_ROUTES.LOGIN} variant="contained" size="large">
+        Sign in
       </Button>
-    </Box>
+    </section>
   );
 }
