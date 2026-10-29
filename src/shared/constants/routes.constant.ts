@@ -3,8 +3,9 @@ export const APP_ROUTES = {
   INTRODUCTION: '/intro',
   LOGIN: '/login',
   HOME: '/home',
+  USERS: '/users',
 };
 
 export const SITEMAP_ROUTES = [APP_ROUTES.INTRODUCTION];
 
-export const NO_INDEX_ROUTES = [APP_ROUTES.HOME];
+export const NO_INDEX_ROUTES = [APP_ROUTES.HOME, APP_ROUTES.USERS];

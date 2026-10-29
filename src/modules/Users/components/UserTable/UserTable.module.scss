@@ -1,0 +1,23 @@
+.container {
+  @apply overflow-x-auto rounded-theme border border-solid border-divider;
+}
+
+.person {
+  @apply flex min-w-0 items-center gap-3;
+}
+
+.person-text {
+  @apply min-w-0;
+}
+
+.avatar {
+  @apply h-9 w-9 text-sm;
+}
+
+.roles {
+  @apply flex flex-wrap gap-1;
+}
+
+.optional {
+  @apply hidden md:table-cell;
+}

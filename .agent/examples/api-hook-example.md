@@ -288,7 +288,8 @@ directly inside features unless explicitly required.
 ## hooks/useCreateProduct.ts
 
 ```ts
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
+import { useAppMutation } from 'src/hooks';
 
 import { createProduct } from 'src/apis/products';
 
@@ -303,7 +304,7 @@ export function useCreateProduct(
 ) {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useAppMutation({
     mutationFn: (
       payload: CreateProductRequest,
     ) => createProduct(payload),
@@ -635,7 +636,7 @@ Do NOT:
 1. APIs belong in `src/apis`.
 2. Query hooks belong in feature hooks.
 3. Query hooks use `useAppQuery`.
-4. Mutation hooks use `useMutation`.
+4. Mutation hooks use `useAppMutation`.
 5. Components never call APIs directly.
 6. Query keys must be centralized.
 7. Requests/responses must be typed.
@@ -654,7 +655,7 @@ When creating API/query architecture:
 3. Create API clients in `src/apis`.
 4. Create query keys.
 5. Create query hooks using `useAppQuery`.
-6. Create mutation hooks using `useMutation`.
+6. Create mutation hooks using `useAppMutation`.
 7. Handle invalidation in mutations.
 8. Keep components UI-only.
 9. Reuse shared loading/error states.

@@ -36,7 +36,7 @@ const eslintConfig = defineConfig([
       '@typescript-eslint/no-misused-promises': ['error', { checksVoidReturn: false }],
     },
   },
-  globalIgnores(['.next/**', 'out/**', 'build/**', 'next-env.d.ts', '.agent/**']),
+  globalIgnores(['.next/**', 'out/**', 'build/**', 'next-env.d.ts', '.agent/**', 'public/mockServiceWorker.js']),
 ]);
 
 export default eslintConfig;

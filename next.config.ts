@@ -8,6 +8,12 @@ const config: NextConfig = {
   sassOptions: {
     includePaths: [path.join(__dirname)],
   },
+  turbopack: {
+    resolveAlias: {
+      // MSW's browser entry doesn't exist for the server build, so the server gets a stub instead.
+      'msw/browser': { browser: 'msw/browser', default: './src/mocks/msw-browser.server.ts' },
+    },
+  },
   images: {
     formats: ['image/avif', 'image/webp'],
     remotePatterns: [],

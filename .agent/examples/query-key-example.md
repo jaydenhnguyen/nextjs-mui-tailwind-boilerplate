@@ -231,7 +231,8 @@ This uniquely identifies:
 ## useCreateProduct.ts
 
 ```ts
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
+import { useAppMutation } from 'src/hooks';
 
 import { createProduct } from 'src/apis/products';
 
@@ -240,7 +241,7 @@ import { PRODUCT_QUERY_KEYS } from './query-keys';
 export function useCreateProduct() {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useAppMutation({
     mutationFn: createProduct,
 
     onSuccess: () => {
@@ -267,7 +268,8 @@ Rules:
 ## useUpdateProduct.ts
 
 ```ts
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
+import { useAppMutation } from 'src/hooks';
 
 import { updateProduct } from 'src/apis/products';
 
@@ -276,7 +278,7 @@ import { PRODUCT_QUERY_KEYS } from './query-keys';
 export function useUpdateProduct() {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useAppMutation({
     mutationFn: updateProduct,
 
     onSuccess: (_, variables) => {
@@ -310,7 +312,8 @@ Rules:
 ## useDeleteProduct.ts
 
 ```ts
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
+import { useAppMutation } from 'src/hooks';
 
 import { deleteProduct } from 'src/apis/products';
 
@@ -319,7 +322,7 @@ import { PRODUCT_QUERY_KEYS } from './query-keys';
 export function useDeleteProduct() {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useAppMutation({
     mutationFn: deleteProduct,
 
     onSuccess: () => {

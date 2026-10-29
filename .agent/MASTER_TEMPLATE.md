@@ -212,6 +212,8 @@ Always read the relevant template files before implementation.
 | Shared components (Seo, QueryState, useConfirm, notify, layouts, navigation) | `src/components/README.md` |
 | Form components                     | `src/components/Form/README.md`    |
 | Shared hooks and formatting         | `src/hooks/README.md`              |
+| Mock API (`npm run dev:mock`)       | `src/mocks/README.md`              |
+| Full CRUD reference (Users module)  | `examples/crud-flow-example.md`    |
 
 ---
 

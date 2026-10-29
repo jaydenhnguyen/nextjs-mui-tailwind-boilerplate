@@ -12,6 +12,7 @@ import { useScrollToTop } from 'src/hooks';
 import { AppProviders } from 'src/providers';
 import { createAppEmotionCache } from 'src/theme';
 import { Seo } from 'src/components/Seo';
+import { ApiMockingGate } from 'src/mocks';
 
 export type NextPageWithLayout<P = object, IP = P> = NextPage<P, IP> & {
   getLayout?: (page: React.ReactElement) => React.ReactNode;
@@ -41,7 +42,9 @@ function App({ Component, pageProps, emotionCache = clientEmotionCache }: AppPro
       </Head>
       <Seo />
 
-      <AppProviders>{getLayout(<Component {...pageProps} />)}</AppProviders>
+      <AppProviders>
+        <ApiMockingGate>{getLayout(<Component {...pageProps} />)}</ApiMockingGate>
+      </AppProviders>
     </AppCacheProvider>
   );
 }

@@ -15,6 +15,7 @@ const envSchema = z.object({
   API_URL: optional(z.url().default('http://localhost:3001/api/v1')),
   ACCESS_TOKEN_TTL: optional(z.coerce.number().int().positive().default(3600)),
   REFRESH_TOKEN_TTL: optional(z.coerce.number().int().positive().default(604800)),
+  API_MOCKING: optional(z.enum(['enabled', 'disabled']).default('disabled')).transform((value) => value === 'enabled'),
 });
 
 // Next.js only inlines NEXT_PUBLIC_* values when they're written out in full like this,
@@ -25,6 +26,7 @@ const result = envSchema.safeParse({
   API_URL: process.env.NEXT_PUBLIC_API_URL,
   ACCESS_TOKEN_TTL: process.env.NEXT_PUBLIC_ACCESS_TOKEN_TTL,
   REFRESH_TOKEN_TTL: process.env.NEXT_PUBLIC_REFRESH_TOKEN_TTL,
+  API_MOCKING: process.env.NEXT_PUBLIC_API_MOCKING,
 });
 
 if (!result.success) {

@@ -8,6 +8,9 @@ export type NavItem = {
 
 export const navigationConfig = {
   public: [{ label: 'Introduction', href: APP_ROUTES.INTRODUCTION }] as NavItem[],
-  private: [{ label: 'Home', href: APP_ROUTES.HOME }] as NavItem[],
+  private: [
+    { label: 'Home', href: APP_ROUTES.HOME },
+    { label: 'Users', href: APP_ROUTES.USERS },
+  ] as NavItem[],
   footer: [] as NavItem[],
 };

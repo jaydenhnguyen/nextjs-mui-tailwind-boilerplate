@@ -5,5 +5,6 @@ declare namespace NodeJS {
     NEXT_PUBLIC_API_URL?: string;
     NEXT_PUBLIC_ACCESS_TOKEN_TTL?: string;
     NEXT_PUBLIC_REFRESH_TOKEN_TTL?: string;
+    NEXT_PUBLIC_API_MOCKING?: 'enabled' | 'disabled';
   }
 }
