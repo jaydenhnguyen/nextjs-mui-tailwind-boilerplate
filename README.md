@@ -361,13 +361,15 @@ NEXT_PUBLIC_
 
 # Available Scripts
 
-| Script               | Description              |
-|----------------------|--------------------------|
-| `npm run dev`        | Start development server |
-| `npm run build`      | Build production app     |
-| `npm run start`      | Start production server  |
-| `npm run lint`       | Run ESLint               |
-| `npm run type-check` | Run TypeScript checks    |
+| Script               | Description                                                                     |
+| -------------------- | ------------------------------------------------------------------------------- |
+| `npm run dev`        | Start development server                                                        |
+| `npm run build`      | Build production app                                                            |
+| `npm run start`      | Start production server                                                         |
+| `npm run lint`       | Run ESLint                                                                      |
+| `npm run type-check` | Run TypeScript checks                                                           |
+| `npm run dev:mock`   | Dev server with the mock API                                                    |
+| `npm run gen`        | Scaffold a CRUD resource, page, component or hook (`npm run gen crud Products`) |
 
 ---
 

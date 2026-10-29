@@ -41,7 +41,17 @@ Shared types used: `PaginationRequest`, `PaginatedResponse<T>`, `User` from `src
 
 ## Building a new resource, step by step
 
-Say the resource is **Products**.
+Say the resource is **Products**. Start with the generator, it does steps 1 to 7 and 9 for you:
+
+```bash
+npm run gen crud Products
+```
+
+It creates the API, models, schema, query keys, list/create/update/delete hooks, a screen with search and pagination, a table, a create/edit dialog, a delete button with confirm, the page, a mock handler with seed data, and adds the route and nav entry. The result type-checks, lints and works under `npm run dev:mock` right away. The item has `name` and `description` fields, so change them to the real ones in: schema, model, `use<Item>Form`, table, form dialog and mock handler.
+
+Options: `--public` (PublicLayout, indexable), `--no-nav`, `--singular Person` when the singular guess is wrong (e.g. `People`), `--dry-run`. Pass them after `--`: `npm run gen crud People -- --singular Person`.
+
+What the generator leaves to you, and what each step means if you build by hand:
 
 1. **Types** – `src/modules/Products/models/product.model.ts`: `Product`, `GetProductListRequest = PaginationRequest & { search?: string }`, `GetProductListResponse = PaginatedResponse<Product>`, request types for create/update.
 2. **Schema** – `schema/create-product.schema.ts` with zod. Only write messages that need to be more specific than the defaults in `setupZod`.
@@ -50,8 +60,8 @@ Say the resource is **Products**.
 5. **Hooks** – copy the four Users hooks. List queries use `placeholderData: keepPreviousData` so pagination never flashes a spinner. Mutations invalidate `[PRODUCT_QUERY_KEYS.GET_PRODUCT_LIST]` and set `meta: { successMessage }`.
 6. **Screen** – copy `Users.tsx`: `useQueryParams` for search/page, `useDebounce` for the search box, `QueryState` for states, `useOpenState` for the dialog, `<Can>` around write actions.
 7. **Page** – `src/pages/products/index.tsx` with `<Seo noIndex />` and `PrivateLayout`; add the route to `APP_ROUTES`, `NO_INDEX_ROUTES` and `navigationConfig.private`.
-8. **Permissions** – add `PRODUCTS_READ` / `PRODUCTS_WRITE` to `PERMISSIONS` and `ROLE_PERMISSIONS`.
-9. **Mock** – `src/mocks/handlers/products.handlers.ts` + seed data in `db.ts`, so `dev:mock` keeps working.
+8. **Permissions** (not generated) – add `PRODUCTS_READ` / `PRODUCTS_WRITE` to `PERMISSIONS` and `ROLE_PERMISSIONS`, wrap write actions in `<Can>`, and check them in the mock handler with `hasPermission`, like Users does.
+9. **Mock** – `src/mocks/handlers/products.handlers.ts` with its seed data, registered in `handlers/index.ts`, so `dev:mock` keeps working.
 
 ---
 

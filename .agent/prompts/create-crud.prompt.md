@@ -2,13 +2,15 @@ Read all files inside `.agent/templates/`.
 
 Generate a full CRUD feature module.
 
+Start by running `npm run gen crud <Name>` (see `.agent/examples/crud-flow-example.md`), then replace the placeholder `name`/`description` fields with the real ones and add what the generator leaves out (permissions, detail view, extra filters).
+
 Requirements:
 
 - feature/module-first architecture
 - centralized API layer
 - typed request/response models
 - useAppQuery for queries
-- useMutation for mutations
+- useAppMutation for mutations
 - RHF + zod forms
 - responsive mobile-first UI
 - reusable table/list structure

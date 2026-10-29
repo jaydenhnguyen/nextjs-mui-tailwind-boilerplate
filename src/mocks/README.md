@@ -70,5 +70,5 @@ Mirror the real backend's response shapes and error bodies (status codes, `messa
 
 - Mocks only answer requests; never import from `src/mocks` in feature code (only `_app` does).
 - Every new endpoint used in the UI gets a mock handler, so `npm run dev:mock` keeps working.
-- Keep mock data realistic and small; put it in `db.ts`.
+- Keep mock data realistic and small. Data shared by several handlers (like users, which auth also needs) goes in `db.ts`; data only one handler uses can sit at the top of its handler file, as `npm run gen crud` does.
 - Unhandled requests pass through to the network, so a missing handler shows up as a network error.

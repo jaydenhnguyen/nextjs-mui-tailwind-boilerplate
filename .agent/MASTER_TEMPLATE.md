@@ -89,7 +89,7 @@ Example:
 
 ```tsx
 export default function BooksPage() {
-  return <Books/>;
+  return <Books />;
 }
 ```
 
@@ -197,23 +197,24 @@ src/
 
 Always read the relevant template files before implementation.
 
-| Concern                             | Template                           |
-|-------------------------------------|------------------------------------|
-| Project structure, routing, layouts | `01-project-structure.template.md` |
-| API architecture                    | `02-api-structure.template.md`     |
-| Authentication                      | `03-auth-flow.template.md`         |
-| MUI theme usage                     | `04-mui-theme.template.md`         |
-| Tailwind/SCSS usage                 | `05-tailwind-style.template.md`    |
-| Component architecture              | `06-component-rules.template.md`   |
-| Forms & validation                  | `07-form-handling.template.md`     |
-| Naming/import/code style            | `08-code-style.template.md`        |
-| Animation & transitions             | `09-motion.template.md`            |
-| Layout `getLayout` examples         | `examples/layout-example.md`       |
-| Shared components (Seo, QueryState, useConfirm, notify, layouts, navigation) | `src/components/README.md` |
-| Form components                     | `src/components/Form/README.md`    |
-| Shared hooks and formatting         | `src/hooks/README.md`              |
-| Mock API (`npm run dev:mock`)       | `src/mocks/README.md`              |
-| Full CRUD reference (Users module)  | `examples/crud-flow-example.md`    |
+| Concern                                                                      | Template                           |
+| ---------------------------------------------------------------------------- | ---------------------------------- |
+| Project structure, routing, layouts                                          | `01-project-structure.template.md` |
+| API architecture                                                             | `02-api-structure.template.md`     |
+| Authentication                                                               | `03-auth-flow.template.md`         |
+| MUI theme usage                                                              | `04-mui-theme.template.md`         |
+| Tailwind/SCSS usage                                                          | `05-tailwind-style.template.md`    |
+| Component architecture                                                       | `06-component-rules.template.md`   |
+| Forms & validation                                                           | `07-form-handling.template.md`     |
+| Naming/import/code style                                                     | `08-code-style.template.md`        |
+| Animation & transitions                                                      | `09-motion.template.md`            |
+| Layout `getLayout` examples                                                  | `examples/layout-example.md`       |
+| Shared components (Seo, QueryState, useConfirm, notify, layouts, navigation) | `src/components/README.md`         |
+| Form components                                                              | `src/components/Form/README.md`    |
+| Shared hooks and formatting                                                  | `src/hooks/README.md`              |
+| Mock API (`npm run dev:mock`)                                                | `src/mocks/README.md`              |
+| Full CRUD reference (Users module)                                           | `examples/crud-flow-example.md`    |
+| Code generator (`npm run gen`)                                               | §9 Scaffolding, `scripts/gen.mjs`  |
 
 ---
 
@@ -319,6 +320,22 @@ The AI agent must:
 3. Inspect existing implementation patterns
 4. Identify reusable hooks/components/utils/constants
 5. Explain the planned structure briefly
+
+---
+
+## Scaffolding
+
+Start new code from the generator instead of writing the boilerplate by hand, then fill in the real fields and logic:
+
+```bash
+npm run gen crud Products          # full CRUD resource: API, module, page, mock, route, nav
+npm run gen page Settings          # module + page + route + nav
+npm run gen component StatCard     # src/components/StatCard (add -- --module Home to put it in a module)
+npm run gen hook useInterval       # src/hooks/useInterval.ts (or -- --module Home)
+npm run gen                        # all options
+```
+
+Use `-- --dry-run` to see the files first. The generator never overwrites existing files.
 
 ---
 
@@ -433,4 +450,3 @@ This boilerplate prioritizes:
 - deterministic AI generation
 
 Every implementation should look like it was written by the same engineering team.
-
