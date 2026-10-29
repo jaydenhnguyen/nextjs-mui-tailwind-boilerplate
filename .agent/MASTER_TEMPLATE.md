@@ -164,6 +164,8 @@ Components and pages must never call HTTP directly.
 
 MUI + Tailwind + SCSS Modules. Full rules: `04-mui-theme.template.md`, `05-tailwind-style.template.md`.
 
+Motion is mandatory: anything that appears, disappears or changes size must be smooth and must never make the layout jump. Reserve space up front or animate it, fade in with `ease-out`, fade out faster with `ease-in`, and respect reduced motion. Full rules: `09-motion.template.md`.
+
 ---
 
 # 4. Current Expected Project Structure
@@ -205,6 +207,7 @@ Always read the relevant template files before implementation.
 | Component architecture   | `06-component-rules.template.md`   |
 | Forms & validation       | `07-form-handling.template.md`     |
 | Naming/import/code style | `08-code-style.template.md`        |
+| Animation & transitions  | `09-motion.template.md`            |
 | Layout `getLayout` examples | `examples/layout-example.md`    |
 
 ---

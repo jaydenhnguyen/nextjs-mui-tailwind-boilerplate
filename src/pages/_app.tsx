@@ -7,7 +7,7 @@ import { AppCacheProvider } from '@mui/material-nextjs/v16-pagesRouter';
 import 'src/styles/_app.scss';
 import 'src/styles/_core.scss';
 import 'src/styles/tailwind.scss';
-import { siteConfig } from 'src/configs';
+import { setupZod, siteConfig } from 'src/configs';
 import { useScrollToTop } from 'src/hooks';
 import { AppProviders } from 'src/providers';
 import { createAppEmotionCache } from 'src/theme';
@@ -20,6 +20,8 @@ type AppPropsWithLayout = AppProps & {
   Component: NextPageWithLayout;
   emotionCache?: EmotionCache;
 };
+
+setupZod();
 
 const clientEmotionCache = createAppEmotionCache();
 

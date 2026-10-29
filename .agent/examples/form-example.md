@@ -2,6 +2,8 @@
 
 This example demonstrates the standard form architecture used in this boilerplate.
 
+Component API reference (every prop, default and recipe): `src/components/Form/README.md`.
+
 It teaches:
 
 - react-hook-form + zod setup
@@ -70,10 +72,13 @@ Mutation hooks own server submission.
 src/
 ├── components/
 │   └── Form/
+│       ├── README.md
+│       ├── useZodForm.ts
+│       ├── Form.tsx
 │       ├── ControlTextField/
 │       ├── ControlSelect/
 │       ├── ControlCheckbox/
-│       ├── ControlDatePicker/
+│       ├── ...
 │       └── index.ts
 │
 └── modules/
@@ -129,7 +134,7 @@ import { z } from 'zod';
 export const createProductSchema = z.object({
   name: z.string().min(1, 'Product name is required'),
   sku: z.string().min(1, 'SKU is required'),
-  price: z.coerce.number().min(0, 'Price must be 0 or greater'),
+  price: z.coerce.number<string>().min(0, 'Price must be 0 or greater'),
   categoryId: z.string().min(1, 'Category is required'),
   isActive: z.boolean(),
 });
@@ -139,7 +144,8 @@ Rules:
 
 - schema lives outside TSX
 - schema is the validation source of truth
-- messages are user-facing
+- messages are user-facing; generic ones can be left out because `setupZod()` provides defaults
+- number inputs use `z.coerce.number<string>()` (inputs always give strings)
 - no duplicate manual validation in submit handler
 
 ---
@@ -153,7 +159,10 @@ import { z } from 'zod';
 
 import { createProductSchema } from '../schema/create-product.schema';
 
-export type CreateProductRequest = z.infer<typeof createProductSchema>;
+// what onSubmit receives (price: number)
+export type CreateProductRequest = z.output<typeof createProductSchema>;
+// what the inputs hold (price: string)
+export type CreateProductFormValues = z.input<typeof createProductSchema>;
 ```
 
 Rules:
@@ -217,44 +226,30 @@ Rules:
 ## useCreateProductForm.ts
 
 ```ts
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { useZodForm } from 'src/components/Form';
 
 import { createProductSchema } from '../schema/create-product.schema';
-import { CreateProductRequest } from '../models';
+import { CreateProductFormValues } from '../models';
 
-export const initialCreateProductData: CreateProductRequest = {
+export const initialCreateProductData: CreateProductFormValues = {
   name: '',
   sku: '',
-  price: 0,
+  price: '',
   categoryId: '',
   isActive: true,
 };
 
 export function useCreateProductForm() {
-  const form = useForm<CreateProductRequest>({
-    resolver: zodResolver(createProductSchema),
+  return useZodForm(createProductSchema, {
     defaultValues: initialCreateProductData,
-    mode: 'onSubmit',
-    shouldFocusError: true,
   });
-
-  return {
-    form,
-    control: form.control,
-    formHandleSubmit: form.handleSubmit,
-    reset: form.reset,
-    setValue: form.setValue,
-    setError: form.setError,
-    watch: form.watch,
-    formState: form.formState,
-  };
 }
 ```
 
 Rules:
 
-- form hook owns RHF setup
+- form hook owns form setup through `useZodForm` (never `useForm` + `zodResolver` directly)
+- it returns the whole form object; the component passes it to `<Form form={form}>`
 - form hook does not call API
 - form hook does not show toast
 - form hook does not navigate
@@ -306,56 +301,11 @@ Rules:
 
 ---
 
-# Reusable Control Field Example
+# Reusable Control Fields
 
-## ControlTextField.tsx
+The boilerplate already ships `ControlTextField`, `ControlPasswordField`, `ControlSelect`, `ControlCheckbox`, `ControlSwitch`, `ControlRadioGroup` and `ControlErrorMessage` in `src/components/Form`. Use them; don't re-implement them in features.
 
-```tsx
-import { TextField, TextFieldProps } from '@mui/material';
-import {
-  Control,
-  FieldValues,
-  Path,
-  useController,
-} from 'react-hook-form';
-
-type Props<T extends FieldValues> = {
-  control: Control<T>;
-  name: Path<T>;
-} & TextFieldProps;
-
-export function ControlTextField<T extends FieldValues>({
-                                                          control,
-                                                          name,
-                                                          ...props
-                                                        }: Props<T>) {
-  const {
-    field,
-    fieldState: { error },
-  } = useController({
-    control,
-    name,
-  });
-
-  return (
-    <TextField
-      {...field}
-      {...props}
-      error={Boolean(error)}
-      helperText={error?.message}
-    />
-  );
-}
-```
-
-Rules:
-
-- generic
-- feature-agnostic
-- no zod import
-- no API import
-- uses MUI
-- displays error
+Their props are documented in `src/components/Form/README.md`. The reference implementation for writing a new one is in `07-form-handling.template.md` §5.
 
 ---
 
@@ -365,19 +315,12 @@ Rules:
 
 ```tsx
 import * as React from 'react';
-import { Button, MenuItem } from '@mui/material';
+import { Button } from '@mui/material';
 
-import {
-  ControlCheckbox,
-  ControlSelect,
-  ControlTextField,
-} from 'src/components/Form';
+import { ControlErrorMessage, ControlSelect, ControlSwitch, ControlTextField, Form } from 'src/components/Form';
 
-import { CREATE_PRODUCT_FIELD_NAMES } from '../../constants';
-import {
-  useCreateProduct,
-  useCreateProductForm,
-} from '../../hooks';
+import { CATEGORY_OPTIONS, CREATE_PRODUCT_FIELD_NAMES } from '../../constants';
+import { useCreateProduct, useCreateProductForm } from '../../hooks';
 import { CreateProductRequest } from '../../models';
 
 import classes from './CreateProductForm.module.scss';
@@ -386,14 +329,9 @@ type Props = {
   onSuccess?: () => void;
 };
 
-export function CreateProductForm({
-                                    onSuccess,
-                                  }: Props): React.ReactElement {
-  const {
-    control,
-    formHandleSubmit,
-    reset,
-  } = useCreateProductForm();
+export function CreateProductForm({ onSuccess }: Props): React.ReactElement {
+  const form = useCreateProductForm();
+  const { control, reset } = form;
 
   const handleSuccess = React.useCallback(() => {
     reset();
@@ -410,60 +348,40 @@ export function CreateProductForm({
   );
 
   return (
-    <form
-      className={classes['create-product-form']}
-      onSubmit={formHandleSubmit(handleSubmit)}
-      noValidate
-    >
+    <Form form={form} onSubmit={handleSubmit} className={classes['create-product-form']}>
       <div className={classes['form-grid']}>
-        <ControlTextField<CreateProductRequest>
-          control={control}
-          name={CREATE_PRODUCT_FIELD_NAMES.name}
-          label="Product name"
-          fullWidth
-        />
-
-        <ControlTextField<CreateProductRequest>
-          control={control}
-          name={CREATE_PRODUCT_FIELD_NAMES.sku}
-          label="SKU"
-          fullWidth
-        />
-
-        <ControlTextField<CreateProductRequest>
+        <ControlTextField control={control} name={CREATE_PRODUCT_FIELD_NAMES.name} label="Product name" fullWidth />
+        <ControlTextField control={control} name={CREATE_PRODUCT_FIELD_NAMES.sku} label="SKU" fullWidth />
+        <ControlTextField
           control={control}
           name={CREATE_PRODUCT_FIELD_NAMES.price}
           label="Price"
           type="number"
           fullWidth
         />
-
-        <ControlSelect<CreateProductRequest>
+        <ControlSelect
           control={control}
           name={CREATE_PRODUCT_FIELD_NAMES.categoryId}
           label="Category"
+          options={CATEGORY_OPTIONS}
           fullWidth
-        >
-          <MenuItem value="books">Books</MenuItem>
-          <MenuItem value="electronics">Electronics</MenuItem>
-        </ControlSelect>
-
-        <ControlCheckbox<CreateProductRequest>
-          control={control}
-          name={CREATE_PRODUCT_FIELD_NAMES.isActive}
-          label="Active"
         />
+        <ControlSwitch control={control} name={CREATE_PRODUCT_FIELD_NAMES.isActive} label="Active" />
       </div>
 
+      <ControlErrorMessage control={control} name="root.server" />
+
       <div className={classes['form-actions']}>
-        <Button type="submit" variant="contained" disabled={isLoading}>
+        <Button type="submit" variant="contained" loading={isLoading}>
           Create Product
         </Button>
       </div>
-    </form>
+    </Form>
   );
 }
 ```
+
+`CATEGORY_OPTIONS` is a `FieldOption[]` (`{ label, value }[]`) in the feature constants.
 
 Rules:
 
@@ -471,8 +389,10 @@ Rules:
 - component calls form hook
 - component calls mutation hook
 - component does not call API directly
-- submit uses `formHandleSubmit`
-- loading state disables submit
+- submit goes through `<Form>` (validation runs first, the first invalid field gets focus)
+- no generic argument on fields: types come from `control`
+- loading state on the submit button
+- errors appear in each field's reserved line; form-level errors in `ControlErrorMessage`
 
 ---
 
@@ -561,7 +481,8 @@ type ServerFieldError = {
 Handle with `setError`:
 
 ```tsx
-const { setError } = useCreateProductForm();
+const form = useCreateProductForm();
+const { setError } = form;
 
 const { mutate } = useCreateProduct();
 
@@ -570,12 +491,12 @@ const handleSubmit = (payload: CreateProductRequest) => {
     onError: (error: ServerFieldError) => {
       if (error.fieldErrors) {
         Object.entries(error.fieldErrors).forEach(([field, message]) => {
-          setError(field as keyof CreateProductRequest, {
-            type: 'server',
-            message,
-          });
+          setError(field as keyof CreateProductRequest, { type: 'server', message });
         });
+        return;
       }
+
+      setError('root.server', { message: error.message ?? 'Something went wrong, please try again' });
     },
   });
 };
@@ -584,7 +505,8 @@ const handleSubmit = (payload: CreateProductRequest) => {
 Rules:
 
 - zod handles client validation
-- server field errors map into RHF
+- server field errors map into RHF and show under their field automatically
+- form-level errors go to `root.server` and show in `<ControlErrorMessage name="root.server" />`
 - global errors can show toast
 
 ---
@@ -680,6 +602,8 @@ Rules:
 
 # Async Select Example
 
+There's no `ControlAutocomplete` yet. If a project needs autocomplete in more than one form, add it to `src/components/Form` (README §4) instead of repeating the `Controller` below. For a one-off, the pattern below is fine, but show the error through `FieldMessage` so it animates like the other fields.
+
 For remote select/autocomplete:
 
 - debounce search
@@ -745,7 +669,7 @@ export const uploadProductImageSchema = z.object({
 });
 ```
 
-Field:
+Field (a one-off; add a reusable `ControlFileUpload` when more than one form needs it):
 
 ```tsx
 <Controller
@@ -763,9 +687,9 @@ Field:
         />
       </Button>
 
-      {fieldState.error?.message && (
-        <span>{fieldState.error.message}</span>
-      )}
+      <FormHelperText error>
+        <FieldMessage message={fieldState.error?.message} />
+      </FormHelperText>
     </>
   )}
 />
@@ -787,9 +711,9 @@ CreateProductForm
     ↓
 useCreateProductForm
     ↓
-zodResolver(createProductSchema)
+useZodForm(createProductSchema)
     ↓
-formHandleSubmit(handleSubmit)
+<Form form onSubmit={handleSubmit}>
     ↓
 useCreateProduct
     ↓
@@ -843,7 +767,7 @@ Do NOT:
 3. Form hook owns RHF.
 4. Mutation hook owns server write.
 5. Form component renders UI only.
-6. Form submits through `formHandleSubmit`.
+6. Form submits through `<Form form onSubmit>`.
 7. Reusable fields live in `src/components/Form`.
 8. Feature-specific forms live in modules.
 9. Form layout is mobile-first.
@@ -858,11 +782,11 @@ When creating a form:
 1. Create schema.
 2. Create request/response models.
 3. Create field constants.
-4. Create form hook.
+4. Create form hook with `useZodForm`.
 5. Create mutation hook.
 6. Create form component.
-7. Use reusable Control fields.
-8. Submit via `formHandleSubmit`.
+7. Use reusable Control fields (props: `src/components/Form/README.md`).
+8. Submit via `<Form form={form} onSubmit={onSubmit}>`.
 9. Disable submit while loading.
 10. Handle success/reset.
 11. Add server field error mapping if backend supports it.

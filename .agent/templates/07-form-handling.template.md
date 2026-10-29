@@ -15,6 +15,14 @@ It is the source of truth for:
 - error handling
 - responsive form layout
 
+The full API of the reusable form components (props, defaults, recipes) lives next to the code in `src/components/Form/README.md`. Read it before building or changing a form.
+
+Canonical stack:
+
+```txt
+zod schema ──▶ useZodForm(schema) ──▶ <Form form onSubmit> ──▶ <Control* control name />
+```
+
 ---
 
 # 1. Form Architecture Philosophy
@@ -86,7 +94,7 @@ src/modules/Products/
 Submission must always go through:
 
 ```txt
-formHandleSubmit(onSubmit)
+<Form form={form} onSubmit={onSubmit}>   (validates, then calls onSubmit)
     ↓
 mutation.mutate(validatedPayload)
 ```
@@ -112,15 +120,23 @@ Preferred reusable form folder:
 
 ```txt
 src/components/Form/
+├── README.md               full API + recipes
+├── useZodForm.ts
+├── Form.tsx
+├── types.ts
+├── ControlBooleanField.tsx (internal)
+├── FieldMessage/           (internal)
 ├── ControlTextField/
+├── ControlPasswordField/
 ├── ControlSelect/
 ├── ControlCheckbox/
+├── ControlSwitch/
 ├── ControlRadioGroup/
-├── ControlDatePicker/
-├── ControlFileUpload/
 ├── ControlErrorMessage/
 └── index.ts
 ```
+
+Not included yet (add when a project needs them, following README §4 "Add a new field type"): `ControlDatePicker`, `ControlAutocomplete`, `ControlFileUpload`.
 
 Do not use feature-specific code inside `src/components/Form`.
 
@@ -176,53 +192,56 @@ Example:
 ```txt
 src/components/Form/ControlTextField/
 ├── ControlTextField.tsx
-├── ControlTextField.module.scss
 └── index.ts
 ```
 
 Every reusable `Control*` component must:
 
-- be generic
-- accept `control`
-- accept typed `name`
-- use `useController` or `Controller`
-- render MUI input
-- show validation error
-- remain feature-agnostic
-- not call APIs
-- not import zod schemas
-- not import feature models
+- be generic over the form values (`<T extends FieldValues, TOut = T>`)
+- take `ControlFieldProps<T, TOut>` (`control` + typed `name`) and `MessageSpaceProps`
+- use `useController`
+- render an MUI input and pass through the MUI component's props, minus the form-owned ones (`value`, `defaultValue`, `checked`, `onChange`, `onBlur`, `inputRef`, `error`)
+- wire `inputRef={field.ref}` so focus-on-error works
+- show the message through `<FieldMessage message={error?.message ?? helperText} reserveSpace={reserveMessageSpace} />`
+- expose inner parts through grouped props (`checkboxProps`, `radioProps`, `formControlProps`…), not by adding one prop per MUI option
+- give its own props a one-line `/** */` description (shows in editor hover)
+- remain feature-agnostic: no API calls, no zod schemas, no feature models
+- be documented in `src/components/Form/README.md`
 
-Example:
+Reference implementation:
 
 ```tsx
-import {TextField, TextFieldProps} from '@mui/material';
-import {Control, FieldValues, Path, useController} from 'react-hook-form';
+import { TextField, TextFieldProps } from '@mui/material';
+import { FieldValues, useController } from 'react-hook-form';
+import { FieldMessage } from '../FieldMessage';
+import { ControlFieldProps, MessageSpaceProps } from '../types';
 
-type Props<T extends FieldValues> = {
-  control: Control<T>;
-  name: Path<T>;
-} & TextFieldProps;
+export type ControlTextFieldProps<T extends FieldValues, TOut = T> = ControlFieldProps<T, TOut> &
+  MessageSpaceProps &
+  Omit<TextFieldProps, 'name' | 'value' | 'defaultValue' | 'onChange' | 'onBlur' | 'inputRef' | 'error'>;
 
-export function ControlTextField<T extends FieldValues>({
-                                                          control,
-                                                          name,
-                                                          ...props
-                                                        }: Props<T>) {
+export function ControlTextField<T extends FieldValues, TOut = T>({
+  control,
+  name,
+  helperText,
+  reserveMessageSpace,
+  ...props
+}: ControlTextFieldProps<T, TOut>) {
   const {
     field,
-    fieldState: {error},
-  } = useController({
-    control,
-    name,
-  });
+    fieldState: { error },
+  } = useController({ control, name });
 
   return (
     <TextField
-      {...field}
       {...props}
-      error={Boolean(error)}
-      helperText={error?.message}
+      name={field.name}
+      value={field.value ?? ''}
+      onChange={field.onChange}
+      onBlur={field.onBlur}
+      inputRef={field.ref}
+      error={!!error}
+      helperText={<FieldMessage message={error?.message ?? helperText} reserveSpace={reserveMessageSpace} />}
     />
   );
 }
@@ -232,51 +251,32 @@ export function ControlTextField<T extends FieldValues>({
 
 # 6. react-hook-form + zod Standard
 
-Every feature form should use:
-
-```txt
-react-hook-form
-zod
-@hookform/resolvers/zod
-```
+Every feature form uses `useZodForm` from `src/components/Form`. It wraps `useForm` + `zodResolver`, infers all types from the schema, and defaults to `mode: 'onTouched'`.
 
 Example:
 
 ```ts
-import {zodResolver} from '@hookform/resolvers/zod';
-import {useForm} from 'react-hook-form';
-import {createProductSchema} from '../schema/create-product.schema';
-import {CreateProductRequest} from '../models';
+import { useZodForm } from 'src/components/Form';
+import { createProductSchema } from '../schema/create-product.schema';
 
 export function useCreateProductForm() {
-  const form = useForm<CreateProductRequest>({
-    resolver: zodResolver(createProductSchema),
+  return useZodForm(createProductSchema, {
     defaultValues: {
       name: '',
       sku: '',
-      price: 0,
+      price: '', // input type: number fields fed by a text input start as ''
       categoryId: '',
       isActive: true,
     },
-    mode: 'onSubmit',
-    shouldFocusError: true,
   });
-
-  return {
-    form,
-    control: form.control,
-    formHandleSubmit: form.handleSubmit,
-    reset: form.reset,
-    setError: form.setError,
-    setValue: form.setValue,
-    watch: form.watch,
-    formState: form.formState,
-  };
 }
 ```
 
+Return the whole form object. The component passes it to `<Form form={form}>` and uses `form.control` for the fields.
+
 Do not use:
 
+- `useForm` + `zodResolver` directly in feature code
 - Formik
 - uncontrolled `useState`-only forms for CRUD
 - schema inside TSX
@@ -300,7 +300,7 @@ import {z} from 'zod';
 export const createProductSchema = z.object({
   name: z.string().min(1, 'Product name is required'),
   sku: z.string().min(1, 'SKU is required'),
-  price: z.coerce.number().min(0, 'Price must be 0 or greater'),
+  price: z.coerce.number<string>().min(0, 'Price must be 0 or greater'),
   categoryId: z.string().min(1, 'Category is required'),
   isActive: z.boolean(),
 });
@@ -312,7 +312,8 @@ Rules:
 - schema names use camelCase
 - error messages must be user-friendly
 - use `.refine()` or `.superRefine()` for cross-field validation
-- use `z.coerce.number()` for number inputs if needed
+- use `z.coerce.number<string>()` for number inputs (inputs always give strings)
+- generic messages ("This field is required", "Must be at least 8 characters") come from `setupZod()` in `src/configs/zod.ts`, so only write a message when it should be more specific
 - do not put schemas in TSX files
 
 Important:
@@ -334,8 +335,11 @@ Form request types should usually come from zod:
 import {z} from 'zod';
 import {createProductSchema} from '../schema/create-product.schema';
 
-export type CreateProductRequest = z.infer<typeof createProductSchema>;
+export type CreateProductRequest = z.output<typeof createProductSchema>;
+export type CreateProductFormValues = z.input<typeof createProductSchema>;
 ```
+
+Use `z.output` for submitted values and `z.input` for default values. They differ whenever the schema coerces or transforms (e.g. `price` is `string` in the form, `number` on submit). `z.infer` equals `z.output`.
 
 Rules:
 
@@ -392,13 +396,9 @@ Naming:
 
 Form hooks may:
 
-- initialize `useForm`
-- connect zod resolver
+- call `useZodForm` with the schema
 - define default values
-- expose `control`
-- expose `formHandleSubmit`
-- expose `reset`, `setValue`, `watch`, `setError`
-- expose form state
+- return the form object (which includes `control`, `reset`, `setValue`, `watch`, `setError`, `formState`)
 
 Form hooks must not:
 
@@ -471,34 +471,35 @@ Rules:
 Canonical form component:
 
 ```tsx
-import {Button} from '@mui/material';
-import {useCreateProduct, useCreateProductForm} from '../../hooks';
-import {CreateProductRequest} from '../../models';
+import { Button } from '@mui/material';
+import { ControlTextField, Form } from 'src/components/Form';
+import { useCreateProduct, useCreateProductForm } from '../../hooks';
+import { CreateProductRequest } from '../../models';
 
 export function CreateProductForm() {
-  const {control, formHandleSubmit, reset} = useCreateProductForm();
+  const form = useCreateProductForm();
+  const { control, reset } = form;
 
-  const handleSuccess = () => {
-    reset();
-  };
-
-  const {mutate, isLoading} = useCreateProduct(handleSuccess);
+  const { mutate, isLoading } = useCreateProduct(() => reset());
 
   const onSubmit = (payload: CreateProductRequest) => {
     mutate(payload);
   };
 
   return (
-    <form onSubmit={formHandleSubmit(onSubmit)} noValidate>
-      {/* fields */}
+    <Form form={form} onSubmit={onSubmit} className="flex flex-col gap-2">
+      <ControlTextField control={control} name="name" label="Product name" required fullWidth />
+      {/* more fields */}
 
-      <Button type="submit" disabled={isLoading}>
+      <Button type="submit" variant="contained" loading={isLoading}>
         Save
       </Button>
-    </form>
+    </Form>
   );
 }
 ```
+
+`<Form>` renders `<form noValidate>` and runs validation before `onSubmit`. Do not wrap `form.handleSubmit` yourself.
 
 Do not do this:
 
@@ -526,18 +527,17 @@ Prefer MUI components:
 - `Autocomplete`
 - MUI X Date Pickers if installed
 
-Reusable controls should wrap MUI.
+Reusable controls wrap MUI. In feature forms, always use the `Control*` version when one exists.
 
 Example:
 
 ```tsx
-<ControlTextField<CreateProductRequest>
-  control={control}
-  name="name"
-  label="Product name"
-  fullWidth
-/>
+<ControlTextField control={control} name="name" label="Product name" fullWidth />
 ```
+
+No generic argument is needed: the types come from `control`.
+
+MUI props go straight on the field. Inner parts use grouped props (`checkboxProps`, `switchProps`, `radioProps`, `radioGroupProps`, `formControlLabelProps`, `formControlProps`). For app-wide defaults (e.g. every TextField `size="small"`), use MUI theme `defaultProps` in `src/theme/components/` instead of repeating props.
 
 Use:
 
@@ -549,43 +549,31 @@ Use:
 
 # 13. Controlled Component Rules
 
-Use `Controller` or `useController` for:
+All fields are controlled. Use the ready-made components:
 
-- MUI Select
-- MUI Autocomplete
-- Date Picker
-- Checkbox
-- Radio Group
-- File input
-- custom inputs
+| Input                 | Component              |
+|-----------------------|------------------------|
+| Text, email, number, multiline | `ControlTextField` |
+| Password              | `ControlPasswordField` |
+| Select / multi-select | `ControlSelect`        |
+| Checkbox              | `ControlCheckbox`      |
+| Switch                | `ControlSwitch`        |
+| Radio group           | `ControlRadioGroup`    |
+| Standalone / form-level error | `ControlErrorMessage` |
 
-Example Select:
+Example select:
 
 ```tsx
-import {MenuItem, TextField} from '@mui/material';
-import {Controller} from 'react-hook-form';
-
-<Controller
+<ControlSelect
   control={control}
   name="categoryId"
-  render={({field, fieldState}) => (
-    <TextField
-      {...field}
-      select
-      label="Category"
-      error={Boolean(fieldState.error)}
-      helperText={fieldState.error?.message}
-      fullWidth
-    >
-      {categories.map((category) => (
-        <MenuItem key={category.id} value={category.id}>
-          {category.name}
-        </MenuItem>
-      ))}
-    </TextField>
-  )}
+  label="Category"
+  options={categories.map((category) => ({ label: category.name, value: category.id }))}
+  fullWidth
 />
 ```
+
+For an input with no `Control*` component yet (date picker, autocomplete, file upload), add a new reusable one in `src/components/Form` following §5 and README §4. Use a one-off `useController` in a feature only when the input is truly feature-specific.
 
 Do not mix uncontrolled local state and RHF state for the same field.
 
@@ -623,12 +611,24 @@ onError: (error: ErrorResponse & { fieldErrors?: Record<string, string> }) => {
 };
 ```
 
+Form-level server errors (not tied to one field) go in `root`:
+
+```ts
+form.setError('root.server', { message: 'Something went wrong, please try again' });
+```
+
+```tsx
+<ControlErrorMessage control={control} name="root.server" />
+```
+
 Rules:
 
 - zod handles client validation
 - API handles backend validation
 - mutation hook handles global errors
 - form hook/component may map server field errors through `setError`
+- field errors show under their field automatically; `root.*` errors show only where a `ControlErrorMessage` is placed
+- never render errors with your own `Typography` / `FormHelperText`
 
 ---
 
@@ -799,7 +799,7 @@ Use multi-step forms only when the UX needs a wizard.
 
 Rules:
 
-- one `useForm` instance at the root
+- one `useZodForm` instance at the root
 - one schema or step schemas composed clearly
 - step components receive `control`
 - validate current step before going next
@@ -822,11 +822,7 @@ const handleNext = async () => {
 };
 ```
 
-Final step submits with:
-
-```tsx
-formHandleSubmit(onSubmit)
-```
+Wrap all steps in one `<Form form={form} onSubmit={onSubmit}>`; the final step's button is `type="submit"`.
 
 ---
 
@@ -838,30 +834,33 @@ Modal forms should:
 - reset on successful create if needed
 - disable save while loading
 - use MUI Dialog or shared modal component
-- call `formHandleSubmit` from save action
+- submit through `<Form>`; when the save button sits outside the form (dialog footer), link it with `id` + `form`
 
 Example:
 
 ```tsx
 <Dialog open={open} onClose={handleClose}>
-  <form onSubmit={formHandleSubmit(onSubmit)} noValidate>
-    {/* fields */}
-
+  <DialogContent>
+    <Form id="create-product-form" form={form} onSubmit={onSubmit}>
+      {/* fields */}
+    </Form>
+  </DialogContent>
+  <DialogActions>
     <Button onClick={handleClose}>Cancel</Button>
-    <Button type="submit" disabled={isLoading}>
+    <Button type="submit" form="create-product-form" loading={isLoading}>
       Save
     </Button>
-  </form>
+  </DialogActions>
 </Dialog>
 ```
 
-If using shared modal with `onSave`:
+If a shared modal only offers an `onSave` callback:
 
 ```tsx
 <AppModal
   open={open}
   onClose={handleClose}
-  onSave={formHandleSubmit(onSubmit)}
+  onSave={form.handleSubmit(onSubmit)}
   isLoading={isLoading}
 />
 ```
@@ -1340,11 +1339,9 @@ Rules:
 - use `noValidate` to rely on zod/RHF
 - do not rely on color only
 
-Example:
+The `Control*` components and `<Form>` already handle: `noValidate`, label ↔ input linking, `aria-invalid`, `aria-describedby` for messages, `<fieldset>` + `<legend>` for radio groups, focus on the first invalid field after submit, and reduced motion for the message animation. Keep it that way when adding new fields.
 
-```tsx
-<form onSubmit={formHandleSubmit(onSubmit)} noValidate>
-```
+Error messages appear in a reserved line under each field so the layout never jumps (see `09-motion.template.md`). Only turn that off with `reserveMessageSpace={false}` in dense layouts.
 
 ---
 
@@ -1374,7 +1371,9 @@ Required
 Error 400
 ```
 
-Use feature constants for repeated messages.
+Generic messages are set once in `setupZod()` (`src/configs/zod.ts`). A message written in a schema always wins over them. Translations, when needed, plug in there too.
+
+Use feature constants for repeated feature-specific messages.
 
 ---
 
@@ -1454,11 +1453,11 @@ When creating a form:
 2. Create schema in `src/modules/<Feature>/schema`.
 3. Create request/response models in `models`.
 4. Create field constants in `constants`.
-5. Create `useXForm` hook.
+5. Create `useXForm` hook with `useZodForm`.
 6. Create mutation hook if missing.
 7. Create or reuse API client in `src/apis`.
-8. Build UI with MUI + reusable `Control*` fields.
-9. Submit with `formHandleSubmit(onSubmit)`.
+8. Build UI with reusable `Control*` fields (read `src/components/Form/README.md` for their props).
+9. Submit with `<Form form={form} onSubmit={onSubmit}>`.
 10. Use mutation loading state.
 11. Reset form on success/close when needed.
 12. Keep layout mobile-first.
