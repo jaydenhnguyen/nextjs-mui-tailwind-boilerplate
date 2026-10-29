@@ -2,14 +2,18 @@
   @apply min-h-screen flex flex-col;
 }
 
+.header {
+  @apply flex items-center justify-between px-4 py-2 border-0 border-b border-solid border-divider;
+}
+
 .main-wrapper {
-  @apply flex-1 bg-hero-bg mt-[4.125rem];
+  @apply flex-1 bg-background-default;
 }
 
 .footer-wrapper {
-  @apply py-4 mt-auto;
+  @apply py-4 mt-auto bg-background-paper;
 
   .footer-content {
-    @apply flex justify-between flex-wrap gap-y-2
+    @apply flex justify-between flex-wrap gap-y-2;
   }
 }

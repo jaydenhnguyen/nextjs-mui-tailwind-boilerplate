@@ -4,6 +4,7 @@ import { NextConfig } from 'next';
 const config: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  bundlePagesRouterDependencies: true,
   sassOptions: {
     includePaths: [path.join(__dirname)],
   },

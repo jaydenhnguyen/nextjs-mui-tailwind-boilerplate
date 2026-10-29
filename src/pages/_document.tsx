@@ -1,24 +1,26 @@
-import * as React from 'react';
-import Document, { Head, Html, Main, NextScript } from 'next/document';
+import { DocumentContext, DocumentProps, Head, Html, Main, NextScript } from 'next/document';
+import InitColorSchemeScript from '@mui/material/InitColorSchemeScript';
+import { DocumentHeadTags, DocumentHeadTagsProps, documentGetInitialProps } from '@mui/material-nextjs/v16-pagesRouter';
+import { siteConfig } from 'src/configs/site.config';
+import { DEFAULT_THEME_MODE } from 'src/theme/theme';
+import { createAppEmotionCache } from 'src/theme/emotionCache';
 
-export default class AppDocument extends Document {
-  render(): React.ReactElement {
-    return (
-      <Html>
-        <Head>
-          <link rel="preconnect" href="https://fonts.googleapis.com" />
-          <link rel="preconnect" href="https://fonts.gstatic.com" />
-          <link
-            href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap"
-            rel="stylesheet"
-          />
-        </Head>
+// Imports here skip the 'src/theme' barrel on purpose, because Next.js doesn't allow next/font inside _document.
+export default function AppDocument(props: DocumentProps & DocumentHeadTagsProps) {
+  return (
+    <Html lang={siteConfig.locale} suppressHydrationWarning>
+      <Head>
+        <DocumentHeadTags {...props} />
+      </Head>
 
-        <body className="font-proximaNova">
+      <body>
+        <InitColorSchemeScript attribute="class" defaultMode={DEFAULT_THEME_MODE} />
         <Main />
         <NextScript />
-        </body>
-      </Html>
-    );
-  }
+      </body>
+    </Html>
+  );
 }
+
+AppDocument.getInitialProps = async (ctx: DocumentContext) =>
+  documentGetInitialProps(ctx, { emotionCache: createAppEmotionCache() });

@@ -2,8 +2,9 @@ import * as React from 'react';
 import { useRouter } from 'next/router';
 import { tokenManager } from 'src/configs';
 import { APP_ROUTES } from 'src/shared/constants';
-import classes from './PrivateLayout.module.scss';
 import { Box, Container, Typography } from '@mui/material';
+import { ThemeModeToggle } from 'src/components';
+import classes from './PrivateLayout.module.scss';
 
 export function PrivateLayout({ children }: { children: React.ReactElement }) {
   const router = useRouter();
@@ -26,10 +27,11 @@ export function PrivateLayout({ children }: { children: React.ReactElement }) {
   return (
     <Box className={classes['wrapper']}>
       {/* Header */}
-      <Box component="header">
+      <Box component="header" className={classes['header']}>
         <Typography variant="subtitle1" fontWeight={600}>
-          THIS IS PUBLIC HEADER
+          THIS IS PRIVATE HEADER
         </Typography>
+        <ThemeModeToggle />
       </Box>
 
       {/* Main content */}
