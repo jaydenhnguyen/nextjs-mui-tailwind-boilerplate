@@ -258,7 +258,7 @@ If a second form needs the same input, move it into `src/components/Form` as a `
 
 ### Change the message animation
 
-`FieldMessage/FieldMessage.module.scss` controls the error animation for every field. Follow `.agent/templates/09-motion.template.md`.
+`FieldMessage/FieldMessage.tsx` controls the error animation for every field: the `slideFade` (reserved line) and `collapse` (no reserved line) objects, built with `motion` and the tokens in `src/theme/motion.ts`. Follow `.agent/templates/09-motion.template.md`.
 
 ### Add a new field type (date picker, autocomplete, file upload…)
 

@@ -1,13 +1,14 @@
 import * as React from 'react';
-import clsx from 'clsx';
 import { Button, InputAdornment, Pagination, TextField, Typography } from '@mui/material';
 import AddOutlined from '@mui/icons-material/AddOutlined';
 import SearchOutlined from '@mui/icons-material/SearchOutlined';
+import { m } from 'motion/react';
 import { EmptyState } from 'src/components/EmptyState';
 import { QueryState } from 'src/components/QueryState';
 import { useDebounce, useOpenState, useQueryParams } from 'src/hooks';
 import { Can, PERMISSIONS } from 'src/modules/Authentication';
 import { formatNumber } from 'src/shared/utils';
+import { moveTransition } from 'src/theme/motion';
 import { CreateUserDialog, UserTable } from './components';
 import { USER_LIST_PAGE_SIZE } from './constants';
 import { useGetUserList } from './hooks';
@@ -85,7 +86,13 @@ export function Users() {
         }
       >
         {(response) => (
-          <div className={clsx(classes['results'], usersQuery.isPlaceholderData && classes['stale'])}>
+          // Dims the current page while the next one loads, instead of flashing a spinner.
+          <m.div
+            initial={false}
+            animate={{ opacity: usersQuery.isPlaceholderData ? 0.6 : 1 }}
+            transition={moveTransition()}
+            className={classes['results']}
+          >
             <UserTable users={response.data} />
             {pageCount > 1 && (
               <Pagination
@@ -95,7 +102,7 @@ export function Users() {
                 className={classes['pagination']}
               />
             )}
-          </div>
+          </m.div>
         )}
       </QueryState>
 

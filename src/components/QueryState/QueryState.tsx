@@ -4,6 +4,7 @@ import { ApiError, toApiError } from 'src/shared/utils/apiError';
 import { LoadingState } from '../LoadingState';
 import { ErrorState } from '../ErrorState';
 import { EmptyState } from '../EmptyState';
+import { FadeIn } from '../Motion';
 
 type Props<TData> = {
   query: Pick<UseQueryResult<TData, ApiError>, 'data' | 'error' | 'isPending' | 'isError' | 'refetch'>;
@@ -27,5 +28,5 @@ export function QueryState<TData>({ query, children, isEmpty, loading, empty, er
   const data = query.data as TData;
   if (isEmpty?.(data)) return empty ?? <EmptyState title="Nothing here yet" />;
 
-  return <div className="animate-fade-in">{children(data)}</div>;
+  return <FadeIn>{children(data)}</FadeIn>;
 }

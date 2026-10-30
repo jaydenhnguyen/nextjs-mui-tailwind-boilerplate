@@ -25,13 +25,15 @@ If something has to take space when it appears, either:
 
 # 2. Durations
 
-| What                                                         | Duration    | Tailwind        |
-|--------------------------------------------------------------|-------------|-----------------|
-| Tiny feedback: hover, pressed, color/opacity of small parts  | 100–150ms   | `duration-100/150` |
-| Small elements entering: helper text, tooltip, chip, badge   | 150–200ms   | `duration-200`  |
-| Medium elements: menu, popover, card, snackbar               | 200–300ms   | `duration-300`  |
-| Large surfaces: dialog, drawer, full-width panel             | 300–400ms   | `duration-300`, `duration-[400ms]` |
-| Page-level / hero storytelling                               | 400–700ms   | use `motion`    |
+| What                                                         | Duration  | Token (`src/theme/motion.ts`) |
+| ------------------------------------------------------------ | --------- | ----------------------------- |
+| Tiny feedback: hover, pressed, color/opacity of small parts  | 100–150ms | `DURATION.tiny`               |
+| Small elements entering: helper text, tooltip, chip, badge   | 150–200ms | `DURATION.small` (default)    |
+| Medium elements: menu, popover, card, snackbar, page content | 200–300ms | `DURATION.medium`             |
+| Large surfaces: dialog, drawer, full-width panel             | 300–400ms | `DURATION.large`              |
+| Hero storytelling on marketing pages                         | 400–700ms | a custom value, only there    |
+
+Durations in `motion` are in seconds (`0.2`), not milliseconds.
 
 Rules:
 
@@ -43,12 +45,12 @@ Rules:
 
 # 3. Easing
 
-| Situation                          | Easing     | Tailwind      | Curve                          |
-|------------------------------------|------------|---------------|--------------------------------|
-| Entering (arrives, settles softly) | ease-out   | `ease-out`    | `cubic-bezier(0, 0, 0.2, 1)`   |
-| Leaving (accelerates away)         | ease-in    | `ease-in`     | `cubic-bezier(0.4, 0, 1, 1)`   |
-| Moving / resizing on screen        | ease-in-out| `ease-in-out` | `cubic-bezier(0.4, 0, 0.2, 1)` |
-| Continuous loops (spinners, marquee)| linear    | `ease-linear` |                                |
+| Situation                            | Easing      | Use                                | Curve                          |
+| ------------------------------------ | ----------- | ---------------------------------- | ------------------------------ |
+| Entering (arrives, settles softly)   | ease-out    | `enterTransition()` / `EASE.enter` | `cubic-bezier(0, 0, 0.2, 1)`   |
+| Leaving (accelerates away)           | ease-in     | `exitTransition()` / `EASE.exit`   | `cubic-bezier(0.4, 0, 1, 1)`   |
+| Moving / resizing / dimming          | ease-in-out | `moveTransition()` / `EASE.move`   | `cubic-bezier(0.4, 0, 0.2, 1)` |
+| Continuous loops (spinners, marquee) | linear      | `ease: 'linear'`                   |                                |
 
 Never use linear for things entering or leaving: it feels robotic.
 
@@ -56,16 +58,16 @@ Never use linear for things entering or leaving: it feels robotic.
 
 # 4. Which Animation to Use
 
-| Animation                  | Use it for                                                                 |
-|----------------------------|----------------------------------------------------------------------------|
-| Fade + small slide (4–8px) | default for small things appearing: messages, tooltips, dropdown content  |
-| Fade only                  | replacing content in place (skeleton → data, tab panels), overlays/backdrops |
-| Slide from an edge         | drawers, sheets, toasts: things that live off-screen                      |
-| Scale (0.95 → 1) + fade    | menus, popovers, dialogs: things that open from a trigger                 |
-| Height / grid-rows         | accordions and expandable sections whose size isn't known                  |
-| Stagger (30–60ms apart)    | lists or groups appearing together, to show order and hierarchy           |
+| Animation                  | Use it for                                                                               |
+| -------------------------- | ---------------------------------------------------------------------------------------- |
+| Fade + small slide (4–8px) | default for small things appearing: messages, tooltips, dropdown content                 |
+| Fade only                  | replacing content in place (skeleton → data, tab panels), overlays/backdrops             |
+| Slide from an edge         | drawers, sheets, toasts: things that live off-screen                                     |
+| Scale (0.95 → 1) + fade    | menus, popovers, dialogs: things that open from a trigger                                |
+| Height / grid-rows         | accordions and expandable sections whose size isn't known                                |
+| Stagger (30–60ms apart)    | lists or groups appearing together, to show order and hierarchy                          |
 | Morph / shared layout      | keeping one object continuous between two states or screens (`motion` layout animations) |
-| Parallax / zoom            | storytelling and marketing pages only, never in forms or dashboards       |
+| Parallax / zoom            | storytelling and marketing pages only, never in forms or dashboards                      |
 
 Movement distance stays small: 4–8px for small elements, up to 16–24px for large surfaces. Big distances look sloppy.
 
@@ -75,40 +77,54 @@ When two neighbors change at once, give them different treatments (one fades and
 
 # 5. How to Implement
 
-- Animate only `opacity` and `transform` whenever possible. They're smooth and don't cause layout work.
-- If size has to animate, use the `grid-template-rows: 0fr → 1fr` trick or MUI `Collapse`, never `height: auto` jumps.
-- Simple enter/exit of one element: CSS transitions in the SCSS module with Tailwind classes:
+Animations are written with [`motion`](https://motion.dev), not CSS keyframes or `transition` classes. The only CSS transitions allowed are hover/focus color changes (`transition-colors duration-150`).
 
-  ```scss
-  .message {
-    @apply opacity-0 -translate-y-1 transition-[opacity,transform] duration-150 ease-in motion-reduce:transition-none;
-  }
+- Import from `motion/react` and use `m.*` components (`m.div`, `m.span`, `m.li`). `MotionProvider` (in `AppProviders`) uses `LazyMotion` in strict mode, so `motion.div` throws.
+- Take timing from `src/theme/motion.ts`: `DURATION`, `EASE`, `enterTransition()`, `exitTransition()`, `moveTransition()`. Don't hard-code numbers.
+- Most things that appear on mount: use `<FadeIn>` from `src/components/Motion` (`y` for a slide, `delay`, `duration`).
+- Animate only `opacity` and `transform` (`x`, `y`, `scale`) whenever possible. They're smooth and don't cause layout work.
+- If size has to animate, animate `height: 0 → 'auto'` with `m.*`, or use MUI `Collapse`.
+- Anything that unmounts must stay mounted until its exit animation finishes: wrap it in `AnimatePresence` and give it an `exit` target with `exitTransition()`. A child needs a stable `key`.
+- Different timing in and out: put the transition inside the target, `animate={{ opacity: 1, transition: enterTransition() }}` and `exit={{ opacity: 0, transition: exitTransition() }}`.
+- Animating between states of something that stays mounted (dimming, highlighting): `initial={false}` and change `animate`, with `moveTransition()`.
+- Stagger: `transition: { delay: index * 0.04 }` or variants with `staggerChildren`.
+- Layout / shared-element animations (`layout`, `layoutId`) need the `domMax` feature set. Switch `domAnimation` to `domMax` in `MotionProvider` only when you use them.
+- MUI components (`Collapse`, `Fade`, `Grow`, `Slide`, `Dialog`, `Menu`, `Drawer`) already animate. Use them as they are; don't rebuild them with `motion`.
+- First page load: content in the server HTML must be visible without JavaScript. `FadeIn` skips its animation while the page hydrates and animates everything mounted later. If you use `m.*` directly on something that's in the server HTML, use `initial={false}` or `FadeIn`'s approach (`useIsClient()`).
+- Loading states: wait ~200ms before showing a spinner so fast loads never flash one. `LoadingState` already does this.
+- Page transitions: both layouts wrap the page in `<FadeIn key={pathname}>`, so pages don't add their own.
 
-  .visible {
-    @apply opacity-100 translate-y-0 duration-200 ease-out;
-  }
-  ```
+```tsx
+import { AnimatePresence, m } from 'motion/react';
+import { enterTransition, exitTransition } from 'src/theme/motion';
 
-- Anything that unmounts must stay mounted until its exit animation finishes (keep the last content, or use MUI transitions / `motion`'s `AnimatePresence`).
-- MUI components (`Collapse`, `Fade`, `Grow`, `Slide`, `Dialog`, `Menu`) already animate. Use them instead of hand-rolling.
-- Orchestrated, staggered, layout or gesture animations: use `motion` (`motion/react`).
-- Loading states: wait ~200ms before showing a spinner so fast loads never flash one. `LoadingState` already does this; content then fades in (`animate-fade-in`).
+<AnimatePresence initial={false}>
+  {isOpen && (
+    <m.div
+      key="panel"
+      initial={{ opacity: 0, y: -4 }}
+      animate={{ opacity: 1, y: 0, transition: enterTransition() }}
+      exit={{ opacity: 0, y: -4, transition: exitTransition() }}
+    >
+      ...
+    </m.div>
+  )}
+</AnimatePresence>;
+```
 
 ---
 
 # 6. Accessibility
 
-- Always respect reduced motion: `motion-reduce:transition-none` in Tailwind, `useReducedMotion()` in `motion`.
-- With reduced motion, keep opacity fades but drop movement, scale and parallax.
+- `MotionProvider` sets `reducedMotion="user"`: people who ask for less motion get opacity fades only, no movement, scale or parallax. Don't override it.
+- For anything decorative that `motion` can't drop on its own (autoplay, parallax driven by scroll), check `useReducedMotion()` and skip it.
+- `_core.scss` turns CSS transitions (MUI's included) nearly off for reduced motion.
 - Never autoplay looping motion that can't be paused.
 
 ---
 
-# 7. Reference Implementation
+# 7. Reference Implementations
 
-`src/components/Form/FieldMessage` follows all of this:
-
-- reserves one line under each field so an error never pushes content down
-- fades in with a 4px slide, 200ms `ease-out`
-- fades out 150ms `ease-in`, keeping the text until the fade finishes
-- turns transitions off for reduced motion
+- `src/components/Form/FieldMessage`: reserves one line under each field so an error never pushes content down; fades in with a 4px slide using `enterTransition()`, fades out faster with `exitTransition()`, and `AnimatePresence` keeps the text until the fade finishes. Without the reserved line it animates `height` with the text instead.
+- `src/components/Motion/FadeIn`: mount animation that never hides server-rendered content on the first load.
+- `src/modules/Users/Users.tsx`: dims the current page with `moveTransition()` while the next page loads.

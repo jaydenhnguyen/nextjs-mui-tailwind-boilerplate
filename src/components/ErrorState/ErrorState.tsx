@@ -3,6 +3,7 @@ import clsx from 'clsx';
 import { Button, Typography } from '@mui/material';
 import ErrorOutlineOutlined from '@mui/icons-material/ErrorOutlineOutlined';
 import { toApiError } from 'src/shared/utils/apiError';
+import { FadeIn } from '../Motion';
 import classes from './ErrorState.module.scss';
 
 type Props = {
@@ -17,7 +18,7 @@ export function ErrorState({ error, title = 'Something went wrong', description,
   const message = description ?? (error ? toApiError(error).message : undefined);
 
   return (
-    <div role="alert" className={clsx(classes['root'], className)}>
+    <FadeIn y={4} role="alert" className={clsx(classes['root'], className)}>
       <ErrorOutlineOutlined className={classes['icon']} aria-hidden />
       <Typography variant="h6" component="p">
         {title}
@@ -28,6 +29,6 @@ export function ErrorState({ error, title = 'Something went wrong', description,
           Try again
         </Button>
       )}
-    </div>
+    </FadeIn>
   );
 }

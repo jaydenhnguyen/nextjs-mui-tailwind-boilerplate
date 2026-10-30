@@ -1,4 +1,3 @@
-import qs from 'qs';
 import isPlainObject from 'lodash/isPlainObject';
 import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 import camelcaseKeys from 'camelcase-keys';
@@ -17,7 +16,8 @@ export const request = axios.create({
   timeout: apiConfig.timeout,
   withCredentials: apiConfig.authStrategy === 'cookie',
   headers: { Accept: 'application/json' },
-  paramsSerializer: (params) => qs.stringify(params, { arrayFormat: 'brackets' }),
+  // Arrays go out as ids[]=1&ids[]=2. Use { indexes: null } for ids=1&ids=2 if the backend expects that.
+  paramsSerializer: { indexes: false },
 });
 
 let sessionExpiredHandler = () => tokenManager.removeAllCredentials();

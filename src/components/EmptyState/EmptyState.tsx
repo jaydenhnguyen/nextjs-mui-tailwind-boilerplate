@@ -2,6 +2,7 @@ import * as React from 'react';
 import clsx from 'clsx';
 import { Typography } from '@mui/material';
 import InboxOutlined from '@mui/icons-material/InboxOutlined';
+import { FadeIn } from '../Motion';
 import classes from './EmptyState.module.scss';
 
 type Props = {
@@ -14,7 +15,7 @@ type Props = {
 
 export function EmptyState({ title, description, icon, action, className }: Props) {
   return (
-    <div className={clsx(classes['root'], className)}>
+    <FadeIn y={4} className={clsx(classes['root'], className)}>
       <div className={classes['icon']} aria-hidden>
         {icon ?? <InboxOutlined fontSize="inherit" />}
       </div>
@@ -23,6 +24,6 @@ export function EmptyState({ title, description, icon, action, className }: Prop
       </Typography>
       {description && <Typography color="text.secondary">{description}</Typography>}
       {action && <div className={classes['action']}>{action}</div>}
-    </div>
+    </FadeIn>
   );
 }

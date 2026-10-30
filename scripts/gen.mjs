@@ -725,11 +725,7 @@ export function ${s.pascal}FormDialog({ open, ${s.camel}, onClose }: Props) {
 }
 
 .results {
-  @apply flex flex-col gap-4 transition-opacity duration-200;
-}
-
-.stale {
-  @apply opacity-60;
+  @apply flex flex-col gap-4;
 }
 
 .pagination {
@@ -741,14 +737,15 @@ export function ${s.pascal}FormDialog({ open, ${s.camel}, onClose }: Props) {
     `${mod}/${p.pascal}.tsx`,
     `
 import * as React from 'react';
-import clsx from 'clsx';
 import { Button, InputAdornment, Pagination, TextField, Typography } from '@mui/material';
 import AddOutlined from '@mui/icons-material/AddOutlined';
 import SearchOutlined from '@mui/icons-material/SearchOutlined';
+import { m } from 'motion/react';
 import { EmptyState } from 'src/components/EmptyState';
 import { QueryState } from 'src/components/QueryState';
 import { useDebounce, useOpenState, useQueryParams } from 'src/hooks';
 import { formatNumber } from 'src/shared/utils';
+import { moveTransition } from 'src/theme/motion';
 import { ${s.pascal}FormDialog, ${s.pascal}Table } from './components';
 import { ${PAGE_SIZE} } from './constants';
 import { useGet${s.pascal}List } from './hooks';
@@ -827,7 +824,13 @@ export function ${p.pascal}() {
         }
       >
         {(response) => (
-          <div className={clsx(classes['results'], listQuery.isPlaceholderData && classes['stale'])}>
+          // Dims the current page while the next one loads, instead of flashing a spinner.
+          <m.div
+            initial={false}
+            animate={{ opacity: listQuery.isPlaceholderData ? 0.6 : 1 }}
+            transition={moveTransition()}
+            className={classes['results']}
+          >
             <${s.pascal}Table ${p.camel}={response.data} onEdit={openForm} />
             {pageCount > 1 && (
               <Pagination
@@ -837,7 +840,7 @@ export function ${p.pascal}() {
                 className={classes['pagination']}
               />
             )}
-          </div>
+          </m.div>
         )}
       </QueryState>
 

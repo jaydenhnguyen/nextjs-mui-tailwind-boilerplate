@@ -1,0 +1,7 @@
+.wrapper {
+  @apply flex min-h-[60vh] flex-col items-center justify-center gap-4 text-center;
+}
+
+.description {
+  @apply max-w-xl;
+}

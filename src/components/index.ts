@@ -5,6 +5,7 @@ export * from './ErrorFallback';
 export * from './ErrorState';
 export * from './Form';
 export * from './LoadingState';
+export * from './Motion';
 export * from './QueryState';
 export * from './Seo';
 export * from './StatusPage';

@@ -7,6 +7,7 @@ import { AppThemeProvider } from 'src/theme';
 import { AppToaster } from 'src/components/AppToaster';
 import { ConfirmProvider } from 'src/components/ConfirmDialog';
 import { ErrorFallback } from 'src/components/ErrorFallback';
+import { MotionProvider } from 'src/components/Motion';
 import { SessionWatcher } from 'src/modules/Authentication';
 
 type Props = {
@@ -20,16 +21,18 @@ export function AppProviders({ children }: Props) {
     <QueryClientProvider client={queryClient}>
       <SessionWatcher />
       <AppThemeProvider>
-        <ConfirmProvider>
-          <QueryErrorResetBoundary>
-            {({ reset }) => (
-              <ErrorBoundary FallbackComponent={ErrorFallback} onReset={reset}>
-                {children}
-              </ErrorBoundary>
-            )}
-          </QueryErrorResetBoundary>
-        </ConfirmProvider>
-        <AppToaster />
+        <MotionProvider>
+          <ConfirmProvider>
+            <QueryErrorResetBoundary>
+              {({ reset }) => (
+                <ErrorBoundary FallbackComponent={ErrorFallback} onReset={reset}>
+                  {children}
+                </ErrorBoundary>
+              )}
+            </QueryErrorResetBoundary>
+          </ConfirmProvider>
+          <AppToaster />
+        </MotionProvider>
       </AppThemeProvider>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>

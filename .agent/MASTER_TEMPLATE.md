@@ -164,7 +164,7 @@ Components and pages must never call HTTP directly.
 
 MUI + Tailwind + SCSS Modules. Full rules: `04-mui-theme.template.md`, `05-tailwind-style.template.md`.
 
-Motion is mandatory: anything that appears, disappears or changes size must be smooth and must never make the layout jump. Reserve space up front or animate it, fade in with `ease-out`, fade out faster with `ease-in`, and respect reduced motion. Full rules: `09-motion.template.md`.
+Motion is mandatory: anything that appears, disappears or changes size must be smooth and must never make the layout jump. Reserve space up front or animate it, fade in with `ease-out`, fade out faster with `ease-in`, and respect reduced motion. Animations use `motion` (`m.*`, `FadeIn`, tokens in `src/theme/motion.ts`), not CSS keyframes. Full rules: `09-motion.template.md`.
 
 ---
 

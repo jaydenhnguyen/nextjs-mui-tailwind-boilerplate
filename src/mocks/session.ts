@@ -1,6 +1,5 @@
 import { HttpResponse } from 'msw';
 import { env } from 'src/configs/env';
-import { Permission, ROLE_PERMISSIONS } from 'src/modules/Authentication/constants';
 import { User } from 'src/shared/types';
 import { db } from './db';
 
@@ -23,11 +22,6 @@ export function getRequestUser(request: Request): User | null {
   const match = /^Bearer mock-access\.(.+)\.(\d+)$/.exec(request.headers.get('Authorization') ?? '');
   if (!match || Date.now() - Number(match[2]) > ACCESS_TOKEN_LIFETIME_MS) return null;
   return db.users.find((user) => user.id === match[1]) ?? null;
-}
-
-export function hasPermission(user: User, permission: Permission) {
-  if (user.permissions) return user.permissions.includes(permission);
-  return user.roles.some((role) => ROLE_PERMISSIONS[role].includes(permission));
 }
 
 export const unauthorized = () => HttpResponse.json({ message: 'Unauthorized' }, { status: 401 });

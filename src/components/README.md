@@ -16,8 +16,9 @@ Import from `src/components` (or the component's folder).
 | Light/dark switch                                       | `<ThemeModeToggle />`                                         | `ThemeModeToggle/`         |
 | Forms                                                   | see `Form/README.md`                                          | `Form/`                    |
 | Render crash screen                                     | `ErrorFallback` (already wired in `AppProviders`)             | `ErrorFallback/`           |
+| Fade something in when it mounts                        | `<FadeIn y={4} delay={0.1}>...</FadeIn>`                      | `Motion/`                  |
 
-`AppToaster`, `ConfirmProvider` and `ErrorFallback` are mounted once in `src/providers/AppProviders.tsx`. Don't mount them again.
+`AppToaster`, `ConfirmProvider`, `MotionProvider` and `ErrorFallback` are mounted once in `src/providers/AppProviders.tsx`. Don't mount them again.
 
 ---
 
@@ -59,6 +60,20 @@ const usersQuery = useGetUserList(params);
 
 Content fades in when it arrives. `LoadingState` waits 200ms before showing, so fast loads never flash a spinner.
 
+## Motion
+
+Animations use [`motion`](https://motion.dev) through `m.*` components (`import { m, AnimatePresence } from 'motion/react'`). `MotionProvider` loads only the DOM animation features and is `strict`, so `motion.div` throws: always write `m.div`. Timing comes from `src/theme/motion.ts` (`DURATION`, `EASE`, `enterTransition()`, `exitTransition()`, `moveTransition()`). Rules: `.agent/templates/09-motion.template.md`.
+
+`FadeIn` covers the common case:
+
+```tsx
+<FadeIn>{content}</FadeIn>                      // fade
+<FadeIn y={8} duration={DURATION.medium}>...</FadeIn> // fade + slide up
+<FadeIn animateOnLoad delay={0.2}>...</FadeIn>  // also animate on the first page load
+```
+
+Content in the server HTML shows instantly on the first load (no waiting for JavaScript), and anything mounted after that fades in. Both layouts already fade each page in on navigation, so pages don't need their own `FadeIn`.
+
 ## useConfirm
 
 ```tsx
@@ -97,7 +112,7 @@ Layouts live in `src/layouts` and are picked per page with `Page.getLayout`.
 | Layout          | Has                                                            | Use for                    |
 | --------------- | -------------------------------------------------------------- | -------------------------- |
 | `PublicLayout`  | header, footer, skip link                                      | marketing and public pages |
-| `PrivateLayout` | header, skip link; redirects to the intro page when signed out | signed-in app pages        |
+| `PrivateLayout` | header, skip link; redirects to the login page when signed out | signed-in app pages        |
 
 Nav links come from `src/configs/navigation.config.ts` (`public`, `private`, `footer`). Add a page to the menu there, not in the header. Social links in the footer come from `siteConfig.socials`. The header switches to a drawer menu below the `md` breakpoint.
 
@@ -121,3 +136,4 @@ Don't:
 - Render your own spinners, empty or error blocks when these components fit.
 - Mount another `ToastContainer`, `Dialog`-based confirm or error boundary at the app level.
 - Make content pop in without a transition (see `.agent/templates/09-motion.template.md`).
+- Write CSS keyframes or `transition` classes for things that appear, disappear or move. Use `FadeIn` or `m.*` with the tokens in `src/theme/motion.ts`. CSS transitions are only for hover/focus color changes.

@@ -1,27 +1,15 @@
-// Leaving: quick and accelerating. Arriving: a bit slower, settling softly into place.
-.text {
-  @apply block -translate-y-1 opacity-0 transition-[opacity,transform] duration-150 ease-in motion-reduce:transition-none;
+.root {
+  @apply block;
 }
 
 .reserved {
-  @apply block min-h-[1lh];
+  @apply min-h-[1lh];
 }
 
-// No reserved line, so the height animates together with the text instead.
-.collapsible {
-  @apply grid grid-rows-[0fr] transition-[grid-template-rows] duration-150 ease-in motion-reduce:transition-none;
-
-  .text {
-    @apply min-h-0 overflow-hidden;
-  }
+.text {
+  @apply block;
 }
 
-.visible {
-  &.collapsible {
-    @apply grid-rows-[1fr] duration-200 ease-out;
-  }
-
-  .text {
-    @apply translate-y-0 opacity-100 duration-200 ease-out;
-  }
+.clip {
+  @apply overflow-hidden;
 }

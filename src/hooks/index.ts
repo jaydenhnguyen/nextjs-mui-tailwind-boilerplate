@@ -6,6 +6,5 @@ export * from './useDebounce';
 export * from './useIsClient';
 export * from './useOpenState';
 export * from './useQueryParams';
-export * from './useScrollToTop';
 export * from './useStoredState';
 export * from './useThemeMode';

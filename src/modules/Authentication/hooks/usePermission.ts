@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { ROLES } from 'src/shared/enums';
-import { Permission, ROLE_PERMISSIONS } from '../constants';
+import { Permission } from '../constants';
+import { hasPermission } from '../utils/permission';
 import { useAuth } from './useAuth';
 
 export function usePermission() {
@@ -14,14 +15,7 @@ export function usePermission() {
     [user],
   );
 
-  const can = React.useCallback(
-    (permission: Permission) => {
-      if (!user) return false;
-      if (user.permissions) return user.permissions.includes(permission);
-      return user.roles.some((role) => ROLE_PERMISSIONS[role].includes(permission));
-    },
-    [user],
-  );
+  const can = React.useCallback((permission: Permission) => !!user && hasPermission(user, permission), [user]);
 
   return { can, hasRole };
 }

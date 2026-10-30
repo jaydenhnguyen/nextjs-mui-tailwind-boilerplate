@@ -1,6 +1,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { Button, Typography } from '@mui/material';
+import { FadeIn } from '../Motion';
 import classes from './StatusPage.module.scss';
 
 type Props = {
@@ -12,7 +13,7 @@ type Props = {
 
 export function StatusPage({ code, title, description, action }: Props) {
   return (
-    <div className={classes['root']}>
+    <FadeIn y={8} className={classes['root']}>
       <Typography variant="overline" color="primary" className={classes['code']}>
         {code}
       </Typography>
@@ -27,6 +28,6 @@ export function StatusPage({ code, title, description, action }: Props) {
           </Button>
         )}
       </div>
-    </div>
+    </FadeIn>
   );
 }

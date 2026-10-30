@@ -8,7 +8,6 @@ import 'src/styles/_app.scss';
 import 'src/styles/_core.scss';
 import 'src/styles/tailwind.scss';
 import { setupZod, siteConfig } from 'src/configs';
-import { useScrollToTop } from 'src/hooks';
 import { AppProviders } from 'src/providers';
 import { createAppEmotionCache } from 'src/theme';
 import { Seo } from 'src/components/Seo';
@@ -30,8 +29,6 @@ const clientEmotionCache = createAppEmotionCache();
 const faviconHref = `data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>${siteConfig.faviconEmoji}</text></svg>`;
 
 function App({ Component, pageProps, emotionCache = clientEmotionCache }: AppPropsWithLayout) {
-  useScrollToTop();
-
   const getLayout = Component.getLayout ?? ((page) => page);
 
   return (

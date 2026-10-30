@@ -1,11 +1,11 @@
 // Must match the folder structure in src/pages.
 export const APP_ROUTES = {
-  INTRODUCTION: '/intro',
+  LANDING: '/',
   LOGIN: '/login',
   HOME: '/home',
   USERS: '/users',
 };
 
-export const SITEMAP_ROUTES = [APP_ROUTES.INTRODUCTION];
+export const SITEMAP_ROUTES = [APP_ROUTES.LANDING];
 
 export const NO_INDEX_ROUTES = [APP_ROUTES.HOME, APP_ROUTES.USERS];

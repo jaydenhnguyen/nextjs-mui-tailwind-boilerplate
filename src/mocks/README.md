@@ -29,7 +29,7 @@ A small "Mock API" badge in the corner shows when mocks are on.
 ```txt
 src/mocks/
 ├── db.ts                  seed data, demo accounts
-├── session.ts             fake tokens, current user, permission check, 401/403 helpers
+├── session.ts             fake tokens, current user, 401/403 helpers
 ├── handlers/
 │   ├── auth.handlers.ts   login, me, refresh, logout
 │   ├── users.handlers.ts  list (search + pagination), create, delete

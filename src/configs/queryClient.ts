@@ -17,8 +17,6 @@ function shouldToast(error: ApiError) {
   return error.kind !== 'canceled' && error.status !== StatusCodes.UNAUTHORIZED;
 }
 
-const showErrorToast = (error: ApiError) => notify.error(error.message);
-
 export function createQueryClient() {
   return new QueryClient({
     queryCache: new QueryCache({
@@ -26,7 +24,7 @@ export function createQueryClient() {
         const apiError = toApiError(error);
         // A failed first load is shown by the page itself, so only failed background refetches get a toast.
         if (query.meta?.silent || query.state.data === undefined || !shouldToast(apiError)) return;
-        showErrorToast(apiError);
+        notify.error(apiError.message);
       },
     }),
     mutationCache: new MutationCache({
@@ -37,7 +35,7 @@ export function createQueryClient() {
       onError: (error, _variables, _context, mutation) => {
         const apiError = toApiError(error);
         if (mutation.meta?.silent || !shouldToast(apiError)) return;
-        showErrorToast(apiError);
+        notify.error(apiError.message);
       },
     }),
     defaultOptions: {

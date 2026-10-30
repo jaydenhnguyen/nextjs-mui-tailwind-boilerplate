@@ -4,6 +4,8 @@ import { navigationConfig } from 'src/configs';
 import { APP_ROUTES } from 'src/shared/constants';
 import { ErrorState } from 'src/components/ErrorState';
 import { LoadingState } from 'src/components/LoadingState';
+import { FadeIn } from 'src/components/Motion';
+import { DURATION } from 'src/theme/motion';
 import { useAuth, UserMenu } from 'src/modules/Authentication';
 import { Header, MAIN_CONTENT_ID, SkipLink } from '../components';
 import classes from './PrivateLayout.module.scss';
@@ -27,7 +29,9 @@ export function PrivateLayout({ children }: { children: React.ReactNode }) {
       <SkipLink />
       <Header navItems={navigationConfig.private} homeHref={APP_ROUTES.HOME} actions={<UserMenu />} />
       <main id={MAIN_CONTENT_ID} tabIndex={-1} className={classes['main']}>
-        {children}
+        <FadeIn key={router.pathname} y={8} duration={DURATION.medium}>
+          {children}
+        </FadeIn>
       </main>
     </div>
   );

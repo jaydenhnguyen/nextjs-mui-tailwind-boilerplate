@@ -15,7 +15,6 @@ Import from `src/hooks`.
 | `useStoredState(key, initial, { storage })` | `[value, setValue, remove]`                            | state saved in localStorage/sessionStorage, synced across tabs |
 | `useThemeMode()`                            | `{ mode, resolvedMode, setMode, toggleMode, isReady }` | light/dark/system                                              |
 | `useIsClient()`                             | `boolean`                                              | anything that reads browser-only values during render          |
-| `useScrollToTop()`                          |                                                        | already used in `_app`                                         |
 
 ## Examples
 
