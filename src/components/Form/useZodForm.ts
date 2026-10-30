@@ -1,6 +1,6 @@
-import { z } from 'zod';
-import { FieldValues, useForm, UseFormProps } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { FieldValues, useForm, UseFormProps } from 'react-hook-form';
+import { z } from 'zod';
 
 /**
  * `useForm` with zod validation. Field types come from the schema, so there's no separate form type to keep in sync.

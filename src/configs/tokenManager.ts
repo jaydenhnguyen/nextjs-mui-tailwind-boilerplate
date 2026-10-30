@@ -1,6 +1,6 @@
 import { CookieKey } from 'src/shared/constants/auth.constant';
-import { env } from './env';
 import { cookieStorage } from './cookies';
+import { env } from './env';
 
 type StoreTokensParams = {
   accessToken: string;

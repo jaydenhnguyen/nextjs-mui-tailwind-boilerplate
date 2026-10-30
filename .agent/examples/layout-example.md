@@ -21,10 +21,10 @@ It teaches:
 
 Layouts are app shell wrappers named **`PublicLayout`** and **`PrivateLayout`** (plus optional **`AdminLayout`**).
 
-| Authentication | Layouts |
-|----------------|---------|
-| Yes | `PublicLayout` + `PrivateLayout` |
-| No | `PublicLayout` only — remove / do not create `PrivateLayout` |
+| Authentication | Layouts                                                      |
+| -------------- | ------------------------------------------------------------ |
+| Yes            | `PublicLayout` + `PrivateLayout`                             |
+| No             | `PublicLayout` only — remove / do not create `PrivateLayout` |
 
 Do not use custom shell names (`AppShell`, `DashboardLayout`, etc.) as substitutes.
 
@@ -112,7 +112,7 @@ src/
 # Ownership Rules
 
 | Concern                  | Owner                                     |
-|--------------------------|-------------------------------------------|
+| ------------------------ | ----------------------------------------- |
 | Route shell              | `src/layouts`                             |
 | Header/footer/sidebar    | `src/components`                          |
 | Mobile drawer navigation | `src/components`                          |
@@ -137,26 +137,20 @@ Use for:
 
 ```tsx
 import * as React from 'react';
-
 import { PublicFooter } from 'src/components/PublicFooter';
 import { PublicHeader } from 'src/components/PublicHeader';
-
 import classes from './PublicLayout.module.scss';
 
 type Props = {
   children: React.ReactNode;
 };
 
-export function PublicLayout({
-                               children,
-                             }: Props): React.ReactElement {
+export function PublicLayout({ children }: Props): React.ReactElement {
   return (
     <div className={classes['public-layout']}>
       <PublicHeader />
 
-      <main className={classes['public-layout__main']}>
-        {children}
-      </main>
+      <main className={classes['public-layout__main']}>{children}</main>
 
       <PublicFooter />
     </div>
@@ -201,14 +195,11 @@ The real one is `src/layouts/PrivateLayout/PrivateLayout.tsx`. A variant with a 
 ```tsx
 import * as React from 'react';
 import { useRouter } from 'next/router';
-
-import { APP_ROUTES } from 'src/shared/constants';
 import { ErrorState } from 'src/components/ErrorState';
 import { LoadingState } from 'src/components/LoadingState';
 import { useAuth } from 'src/modules/Authentication';
-
+import { APP_ROUTES } from 'src/shared/constants';
 import { Sidebar } from '../components/Sidebar';
-
 import classes from './PrivateLayout.module.scss';
 
 export function PrivateLayout({ children }: { children: React.ReactNode }) {
@@ -274,11 +265,9 @@ Build it on top of `PrivateLayout` (which already handles sign-in) and add the r
 
 ```tsx
 import * as React from 'react';
-
-import { ROLES } from 'src/shared/enums';
 import { StatusPage } from 'src/components/StatusPage';
 import { Can } from 'src/modules/Authentication';
-
+import { ROLES } from 'src/shared/enums';
 import { PrivateLayout } from '../PrivateLayout';
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -308,7 +297,6 @@ Rules:
 ```tsx
 import * as React from 'react';
 import Head from 'next/head';
-
 import { PublicLayout } from 'src/layouts/PublicLayout';
 import { Home } from 'src/modules/Home';
 
@@ -336,7 +324,6 @@ HomePage.getLayout = function getLayout(page: React.ReactElement) {
 ```tsx
 import * as React from 'react';
 import Head from 'next/head';
-
 import { PrivateLayout } from 'src/layouts/PrivateLayout';
 import { Products } from 'src/modules/Products';
 
@@ -364,7 +351,6 @@ ProductsPage.getLayout = function getLayout(page: React.ReactElement) {
 ```tsx
 import * as React from 'react';
 import Head from 'next/head';
-
 import { AdminLayout } from 'src/layouts/AdminLayout';
 import { AdminProducts } from 'src/modules/AdminProducts';
 
@@ -390,11 +376,9 @@ AdminProductsPage.getLayout = function getLayout(page: React.ReactElement) {
 # _app.tsx getLayout Setup
 
 ```tsx
-import type { AppProps } from 'next/app';
 import * as React from 'react';
-
+import type { AppProps } from 'next/app';
 import { AppThemeProvider } from 'src/theme/AppThemeProvider';
-
 import 'src/styles/_app.scss';
 import 'src/styles/_core.scss';
 import 'src/styles/tailwind.scss';
@@ -407,17 +391,10 @@ type AppPropsWithLayout = AppProps & {
   Component: PageWithLayout;
 };
 
-export default function App({
-  Component,
-  pageProps,
-}: AppPropsWithLayout): React.ReactElement {
+export default function App({ Component, pageProps }: AppPropsWithLayout): React.ReactElement {
   const getLayout = Component.getLayout ?? ((page) => page);
 
-  return (
-    <AppThemeProvider>
-      {getLayout(<Component {...pageProps} />)}
-    </AppThemeProvider>
-  );
+  return <AppThemeProvider>{getLayout(<Component {...pageProps} />)}</AppThemeProvider>;
 }
 ```
 
@@ -460,7 +437,6 @@ Rules:
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { List, ListItemButton, ListItemText } from '@mui/material';
-
 import { APP_ROUTES } from 'src/shared/constants';
 
 const NAV_ITEMS = [
@@ -483,12 +459,7 @@ export function Sidebar(): React.ReactElement {
         const isActive = router.pathname === item.href;
 
         return (
-          <ListItemButton
-            key={item.href}
-            component={Link}
-            href={item.href}
-            selected={isActive}
-          >
+          <ListItemButton key={item.href} component={Link} href={item.href} selected={isActive}>
             <ListItemText primary={item.label} />
           </ListItemButton>
         );
@@ -513,9 +484,8 @@ Use MUI Drawer for mobile navigation.
 
 ```tsx
 import * as React from 'react';
-import { Drawer, IconButton } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-
+import { Drawer, IconButton } from '@mui/material';
 import { Sidebar } from '../Sidebar';
 
 export function MobileSidebarDrawer(): React.ReactElement {
@@ -535,11 +505,7 @@ export function MobileSidebarDrawer(): React.ReactElement {
         <MenuIcon />
       </IconButton>
 
-      <Drawer
-        open={isOpen}
-        onClose={handleClose}
-        anchor="left"
-      >
+      <Drawer open={isOpen} onClose={handleClose} anchor="left">
         <Sidebar />
       </Drawer>
     </>
@@ -636,7 +602,6 @@ Rules:
 
 ```tsx
 import * as React from 'react';
-
 import { PublicLayout } from 'src/layouts/PublicLayout';
 import { NotFound } from 'src/modules/NotFound';
 

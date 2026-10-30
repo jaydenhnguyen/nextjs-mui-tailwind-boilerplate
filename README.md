@@ -368,6 +368,10 @@ NEXT_PUBLIC_
 | `npm run start`      | Start production server                                                         |
 | `npm run lint`       | Run ESLint                                                                      |
 | `npm run type-check` | Run TypeScript checks                                                           |
+| `npm test`           | Run the tests once (`npm run test:watch` to rerun on save), see `src/test`      |
+| `npm run check`      | Type-check, lint, test and build: what CI runs                                  |
+| `npm run format`     | Format everything with Prettier (also sorts imports and Tailwind classes)       |
+| `npm run analyze`    | Open the interactive bundle analyzer                                            |
 | `npm run dev:mock`   | Dev server with the mock API                                                    |
 | `npm run gen`        | Scaffold a CRUD resource, page, component or hook (`npm run gen crud Products`) |
 

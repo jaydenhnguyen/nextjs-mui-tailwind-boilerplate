@@ -141,7 +141,7 @@ src/modules/Products/
 # Ownership Rules
 
 | Concern                         | Location                                    |
-|---------------------------------|---------------------------------------------|
+| ------------------------------- | ------------------------------------------- |
 | Feature root screen             | `src/modules/Products/Products.tsx`         |
 | Feature styling                 | `src/modules/Products/Products.module.scss` |
 | Feature-only components         | `src/modules/Products/components/`          |
@@ -178,11 +178,9 @@ It must not:
 ```tsx
 import * as React from 'react';
 import { Button } from '@mui/material';
-
 import { EmptyState, ErrorState, LoadingState } from 'src/components';
-
-import { ProductHeader } from './components/ProductHeader';
 import { ProductFilters } from './components/ProductFilters';
+import { ProductHeader } from './components/ProductHeader';
 import { ProductList } from './components/ProductList';
 import { useGetProducts } from './hooks';
 import classes from './Products.module.scss';
@@ -212,25 +210,11 @@ export function Products(): React.ReactElement {
 
   return (
     <section className={classes['products-wrapper']}>
-      <ProductHeader
-        title="Products"
-        action={
-          <Button variant="contained">
-            Create Product
-          </Button>
-        }
-      />
+      <ProductHeader title="Products" action={<Button variant="contained">Create Product</Button>} />
 
-      <ProductFilters
-        searchValue={searchValue}
-        onSearchChange={handleSearchChange}
-      />
+      <ProductFilters searchValue={searchValue} onSearchChange={handleSearchChange} />
 
-      {!data?.data?.length ? (
-        <EmptyState />
-      ) : (
-        <ProductList products={data.data} />
-      )}
+      {!data?.data?.length ? <EmptyState /> : <ProductList products={data.data} />}
     </section>
   );
 }
@@ -264,7 +248,6 @@ Rules:
 ```tsx
 import * as React from 'react';
 import { Box, Typography } from '@mui/material';
-
 import classes from './ProductHeader.module.scss';
 
 type Props = {
@@ -272,10 +255,7 @@ type Props = {
   action?: React.ReactNode;
 };
 
-export function ProductHeader({
-  title,
-  action,
-}: Props): React.ReactElement {
+export function ProductHeader({ title, action }: Props): React.ReactElement {
   return (
     <Box className={classes['product-header']}>
       <Typography variant="h4" component="h1">
@@ -307,7 +287,6 @@ export function ProductHeader({
 ```tsx
 import * as React from 'react';
 import { TextField } from '@mui/material';
-
 import classes from './ProductFilters.module.scss';
 
 type Props = {
@@ -315,24 +294,14 @@ type Props = {
   onSearchChange: (value: string) => void;
 };
 
-export function ProductFilters({
-  searchValue,
-  onSearchChange,
-}: Props): React.ReactElement {
-  const handleChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
+export function ProductFilters({ searchValue, onSearchChange }: Props): React.ReactElement {
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     onSearchChange(event.target.value);
   };
 
   return (
     <div className={classes['product-filters']}>
-      <TextField
-        value={searchValue}
-        onChange={handleChange}
-        label="Search products"
-        fullWidth
-      />
+      <TextField value={searchValue} onChange={handleChange} label="Search products" fullWidth />
     </div>
   );
 }
@@ -362,26 +331,19 @@ Rules:
 
 ```tsx
 import * as React from 'react';
-
 import { Product } from '../../models';
 import { ProductCard } from '../ProductCard';
-
 import classes from './ProductList.module.scss';
 
 type Props = {
   products: Product[];
 };
 
-export function ProductList({
-  products,
-}: Props): React.ReactElement {
+export function ProductList({ products }: Props): React.ReactElement {
   return (
     <div className={classes['product-list']}>
       {products.map((product) => (
-        <ProductCard
-          key={product.id}
-          product={product}
-        />
+        <ProductCard key={product.id} product={product} />
       ))}
     </div>
   );
@@ -414,20 +376,15 @@ Rules:
 ```tsx
 import * as React from 'react';
 import { Typography } from '@mui/material';
-
 import { Card } from 'src/components/Card';
-
 import { Product } from '../../models';
-
 import classes from './ProductCard.module.scss';
 
 type Props = {
   product: Product;
 };
 
-export function ProductCard({
-  product,
-}: Props): React.ReactElement {
+export function ProductCard({ product }: Props): React.ReactElement {
   return (
     <Card className={classes['product-card']}>
       <Typography variant="h6" component="h2">
@@ -438,9 +395,7 @@ export function ProductCard({
         SKU: {product.sku}
       </Typography>
 
-      <Typography variant="body1">
-        ${product.price.toFixed(2)}
-      </Typography>
+      <Typography variant="body1">${product.price.toFixed(2)}</Typography>
     </Card>
   );
 }
@@ -473,7 +428,6 @@ Rules:
 ```ts
 import { getProducts } from 'src/apis/products';
 import { useAppQuery } from 'src/hooks/useAppQuery';
-
 import { PRODUCT_QUERY_KEYS } from '../constants';
 import { GetProductsRequest } from '../models';
 
@@ -481,14 +435,9 @@ type Params = {
   payload: GetProductsRequest;
 };
 
-export function useGetProducts({
-  payload,
-}: Params) {
+export function useGetProducts({ payload }: Params) {
   return useAppQuery({
-    queryKey: [
-      PRODUCT_QUERY_KEYS.GET_PRODUCTS,
-      payload,
-    ],
+    queryKey: [PRODUCT_QUERY_KEYS.GET_PRODUCTS, payload],
     queryFn: () => getProducts(payload),
   });
 }
@@ -575,9 +524,7 @@ export type ProductOption = {
   value: string;
 };
 
-export function mapProductsToOptions(
-  products: Product[],
-): ProductOption[] {
+export function mapProductsToOptions(products: Product[]): ProductOption[] {
   return products.map((product) => ({
     label: product.name,
     value: product.id,
@@ -651,7 +598,6 @@ The page should only render the module root.
 ```tsx
 import * as React from 'react';
 import Head from 'next/head';
-
 import { PrivateLayout } from 'src/layouts/PrivateLayout';
 import { Products } from 'src/modules/Products';
 

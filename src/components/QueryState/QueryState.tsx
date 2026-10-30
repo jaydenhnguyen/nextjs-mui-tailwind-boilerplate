@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { UseQueryResult } from '@tanstack/react-query';
 import { ApiError, toApiError } from 'src/shared/utils/apiError';
-import { LoadingState } from '../LoadingState';
-import { ErrorState } from '../ErrorState';
 import { EmptyState } from '../EmptyState';
+import { ErrorState } from '../ErrorState';
+import { LoadingState } from '../LoadingState';
 import { FadeIn } from '../Motion';
 
 type Props<TData> = {

@@ -25,7 +25,7 @@ Code written by humans and AI agents should look like it came from the same engi
 This boilerplate prioritizes:
 
 | Principle     | Meaning                                 |
-|---------------|-----------------------------------------|
+| ------------- | --------------------------------------- |
 | Predictable   | Same problem → same solution pattern    |
 | Typed         | Strong TypeScript boundaries            |
 | Layered       | UI, hooks, APIs, configs stay separated |
@@ -48,7 +48,7 @@ Every artifact should have:
 When adding a new artifact:
 
 | Need              | Location                            | Convention       |
-|-------------------|-------------------------------------|------------------|
+| ----------------- | ----------------------------------- | ---------------- |
 | Page              | `src/pages/`                        | thin wrapper     |
 | Feature screen    | `src/modules/<Feature>/`            | `Feature.tsx`    |
 | Feature component | `src/modules/<Feature>/components/` | `PascalCase.tsx` |
@@ -70,7 +70,7 @@ Do not invent new structures unless the existing architecture truly cannot suppo
 State must live in the correct owner.
 
 | State Type               | Owner                     |
-|--------------------------|---------------------------|
+| ------------------------ | ------------------------- |
 | Server state             | TanStack Query            |
 | Form state               | react-hook-form           |
 | Local UI state           | `useState`                |
@@ -152,15 +152,13 @@ Examples:
 Bad:
 
 ```ts
-function update(data: any) {
-}
+function update(data: any) {}
 ```
 
 Good:
 
 ```ts
-function update(data: UpdateProductRequest) {
-}
+function update(data: UpdateProductRequest) {}
 ```
 
 ---
@@ -168,7 +166,7 @@ function update(data: UpdateProductRequest) {
 # 5. File Naming Rules
 
 | Type           | Convention     | Example                     |
-|----------------|----------------|-----------------------------|
+| -------------- | -------------- | --------------------------- |
 | Component      | PascalCase     | `ProductCard.tsx`           |
 | Hook           | `useCamelCase` | `useGetProducts.ts`         |
 | Utility        | camelCase      | `formatCurrency.ts`         |
@@ -395,13 +393,13 @@ Always use endpoint constants.
 Correct:
 
 ```ts
-PRODUCTS_ENDPOINTS.GET_PRODUCTS
+PRODUCTS_ENDPOINTS.GET_PRODUCTS;
 ```
 
 Incorrect:
 
 ```ts
-'/products'
+'/products';
 ```
 
 hardcoded repeatedly.
@@ -411,7 +409,7 @@ hardcoded repeatedly.
 # 10. Model / Type Naming Rules
 
 | Type       | Convention           |
-|------------|----------------------|
+| ---------- | -------------------- |
 | Request    | `CreateXRequest`     |
 | Response   | `GetXResponse`       |
 | Entity     | `Product`            |
@@ -427,8 +425,7 @@ hardcoded repeatedly.
 Preferred:
 
 ```ts
-export type CreateProductRequest =
-  z.infer<typeof createProductSchema>;
+export type CreateProductRequest = z.infer<typeof createProductSchema>;
 ```
 
 ---
@@ -456,8 +453,8 @@ SCREAMING_SNAKE_CASE
 Example:
 
 ```ts
-APP_ROUTES.PRODUCTS
-NOTIFY_MESSAGES.CREATE_SUCCESS
+APP_ROUTES.PRODUCTS;
+NOTIFY_MESSAGES.CREATE_SUCCESS;
 ```
 
 ---
@@ -515,7 +512,7 @@ Avoid:
 # 14. Boolean Naming Rules
 
 | Prefix | Usage         |
-|--------|---------------|
+| ------ | ------------- |
 | is     | boolean state |
 | has    | existence     |
 | can    | permission    |
@@ -524,11 +521,11 @@ Avoid:
 Examples:
 
 ```ts
-isLoading
-isOpen
-hasPermission
-canEdit
-shouldRefetch
+isLoading;
+isOpen;
+hasPermission;
+canEdit;
+shouldRefetch;
 ```
 
 ---
@@ -546,13 +543,13 @@ imports only.
 Correct:
 
 ```ts
-import {ProductCard} from 'src/modules/Products/components';
+import { ProductCard } from 'src/modules/Products/components';
 ```
 
 Incorrect:
 
 ```ts
-import {ProductCard} from '@/modules/Products/components';
+import { ProductCard } from '@/modules/Products/components';
 ```
 
 ---
@@ -584,7 +581,7 @@ til
 Good:
 
 ```ts
-src / shared / util
+src / shared / util;
 ```
 
 ---
@@ -596,8 +593,7 @@ Use named exports.
 Correct:
 
 ```ts
-export function ProductCard() {
-}
+export function ProductCard() {}
 ```
 
 Incorrect:
@@ -657,14 +653,11 @@ function process(data) {
 Good:
 
 ```ts
-function mapProductsToTableRows() {
-}
+function mapProductsToTableRows() {}
 
-function calculateOrderTotal() {
-}
+function calculateOrderTotal() {}
 
-function validateCheckoutStep() {
-}
+function validateCheckoutStep() {}
 ```
 
 ---
@@ -697,7 +690,7 @@ export async function createProduct(payload: CreateProductRequest): Promise<Crea
 ## Ownership
 
 | Layer          | Responsibility       |
-|----------------|----------------------|
+| -------------- | -------------------- |
 | request client | normalize errors     |
 | mutation hook  | toast + invalidation |
 | query hook     | expose error         |
@@ -895,14 +888,8 @@ Use type guards for:
 Example:
 
 ```ts
-export function isErrorResponse(
-  value: unknown,
-): value is ErrorResponse {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    'message' in value
-  );
+export function isErrorResponse(value: unknown): value is ErrorResponse {
+  return typeof value === 'object' && value !== null && 'message' in value;
 }
 ```
 
@@ -923,7 +910,7 @@ Use:
 Correct:
 
 ```ts
-data?.pagination?.page ?? 1
+data?.pagination?.page ?? 1;
 ```
 
 Avoid:
@@ -945,16 +932,16 @@ Do not format inline repeatedly.
 Correct:
 
 ```ts
-formatCurrency(price)
-formatDate(date)
+formatCurrency(price);
+formatDate(date);
 ```
 
 Avoid:
 
 ```tsx
-$
+$;
 {
-  price.toFixed(2)
+  price.toFixed(2);
 }
 ```
 
@@ -1001,9 +988,9 @@ Good:
 
 ```tsx
 <Table>
-  <TableToolbar/>
-  <TableFilters/>
-  <ProductTableRows/>
+  <TableToolbar />
+  <TableFilters />
+  <ProductTableRows />
 </Table>
 ```
 

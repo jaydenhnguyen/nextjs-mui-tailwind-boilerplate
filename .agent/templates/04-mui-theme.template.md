@@ -102,7 +102,7 @@ src/theme/
 # 4. File Responsibilities
 
 | File                           | Responsibility                                                     |
-|--------------------------------|--------------------------------------------------------------------|
+| ------------------------------ | ------------------------------------------------------------------ |
 | `AppThemeProvider.tsx`         | Wraps app with MUI `ThemeProvider` and `CssBaseline`               |
 | `core/_config.ts`              | Raw design tokens: colors, grey scale, background, semantic values |
 | `core/palette.ts`              | Maps raw tokens into MUI palette shape                             |
@@ -123,15 +123,15 @@ This project uses `src/` imports.
 Correct:
 
 ```ts
-import {AppThemeProvider} from 'src/theme/AppThemeProvider';
-import {baseTheme} from 'src/theme/core/base';
-import {Card} from 'src/components/Card';
+import { Card } from 'src/components/Card';
+import { AppThemeProvider } from 'src/theme/AppThemeProvider';
+import { baseTheme } from 'src/theme/core/base';
 ```
 
 Incorrect:
 
 ```ts
-import {AppThemeProvider} from '@/theme/AppThemeProvider';
+import { AppThemeProvider } from '@/theme/AppThemeProvider';
 ```
 
 Feature components should not import private theme config directly.
@@ -139,13 +139,13 @@ Feature components should not import private theme config directly.
 Avoid:
 
 ```ts
-import {themeConfig} from 'src/theme/core/_config';
+import { themeConfig } from 'src/theme/core/_config';
 ```
 
 Prefer:
 
 ```tsx
-<Box sx={{color: 'primary.main', bgcolor: 'background.paper'}}/>
+<Box sx={{ color: 'primary.main', bgcolor: 'background.paper' }} />
 ```
 
 or:
@@ -253,7 +253,7 @@ src/theme/core/palette.ts
 Example:
 
 ```ts
-import {themeConfig} from './_config';
+import { themeConfig } from './_config';
 
 export const palette = {
   light: {
@@ -295,10 +295,10 @@ src/theme/core/base.ts
 Example:
 
 ```ts
-import {createTheme} from '@mui/material/styles';
-import {palette} from './palette';
-import {typography} from './typography';
-import {components} from '../components';
+import { createTheme } from '@mui/material/styles';
+import { components } from '../components';
+import { palette } from './palette';
+import { typography } from './typography';
 
 export const baseTheme = createTheme({
   palette: palette.light,
@@ -343,17 +343,13 @@ src/theme/AppThemeProvider.tsx
 Example:
 
 ```tsx
-import {CssBaseline, ThemeProvider} from '@mui/material';
-import {baseTheme} from './core/base';
+import { CssBaseline, ThemeProvider } from '@mui/material';
+import { baseTheme } from './core/base';
 
-export function AppThemeProvider({
-                                   children,
-                                 }: {
-  children: React.ReactNode;
-}) {
+export function AppThemeProvider({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider theme={baseTheme}>
-      <CssBaseline/>
+      <CssBaseline />
       {children}
     </ThemeProvider>
   );
@@ -369,9 +365,9 @@ src/pages/_app.tsx
 Example:
 
 ```tsx
-import {AppThemeProvider} from 'src/theme/AppThemeProvider';
+import { AppThemeProvider } from 'src/theme/AppThemeProvider';
 
-export default function App({Component, pageProps}: AppProps) {
+export default function App({ Component, pageProps }: AppProps) {
   return (
     <AppThemeProvider>
       <Component {...pageProps} />
@@ -404,7 +400,7 @@ Rules:
 Example:
 
 ```ts
-import {pxToRem} from '../helpers';
+import { pxToRem } from '../helpers';
 
 export const typography = {
   fontFamily: '"Inter", system-ui, sans-serif',
@@ -445,9 +441,7 @@ Use components like:
 Avoid:
 
 ```tsx
-<Typography sx={{fontSize: 37}}>
-  Title
-</Typography>
+<Typography sx={{ fontSize: 37 }}>Title</Typography>
 ```
 
 unless it is a true one-off.
@@ -467,7 +461,7 @@ Prefer `next/font`.
 Example:
 
 ```ts
-import {Inter} from 'next/font/google';
+import { Inter } from 'next/font/google';
 
 export const inter = Inter({
   subsets: ['latin'],
@@ -501,9 +495,9 @@ Use responsive `sx`:
 ```tsx
 <Box
   sx={{
-    p: {xs: 2, md: 4},
+    p: { xs: 2, md: 4 },
     display: 'flex',
-    flexDirection: {xs: 'column', md: 'row'},
+    flexDirection: { xs: 'column', md: 'row' },
   }}
 />
 ```
@@ -582,7 +576,7 @@ export const MuiButton = {
 ```ts
 // src/theme/components/index.ts
 
-import {MuiButton} from './button';
+import { MuiButton } from './button';
 
 export const components = {
   MuiButton,
@@ -596,9 +590,7 @@ Example:
 Incorrect:
 
 ```tsx
-<Button sx={{textTransform: 'none', borderRadius: '999px'}}>
-  Submit
-</Button>
+<Button sx={{ textTransform: 'none', borderRadius: '999px' }}>Submit</Button>
 ```
 
 if this is the default button style.
@@ -612,7 +604,7 @@ Correct:
 # 14. Theme vs Component Styling
 
 | Belongs in theme           | Belongs in component/module    |
-|----------------------------|--------------------------------|
+| -------------------------- | ------------------------------ |
 | default button radius      | page-specific layout           |
 | input border style         | hero section image positioning |
 | typography scale           | one-off animation              |
@@ -649,14 +641,10 @@ Feature-specific components should reuse global UI primitives.
 Example:
 
 ```tsx
-import {Card} from 'src/components/Card';
+import { Card } from 'src/components/Card';
 
 export function BookCard() {
-  return (
-    <Card>
-      {/* book-specific UI */}
-    </Card>
-  );
+  return <Card>{/* book-specific UI */}</Card>;
 }
 ```
 
@@ -740,10 +728,10 @@ Example usage:
 }
 
 .top-page-wrapper {
-  @apply flex bg-white border shadow-md rounded-lg p-6 items-center justify-end;
+  @apply flex items-center justify-end rounded-lg border bg-white p-6 shadow-md;
 
   .add-product-btn {
-    @apply flex items-center text-white font-bold py-2 px-4;
+    @apply flex items-center px-4 py-2 font-bold text-white;
   }
 }
 ```
@@ -775,7 +763,7 @@ Example:
   sx={{
     bgcolor: 'background.paper',
     color: 'text.primary',
-    p: {xs: 2, md: 4},
+    p: { xs: 2, md: 4 },
     borderRadius: 2,
   }}
 />
@@ -800,20 +788,20 @@ Do not hardcode raw hex colors in:
 Avoid:
 
 ```tsx
-<Box sx={{color: '#1976D2'}}/>
+<Box sx={{ color: '#1976D2' }} />
 ```
 
 Prefer:
 
 ```tsx
-<Box sx={{color: 'primary.main'}}/>
+<Box sx={{ color: 'primary.main' }} />
 ```
 
 Avoid:
 
 ```scss
 .title {
-  color: #1976D2;
+  color: #1976d2;
 }
 ```
 

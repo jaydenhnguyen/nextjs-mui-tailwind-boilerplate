@@ -106,7 +106,7 @@ Never submit with raw `getValues()` unless there is a very specific reason.
 # 3. Form Folder Ownership
 
 | Concern                         | Location                             |
-|---------------------------------|--------------------------------------|
+| ------------------------------- | ------------------------------------ |
 | Feature form UI                 | `src/modules/<Feature>/components/`  |
 | Feature form hook               | `src/modules/<Feature>/hooks/`       |
 | Feature schema                  | `src/modules/<Feature>/schema/`      |
@@ -211,8 +211,8 @@ Every reusable `Control*` component must:
 Reference implementation:
 
 ```tsx
-import { TextField, TextFieldProps } from '@mui/material';
 import { FieldValues, useController } from 'react-hook-form';
+import { TextField, TextFieldProps } from '@mui/material';
 import { FieldMessage } from '../FieldMessage';
 import { ControlFieldProps, MessageSpaceProps } from '../types';
 
@@ -295,7 +295,7 @@ src/modules/<Feature>/schema/
 Example:
 
 ```ts
-import {z} from 'zod';
+import { z } from 'zod';
 
 export const createProductSchema = z.object({
   name: z.string().min(1, 'Product name is required'),
@@ -332,8 +332,8 @@ If backend payload differs from form shape, use a mapper before mutation or insi
 Form request types should usually come from zod:
 
 ```ts
-import {z} from 'zod';
-import {createProductSchema} from '../schema/create-product.schema';
+import { z } from 'zod';
+import { createProductSchema } from '../schema/create-product.schema';
 
 export type CreateProductRequest = z.output<typeof createProductSchema>;
 export type CreateProductFormValues = z.input<typeof createProductSchema>;
@@ -368,7 +368,7 @@ Map before submission:
 
 ```ts
 const onSubmit = (values: RegisterFormValues) => {
-  const {confirmPassword, ...payload} = values;
+  const { confirmPassword, ...payload } = values;
 
   mutate(payload);
 };
@@ -387,7 +387,7 @@ src/modules/<Feature>/hooks/
 Naming:
 
 | Action | Hook             |
-|--------|------------------|
+| ------ | ---------------- |
 | Create | `useCreateXForm` |
 | Update | `useUpdateXForm` |
 | Login  | `useLoginForm`   |
@@ -543,15 +543,15 @@ Use:
 
 All fields are controlled. Use the ready-made components:
 
-| Input                 | Component              |
-|-----------------------|------------------------|
-| Text, email, number, multiline | `ControlTextField` |
-| Password              | `ControlPasswordField` |
-| Select / multi-select | `ControlSelect`        |
-| Checkbox              | `ControlCheckbox`      |
-| Switch                | `ControlSwitch`        |
-| Radio group           | `ControlRadioGroup`    |
-| Standalone / form-level error | `ControlErrorMessage` |
+| Input                          | Component              |
+| ------------------------------ | ---------------------- |
+| Text, email, number, multiline | `ControlTextField`     |
+| Password                       | `ControlPasswordField` |
+| Select / multi-select          | `ControlSelect`        |
+| Checkbox                       | `ControlCheckbox`      |
+| Switch                         | `ControlSwitch`        |
+| Radio group                    | `ControlRadioGroup`    |
+| Standalone / form-level error  | `ControlErrorMessage`  |
 
 Example select:
 
@@ -575,11 +575,11 @@ Do not mix uncontrolled local state and RHF state for the same field.
 
 There are three error layers:
 
-| Error Type            | Source       | Handled By                           |
-|-----------------------|--------------|--------------------------------------|
-| Client validation     | zod          | field helper text                    |
-| Server field errors   | API response | `applyApiErrorToForm` → `setError`   |
-| Global request errors | API response | automatic mutation error toast       |
+| Error Type            | Source       | Handled By                         |
+| --------------------- | ------------ | ---------------------------------- |
+| Client validation     | zod          | field helper text                  |
+| Server field errors   | API response | `applyApiErrorToForm` → `setError` |
+| Global request errors | API response | automatic mutation error toast     |
 
 Every API error is an `ApiError` with camelCased `fieldErrors` (see `02-api-structure.template.md` §24). Map it in one line:
 
@@ -722,22 +722,18 @@ If the project has a helper like `createFieldNames`, use it.
 Example:
 
 ```ts
-export const CREATE_PRODUCT_FIELD_NAMES =
-  createFieldNames<CreateProductRequest>()({
-    name: 'name',
-    sku: 'sku',
-    price: 'price',
-    categoryId: 'categoryId',
-  });
+export const CREATE_PRODUCT_FIELD_NAMES = createFieldNames<CreateProductRequest>()({
+  name: 'name',
+  sku: 'sku',
+  price: 'price',
+  categoryId: 'categoryId',
+});
 ```
 
 Use:
 
 ```tsx
-<ControlTextField
-  control={control}
-  name={CREATE_PRODUCT_FIELD_NAMES.name}
-/>
+<ControlTextField control={control} name={CREATE_PRODUCT_FIELD_NAMES.name} />
 ```
 
 Avoid repeating string field names in many places.
@@ -790,10 +786,7 @@ Rules:
 Example:
 
 ```ts
-const STEP_ONE_FIELDS: Path<CreateProductRequest>[] = [
-  'name',
-  'categoryId',
-];
+const STEP_ONE_FIELDS: Path<CreateProductRequest>[] = ['name', 'categoryId'];
 
 const handleNext = async () => {
   const isValid = await trigger(STEP_ONE_FIELDS);
@@ -839,12 +832,7 @@ Example:
 If a shared modal only offers an `onSave` callback:
 
 ```tsx
-<AppModal
-  open={open}
-  onClose={handleClose}
-  onSave={form.handleSubmit(onSubmit)}
-  isLoading={isLoading}
-/>
+<AppModal open={open} onClose={handleClose} onSave={form.handleSubmit(onSubmit)} isLoading={isLoading} />
 ```
 
 Do not call:
@@ -912,7 +900,7 @@ File upload fields need controlled handling.
 Schema example:
 
 ```ts
-import {z} from 'zod';
+import { z } from 'zod';
 
 export const uploadFileSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -929,20 +917,14 @@ Input example:
 <Controller
   control={control}
   name="file"
-  render={({field: {onChange}, fieldState}) => (
+  render={({ field: { onChange }, fieldState }) => (
     <>
       <Button component="label" variant="outlined">
         Choose file
-        <input
-          hidden
-          type="file"
-          onChange={(event) => onChange(event.target.files)}
-        />
+        <input hidden type="file" onChange={(event) => onChange(event.target.files)} />
       </Button>
 
-      {fieldState.error?.message && (
-        <span>{fieldState.error.message}</span>
-      )}
+      {fieldState.error?.message && <span>{fieldState.error.message}</span>}
     </>
   )}
 />
@@ -1041,7 +1023,7 @@ Examples:
 Example:
 
 ```ts
-const {fields, append, remove} = useFieldArray({
+const { fields, append, remove } = useFieldArray({
   control,
   name: 'variants',
 });
@@ -1053,22 +1035,14 @@ Render:
 {
   fields.map((field, index) => (
     <div key={field.id}>
-      <ControlTextField
-        control={control}
-        name={`variants.${index}.name`}
-        label="Variant name"
-      />
+      <ControlTextField control={control} name={`variants.${index}.name`} label="Variant name" />
 
-      <Button onClick={() => remove(index)}>
-        Remove
-      </Button>
+      <Button onClick={() => remove(index)}>Remove</Button>
     </div>
-  ))
+  ));
 }
 
-<Button onClick={() => append({name: '', price: 0})}>
-  Add variant
-</Button>
+<Button onClick={() => append({ name: '', price: 0 })}>Add variant</Button>;
 ```
 
 Rules:
@@ -1120,7 +1094,7 @@ Example:
 const [search, setSearch] = useState('');
 const debouncedSearch = useDebounce(search, 300);
 
-const {data, isFetching} = useSearchCategories({
+const { data, isFetching } = useSearchCategories({
   payload: {
     searchValue: debouncedSearch,
   },
@@ -1129,7 +1103,7 @@ const {data, isFetching} = useSearchCategories({
 <Controller
   control={control}
   name="categoryId"
-  render={({field, fieldState}) => (
+  render={({ field, fieldState }) => (
     <Autocomplete
       options={data?.data ?? []}
       loading={isFetching}
@@ -1145,7 +1119,7 @@ const {data, isFetching} = useSearchCategories({
       )}
     />
   )}
-/>
+/>;
 ```
 
 Rules:
@@ -1254,9 +1228,7 @@ src/modules/<Feature>/utils/
 Example:
 
 ```ts
-export function mapProductToUpdateProductForm(
-  product: Product,
-): UpdateProductRequest {
+export function mapProductToUpdateProductForm(product: Product): UpdateProductRequest {
   return {
     name: product.name ?? '',
     sku: product.sku ?? '',
@@ -1366,8 +1338,8 @@ Use `src/` imports.
 Correct:
 
 ```ts
-import { ControlTextField } from 'src/components/Form';
 import { createProduct } from 'src/apis/products';
+import { ControlTextField } from 'src/components/Form';
 ```
 
 Incorrect:

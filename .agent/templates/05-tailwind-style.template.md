@@ -204,11 +204,7 @@ If the project has additional folders, include them intentionally.
 Example:
 
 ```ts
-content: [
-  './src/**/*.{js,ts,jsx,tsx}',
-  './docs/**/*.{md,mdx}',
-  './stories/**/*.{js,ts,jsx,tsx,mdx}',
-];
+content: ['./src/**/*.{js,ts,jsx,tsx}', './docs/**/*.{md,mdx}', './stories/**/*.{js,ts,jsx,tsx,mdx}'];
 ```
 
 Do not include unnecessary broad paths that slow down builds.
@@ -384,19 +380,27 @@ Use readable kebab-case class names.
 Recommended:
 
 ```scss
-.books-wrapper {}
-.top-page-wrapper {}
-.book-card {}
-.book-card--featured {}
+.books-wrapper {
+}
+.top-page-wrapper {
+}
+.book-card {
+}
+.book-card--featured {
+}
 ```
 
 Use modifier classes for state:
 
 ```scss
-.card {}
-.card--active {}
-.card--disabled {}
-.card--visible {}
+.card {
+}
+.card--active {
+}
+.card--disabled {
+}
+.card--visible {
+}
 ```
 
 When using CSS module classes with hyphens, access them with bracket notation:
@@ -412,12 +416,7 @@ Example:
 ```tsx
 import classNames from 'classnames';
 
-<div
-  className={classNames(
-    classes['book-card'],
-    isFeatured && classes['book-card--featured'],
-  )}
-/>
+<div className={classNames(classes['book-card'], isFeatured && classes['book-card--featured'])} />;
 ```
 
 ---
@@ -457,7 +456,7 @@ Example:
 
 ```scss
 .card {
-  @apply flex relative w-full gap-4 p-4 text-sm text-primary-main border border-grey-200 rounded-lg shadow-sm;
+  @apply relative flex w-full gap-4 rounded-lg border border-grey-200 p-4 text-sm text-primary-main shadow-sm;
 }
 ```
 
@@ -504,9 +503,7 @@ Tailwind classes directly in JSX are allowed only for simple one-off layout.
 Allowed:
 
 ```tsx
-<div className="flex items-center gap-2">
-  ...
-</div>
+<div className="flex items-center gap-2">...</div>
 ```
 
 Avoid long class strings:
@@ -518,9 +515,7 @@ Avoid long class strings:
 Move long styles into a SCSS module:
 
 ```tsx
-<div className={classes['empty-state']}>
-  ...
-</div>
+<div className={classes['empty-state']}>...</div>
 ```
 
 Use `classnames`/`clsx` for conditions.
@@ -548,9 +543,7 @@ Correct:
 Example:
 
 ```tsx
-<Button className={classes['submit-button']}>
-  Submit
-</Button>
+<Button className={classes['submit-button']}>Submit</Button>
 ```
 
 ```scss
@@ -562,9 +555,7 @@ Example:
 Do not repeat global defaults everywhere:
 
 ```tsx
-<Button sx={{ textTransform: 'none', borderRadius: '999px' }}>
-  Submit
-</Button>
+<Button sx={{ textTransform: 'none', borderRadius: '999px' }}>Submit</Button>
 ```
 
 if those are already in the theme.

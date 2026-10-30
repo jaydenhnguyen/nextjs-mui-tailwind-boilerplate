@@ -1,10 +1,10 @@
 import { DocumentContext, DocumentProps, Head, Html, Main, NextScript } from 'next/document';
+import { documentGetInitialProps, DocumentHeadTags, DocumentHeadTagsProps } from '@mui/material-nextjs/v16-pagesRouter';
 import InitColorSchemeScript from '@mui/material/InitColorSchemeScript';
-import { DocumentHeadTags, DocumentHeadTagsProps, documentGetInitialProps } from '@mui/material-nextjs/v16-pagesRouter';
 import { siteConfig } from 'src/configs/site.config';
-import { DEFAULT_THEME_MODE } from 'src/theme/theme';
 import { themeConfig } from 'src/theme/core/_config';
 import { createAppEmotionCache } from 'src/theme/emotionCache';
+import { DEFAULT_THEME_MODE } from 'src/theme/theme';
 
 // Imports here skip the 'src/theme' barrel on purpose, because Next.js doesn't allow next/font inside _document.
 export default function AppDocument(props: DocumentProps & DocumentHeadTagsProps) {

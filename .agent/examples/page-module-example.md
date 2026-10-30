@@ -108,7 +108,7 @@ src/
 # Ownership Rules
 
 | Concern          | Owner                                     |
-|------------------|-------------------------------------------|
+| ---------------- | ----------------------------------------- |
 | Route file       | `src/pages/`                              |
 | SEO/Head         | page or reusable SEO component            |
 | Layout selection | page via `getLayout`                      |
@@ -127,7 +127,6 @@ src/
 ```tsx
 import * as React from 'react';
 import Head from 'next/head';
-
 import { PrivateLayout } from 'src/layouts/PrivateLayout';
 import { Products } from 'src/modules/Products';
 
@@ -136,10 +135,7 @@ export default function ProductsPage(): React.ReactElement {
     <>
       <Head>
         <title>Products</title>
-        <meta
-          name="description"
-          content="View and manage products."
-        />
+        <meta name="description" content="View and manage products." />
       </Head>
 
       <Products />
@@ -168,13 +164,10 @@ Rules:
 
 ```tsx
 import * as React from 'react';
-
 import { EmptyState, ErrorState, LoadingState } from 'src/components';
-
 import { ProductFilters } from './components/ProductFilters';
 import { ProductList } from './components/ProductList';
 import { useGetProducts } from './hooks';
-
 import classes from './Products.module.scss';
 
 export function Products(): React.ReactElement {
@@ -202,16 +195,9 @@ export function Products(): React.ReactElement {
 
   return (
     <section className={classes['products-wrapper']}>
-      <ProductFilters
-        searchValue={searchValue}
-        onSearchChange={handleSearchChange}
-      />
+      <ProductFilters searchValue={searchValue} onSearchChange={handleSearchChange} />
 
-      {!data?.data?.length ? (
-        <EmptyState />
-      ) : (
-        <ProductList products={data.data} />
-      )}
+      {!data?.data?.length ? <EmptyState /> : <ProductList products={data.data} />}
     </section>
   );
 }
@@ -234,17 +220,13 @@ Rules:
 import * as React from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-
 import { PrivateLayout } from 'src/layouts/PrivateLayout';
 import { ProductDetail } from 'src/modules/ProductDetail';
 
 export default function ProductDetailPage(): React.ReactElement {
   const router = useRouter();
 
-  const productId =
-    typeof router.query.id === 'string'
-      ? router.query.id
-      : '';
+  const productId = typeof router.query.id === 'string' ? router.query.id : '';
 
   return (
     <>
@@ -257,9 +239,7 @@ export default function ProductDetailPage(): React.ReactElement {
   );
 }
 
-ProductDetailPage.getLayout = function getLayout(
-  page: React.ReactElement,
-) {
+ProductDetailPage.getLayout = function getLayout(page: React.ReactElement) {
   return <PrivateLayout>{page}</PrivateLayout>;
 };
 ```
@@ -279,18 +259,14 @@ Rules:
 
 ```tsx
 import * as React from 'react';
-
 import { ErrorState, LoadingState } from 'src/components';
-
 import { useGetProductDetail } from './hooks';
 
 type Props = {
   productId: string;
 };
 
-export function ProductDetail({
-  productId,
-}: Props): React.ReactElement {
+export function ProductDetail({ productId }: Props): React.ReactElement {
   const { data, isLoading, error } = useGetProductDetail({
     id: productId,
   });
@@ -331,7 +307,6 @@ Rules:
 ```tsx
 import * as React from 'react';
 import Head from 'next/head';
-
 import { PublicLayout } from 'src/layouts/PublicLayout';
 import { Login } from 'src/modules/Authentication/Login';
 
@@ -367,7 +342,6 @@ Rules:
 ```tsx
 import * as React from 'react';
 import Head from 'next/head';
-
 import { AdminLayout } from 'src/layouts/AdminLayout';
 import { AdminProducts } from 'src/modules/AdminProducts';
 
@@ -383,9 +357,7 @@ export default function AdminProductsPage(): React.ReactElement {
   );
 }
 
-AdminProductsPage.getLayout = function getLayout(
-  page: React.ReactElement,
-) {
+AdminProductsPage.getLayout = function getLayout(page: React.ReactElement) {
   return <AdminLayout>{page}</AdminLayout>;
 };
 ```
@@ -409,17 +381,13 @@ Example:
 ```tsx
 import * as React from 'react';
 import { useRouter } from 'next/router';
-
 import { PublicLayout } from 'src/layouts/PublicLayout';
 import { Search } from 'src/modules/Search';
 
 export default function SearchPage(): React.ReactElement {
   const router = useRouter();
 
-  const keyword =
-    typeof router.query.keyword === 'string'
-      ? router.query.keyword
-      : '';
+  const keyword = typeof router.query.keyword === 'string' ? router.query.keyword : '';
 
   return <Search initialKeyword={keyword} />;
 }
@@ -446,7 +414,6 @@ Example:
 ```tsx
 import * as React from 'react';
 import { GetStaticProps } from 'next';
-
 import { PublicLayout } from 'src/layouts/PublicLayout';
 import { Blog } from 'src/modules/Blog';
 
@@ -454,9 +421,7 @@ type Props = {
   generatedAt: string;
 };
 
-export default function BlogPage({
-  generatedAt,
-}: Props): React.ReactElement {
+export default function BlogPage({ generatedAt }: Props): React.ReactElement {
   return <Blog generatedAt={generatedAt} />;
 }
 
@@ -490,7 +455,6 @@ Example:
 ```tsx
 import * as React from 'react';
 import { GetServerSideProps } from 'next';
-
 import { PrivateLayout } from 'src/layouts/PrivateLayout';
 import { ProductDetail } from 'src/modules/ProductDetail';
 
@@ -498,25 +462,16 @@ type Props = {
   productId: string;
 };
 
-export default function ProductDetailPage({
-  productId,
-}: Props): React.ReactElement {
+export default function ProductDetailPage({ productId }: Props): React.ReactElement {
   return <ProductDetail productId={productId} />;
 }
 
-ProductDetailPage.getLayout = function getLayout(
-  page: React.ReactElement,
-) {
+ProductDetailPage.getLayout = function getLayout(page: React.ReactElement) {
   return <PrivateLayout>{page}</PrivateLayout>;
 };
 
-export const getServerSideProps: GetServerSideProps<Props> = async (
-  context,
-) => {
-  const productId =
-    typeof context.params?.id === 'string'
-      ? context.params.id
-      : '';
+export const getServerSideProps: GetServerSideProps<Props> = async (context) => {
+  const productId = typeof context.params?.id === 'string' ? context.params.id : '';
 
   return {
     props: {
@@ -680,10 +635,7 @@ Example:
 ```tsx
 <Head>
   <title>Products</title>
-  <meta
-    name="description"
-    content="Browse available products."
-  />
+  <meta name="description" content="Browse available products." />
 </Head>
 ```
 
@@ -700,7 +652,7 @@ src/components/SEO/
 Use:
 
 | Route Type              | Layout                           |
-|-------------------------|----------------------------------|
+| ----------------------- | -------------------------------- |
 | Public marketing        | `PublicLayout`                   |
 | Login/register          | `PublicLayout`                   |
 | Authenticated user page | `PrivateLayout`                  |

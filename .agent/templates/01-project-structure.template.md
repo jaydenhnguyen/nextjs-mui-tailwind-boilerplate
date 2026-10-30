@@ -38,7 +38,7 @@ The project must always be responsive and mobile-friendly by default.
 This boilerplate uses **Next.js Pages Router**. App Router is **forbidden**.
 
 | Required                    | Forbidden                               |
-|-----------------------------|-----------------------------------------|
+| --------------------------- | --------------------------------------- |
 | `src/pages/`                | `src/app/`                              |
 | `_app.tsx`, `_document.tsx` | `app/layout.tsx`, `app/page.tsx`        |
 | `Page.getLayout`            | App Router layouts, route groups        |
@@ -183,7 +183,7 @@ src/components/Card/
 Then module-specific components can reuse it:
 
 ```tsx
-import {Card} from 'src/components/Card';
+import { Card } from 'src/components/Card';
 
 export function BookCard() {
   return <Card>{/* book-specific content */}</Card>;
@@ -293,7 +293,7 @@ Example:
 ```tsx
 const UIContext = React.createContext<UIContextValue | undefined>(undefined);
 
-export function UIProvider({children}: { children: React.ReactNode }) {
+export function UIProvider({ children }: { children: React.ReactNode }) {
   return <UIContext.Provider value={value}>{children}</UIContext.Provider>;
 }
 
@@ -327,7 +327,7 @@ src/providers/
 ```
 
 ```tsx
-export function AppProvider({children}: { children: React.ReactNode }) {
+export function AppProvider({ children }: { children: React.ReactNode }) {
   return (
     <UIProvider>
       <AuthProvider>{children}</AuthProvider>
@@ -386,7 +386,7 @@ src/layouts/
 ### Layout selection
 
 | App has authentication? | Layouts to include                                           |
-|-------------------------|--------------------------------------------------------------|
+| ----------------------- | ------------------------------------------------------------ |
 | Yes                     | `PublicLayout` + `PrivateLayout` (+ `AdminLayout` if needed) |
 | No                      | `PublicLayout` only — **do not** add `PrivateLayout`         |
 
@@ -458,10 +458,10 @@ Pages must not:
 Example:
 
 ```tsx
-import {Books} from 'src/modules/Books';
+import { Books } from 'src/modules/Books';
 
 export default function BooksPage() {
-  return <Books/>;
+  return <Books />;
 }
 ```
 
@@ -746,10 +746,10 @@ Example:
 }
 
 .top-page-wrapper {
-  @apply flex bg-white border shadow-md rounded-lg p-6 items-center justify-end;
+  @apply flex items-center justify-end rounded-lg border bg-white p-6 shadow-md;
 
   .add-product-btn {
-    @apply flex items-center text-white font-bold py-2 px-4;
+    @apply flex items-center px-4 py-2 font-bold text-white;
   }
 }
 ```
@@ -803,15 +803,15 @@ Use imports from `src/`.
 Correct:
 
 ```tsx
-import {Card} from 'src/components/Card';
-import {Books} from 'src/modules/Books';
-import {APP_ROUTES} from 'src/shared/constants';
+import { Card } from 'src/components/Card';
+import { Books } from 'src/modules/Books';
+import { APP_ROUTES } from 'src/shared/constants';
 ```
 
 Incorrect:
 
 ```tsx
-import {Card} from '@/components/Card';
+import { Card } from '@/components/Card';
 ```
 
 Avoid long deep imports when a local barrel exists.
@@ -819,15 +819,15 @@ Avoid long deep imports when a local barrel exists.
 Preferred:
 
 ```tsx
-import {useGetBooks} from './hooks';
-import {BookCard} from './components';
+import { BookCard } from './components';
+import { useGetBooks } from './hooks';
 ```
 
 Avoid:
 
 ```tsx
-import {useGetBooks} from './hooks/useGetBooks';
-import {BookCard} from './components/BookCard/BookCard';
+import { BookCard } from './components/BookCard/BookCard';
+import { useGetBooks } from './hooks/useGetBooks';
 ```
 
 ---
@@ -1090,10 +1090,10 @@ src/pages/books/index.tsx
 Page example:
 
 ```tsx
-import {Books} from 'src/modules/Books';
+import { Books } from 'src/modules/Books';
 
 export default function BooksPage() {
-  return <Books/>;
+  return <Books />;
 }
 ```
 

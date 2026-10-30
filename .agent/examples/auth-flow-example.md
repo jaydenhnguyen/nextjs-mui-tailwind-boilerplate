@@ -2,14 +2,14 @@
 
 The working auth flow is in the repo. Read the code instead of re-creating it:
 
-| What | File |
-|------|------|
-| Rules and architecture | `.agent/templates/03-auth-flow.template.md` |
-| Login screen (form, error mapping, redirect) | `src/modules/Authentication/Login/Login.tsx` |
-| Session hooks | `src/modules/Authentication/hooks/` |
-| Route guard | `src/layouts/PrivateLayout/PrivateLayout.tsx` |
-| Session expiry | `src/modules/Authentication/components/SessionWatcher/` |
-| 401 → refresh → retry | `src/configs/request.ts` |
+| What                                         | File                                                    |
+| -------------------------------------------- | ------------------------------------------------------- |
+| Rules and architecture                       | `.agent/templates/03-auth-flow.template.md`             |
+| Login screen (form, error mapping, redirect) | `src/modules/Authentication/Login/Login.tsx`            |
+| Session hooks                                | `src/modules/Authentication/hooks/`                     |
+| Route guard                                  | `src/layouts/PrivateLayout/PrivateLayout.tsx`           |
+| Session expiry                               | `src/modules/Authentication/components/SessionWatcher/` |
+| 401 → refresh → retry                        | `src/configs/request.ts`                                |
 
 Below are the recipes people need most often.
 
@@ -56,9 +56,9 @@ import { Can, PERMISSIONS } from 'src/modules/Authentication';
 ## Protect a whole page by role
 
 ```tsx
-import { ROLES } from 'src/shared/enums';
-import { Can } from 'src/modules/Authentication';
 import { StatusPage } from 'src/components/StatusPage';
+import { Can } from 'src/modules/Authentication';
+import { ROLES } from 'src/shared/enums';
 
 <Can role={[ROLES.ADMIN, ROLES.SUPER_ADMIN]} fallback={<StatusPage code={403} title="No access" />}>
   <AdminSettings />

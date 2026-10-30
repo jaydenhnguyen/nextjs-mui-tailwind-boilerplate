@@ -33,7 +33,7 @@ Do not introduce a new API pattern unless explicitly requested.
 # 2. Folder Ownership
 
 | Concern                                               | Location                                                        |
-|-------------------------------------------------------|-----------------------------------------------------------------|
+| ----------------------------------------------------- | --------------------------------------------------------------- |
 | API client functions                                  | `src/apis/<domain>/`                                            |
 | Endpoint constants                                    | `src/apis/<domain>/endpoints.ts`                                |
 | Shared HTTP client + `http` helpers                   | `src/configs/request.ts`                                        |
@@ -78,7 +78,7 @@ Components must never call:
 Correct:
 
 ```tsx
-const {data, isLoading} = useGetBooks({payload});
+const { data, isLoading } = useGetBooks({ payload });
 ```
 
 Incorrect:
@@ -234,7 +234,7 @@ import { http } from 'src/configs/request';
 
 http.get<Book[]>(BOOK_ENDPOINTS.LIST, { params, signal });
 http.post<Book, CreateBookRequest>(BOOK_ENDPOINTS.CREATE, payload);
-http.put / http.patch / http.delete
+http.put / http.patch / http.delete;
 ```
 
 Use `params` for query strings (arrays become `tags[]=a&tags[]=b`) instead of building URLs by hand, and pass React Query's `signal` so leaving a page cancels its requests.
@@ -270,8 +270,7 @@ Do not manually attach tokens inside every API function.
 Correct:
 
 ```ts
-export const getCurrentUser = (signal?: AbortSignal) =>
-  http.get<GetCurrentUserResponse>(AUTH_ENDPOINTS.ME, { signal });
+export const getCurrentUser = (signal?: AbortSignal) => http.get<GetCurrentUserResponse>(AUTH_ENDPOINTS.ME, { signal });
 ```
 
 Incorrect:
@@ -292,12 +291,12 @@ export const getCurrentUser = async () => {
 
 Never call `localStorage` / `sessionStorage` / `document.cookie` directly. They're missing during server render and can throw (private mode, blocked site data, full quota).
 
-| Need | Use |
-|------|-----|
-| Auth tokens (`bearer` strategy) | `tokenManager` |
-| Other cookies | `cookieStorage` from `src/configs/cookies.ts` (sameSite=lax, secure on https, host-only) |
-| Read/write a value outside React | `localStore` / `sessionStore` from `src/shared/utils/webStorage.ts` |
-| State that should survive reloads (UI prefs, drafts, last filter) | `useStoredState(key, initialValue, { storage })` from `src/hooks` |
+| Need                                                              | Use                                                                                      |
+| ----------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Auth tokens (`bearer` strategy)                                   | `tokenManager`                                                                           |
+| Other cookies                                                     | `cookieStorage` from `src/configs/cookies.ts` (sameSite=lax, secure on https, host-only) |
+| Read/write a value outside React                                  | `localStore` / `sessionStore` from `src/shared/utils/webStorage.ts`                      |
+| State that should survive reloads (UI prefs, drafts, last filter) | `useStoredState(key, initialValue, { storage })` from `src/hooks`                        |
 
 Keys are prefixed with `NEXT_PUBLIC_APP_KEY` automatically. `useStoredState` syncs across components and tabs and renders `initialValue` first, so there's no hydration mismatch.
 
@@ -310,7 +309,7 @@ Do not store secrets or personal data in web storage: any script on the page can
 Use verb-based names.
 
 | Action | Pattern              | Example                       |
-|--------|----------------------|-------------------------------|
+| ------ | -------------------- | ----------------------------- |
 | List   | `getXList` / `getXs` | `getBookList`, `getBooks`     |
 | Detail | `getXDetail`         | `getBookDetail`               |
 | Create | `createX`            | `createBook`                  |
@@ -343,11 +342,11 @@ Example:
 ```ts
 import { http } from 'src/configs/request';
 import {
-  GetBookListRequest,
-  GetBookListResponse,
-  GetBookDetailResponse,
   CreateBookRequest,
   CreateBookResponse,
+  GetBookDetailResponse,
+  GetBookListRequest,
+  GetBookListResponse,
 } from 'src/modules/Books/models';
 import { BOOK_ENDPOINTS } from './endpoints';
 
@@ -419,17 +418,13 @@ export type SearchingRequest = {
 Feature list request example:
 
 ```ts
-import {
-  PaginateRequest,
-  SortingRequest,
-  SearchingRequest,
-} from 'src/shared/types';
+import { PaginateRequest, SearchingRequest, SortingRequest } from 'src/shared/types';
 
 export type GetBookListRequest = PaginateRequest &
   SortingRequest &
   SearchingRequest & {
-  categoryId?: string;
-};
+    categoryId?: string;
+  };
 ```
 
 ---
@@ -441,7 +436,7 @@ API clients may import request/response models from feature modules.
 Allowed:
 
 ```ts
-import {GetBookListRequest} from 'src/modules/Books/models';
+import { GetBookListRequest } from 'src/modules/Books/models';
 ```
 
 Models must never import:
@@ -511,21 +506,21 @@ useAppMutation({ mutationFn, onSuccess, onError, meta, ... });
 
 App-wide defaults (`src/configs/queryClient.ts`):
 
-| Setting | Value | Why |
-|---------|-------|-----|
-| `staleTime` | 1 minute | data is reused across pages without refetching instantly |
-| `gcTime` | 5 minutes | unused data is kept for quick back-navigation |
-| `retry` (queries) | up to 2 times, only for network / timeout / 5xx | a 4xx will fail the same way again |
-| `retry` (mutations) | off | never repeat a write automatically |
-| `refetchOnWindowFocus` | off | |
-| `error` type | `ApiError` | registered globally in `src/types/react-query.d.ts` |
+| Setting                | Value                                           | Why                                                      |
+| ---------------------- | ----------------------------------------------- | -------------------------------------------------------- |
+| `staleTime`            | 1 minute                                        | data is reused across pages without refetching instantly |
+| `gcTime`               | 5 minutes                                       | unused data is kept for quick back-navigation            |
+| `retry` (queries)      | up to 2 times, only for network / timeout / 5xx | a 4xx will fail the same way again                       |
+| `retry` (mutations)    | off                                             | never repeat a write automatically                       |
+| `refetchOnWindowFocus` | off                                             |                                                          |
+| `error` type           | `ApiError`                                      | registered globally in `src/types/react-query.d.ts`      |
 
 `meta` options:
 
-| Option | Where | Effect |
-|--------|-------|--------|
-| `meta: { silent: true }` | query or mutation | no automatic error toast |
-| `meta: { successMessage: 'Saved' }` | mutation | success toast |
+| Option                              | Where             | Effect                   |
+| ----------------------------------- | ----------------- | ------------------------ |
+| `meta: { silent: true }`            | query or mutation | no automatic error toast |
+| `meta: { successMessage: 'Saved' }` | mutation          | success toast            |
 
 Automatic toasts:
 
@@ -563,7 +558,7 @@ Global `src/hooks` or `src/shared/hooks` is only for reusable generic hooks.
 Use this naming pattern:
 
 | Query Type   | Pattern                    | Example                         |
-|--------------|----------------------------|---------------------------------|
+| ------------ | -------------------------- | ------------------------------- |
 | List         | `useGetXList` / `useGetXs` | `useGetBookList`, `useGetBooks` |
 | Detail       | `useGetXDetail`            | `useGetBookDetail`              |
 | Current user | `useGetCurrentX`           | `useGetCurrentUser`             |
@@ -580,10 +575,7 @@ Query keys must be stable and descriptive.
 Recommended patterns:
 
 ```ts
-['getBookList', payload]
-  ['getBookDetail', id]
-  ['getCurrentUser']
-  ['searchBooks', payload]
+['getBookList', payload][('getBookDetail', id)]['getCurrentUser'][('searchBooks', payload)];
 ```
 
 Rules:
@@ -597,19 +589,19 @@ Rules:
 List example:
 
 ```ts
-queryKey: ['getBookList', payload]
+queryKey: ['getBookList', payload];
 ```
 
 Detail example:
 
 ```ts
-queryKey: ['getBookDetail', id]
+queryKey: ['getBookDetail', id];
 ```
 
 Current user example:
 
 ```ts
-queryKey: ['getCurrentUser']
+queryKey: ['getCurrentUser'];
 ```
 
 ---
@@ -793,40 +785,40 @@ Rules:
 
 Layer responsibility:
 
-| Layer          | Responsibility                                                    |
-|----------------|-------------------------------------------------------------------|
-| Request client | turn every failure into `ApiError`, refresh on `401`              |
-| API client     | pass errors through                                               |
-| Query client   | retry temporary failures, show automatic toasts                   |
-| Query hook     | expose `error` / `isError`                                        |
+| Layer          | Responsibility                                                       |
+| -------------- | -------------------------------------------------------------------- |
+| Request client | turn every failure into `ApiError`, refresh on `401`                 |
+| API client     | pass errors through                                                  |
+| Query client   | retry temporary failures, show automatic toasts                      |
+| Query hook     | expose `error` / `isError`                                           |
 | Mutation hook  | add `meta` (`silent`, `successMessage`) or extra `onError` if needed |
-| Component      | render error UI for failed first loads; map form errors           |
-| Error boundary | `ErrorFallback` with "Try again" for render crashes               |
+| Component      | render error UI for failed first loads; map form errors              |
+| Error boundary | `ErrorFallback` with "Try again" for render crashes                  |
 
 Every error from the API layer is an `ApiError` (`src/shared/utils/apiError.ts`):
 
-| Field | Meaning |
-|-------|---------|
-| `kind` | `'http' \| 'network' \| 'timeout' \| 'canceled' \| 'unknown'` |
-| `status` | HTTP status for `kind: 'http'` |
-| `message` | user-facing text: the server's message for 4xx, a friendly fallback for 5xx/network/timeout |
-| `code` | machine-readable code from the server, if any |
-| `fieldErrors` | `{ [fieldPath]: message }` from validation responses (camelCased) |
-| `data` | the raw response body |
-| `isServerError`, `hasFieldErrors` | shortcuts |
+| Field                             | Meaning                                                                                     |
+| --------------------------------- | ------------------------------------------------------------------------------------------- |
+| `kind`                            | `'http' \| 'network' \| 'timeout' \| 'canceled' \| 'unknown'`                               |
+| `status`                          | HTTP status for `kind: 'http'`                                                              |
+| `message`                         | user-facing text: the server's message for 4xx, a friendly fallback for 5xx/network/timeout |
+| `code`                            | machine-readable code from the server, if any                                               |
+| `fieldErrors`                     | `{ [fieldPath]: message }` from validation responses (camelCased)                           |
+| `data`                            | the raw response body                                                                       |
+| `isServerError`, `hasFieldErrors` | shortcuts                                                                                   |
 
 The server body is read by one function, `parseErrorBody` in `apiError.ts`. It understands `{ message }`, `{ message: string[] }`, `{ error }`, `{ code }`, `{ errors | fieldErrors: { field: msg | msg[] } }` and `{ errors: [{ field, message }] }`. If your backend differs, change that function only. Fallback messages live in `API_ERROR_MESSAGES` next to it.
 
 Status handling:
 
-| Status | What happens |
-|--------|--------------|
-| 401 | refresh once → retry; if that fails, `onSessionExpired` handler (clears tokens; the auth flow redirects to login). No toast. |
-| 403 / 404 / 409 / 429 | `ApiError` with the server message or a friendly fallback; mutation toast |
-| 422 / 400 with field errors | `error.fieldErrors`; map onto the form with `applyApiErrorToForm(form.setError, error)` |
-| 5xx | retried twice for queries; friendly message (server text is hidden) |
-| network / timeout | retried twice for queries; friendly message |
-| canceled | ignored, no toast |
+| Status                      | What happens                                                                                                                 |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| 401                         | refresh once → retry; if that fails, `onSessionExpired` handler (clears tokens; the auth flow redirects to login). No toast. |
+| 403 / 404 / 409 / 429       | `ApiError` with the server message or a friendly fallback; mutation toast                                                    |
+| 422 / 400 with field errors | `error.fieldErrors`; map onto the form with `applyApiErrorToForm(form.setError, error)`                                      |
+| 5xx                         | retried twice for queries; friendly message (server text is hidden)                                                          |
+| network / timeout           | retried twice for queries; friendly message                                                                                  |
+| canceled                    | ignored, no toast                                                                                                            |
 
 Form example:
 
@@ -912,10 +904,10 @@ Components should normally call feature hooks.
 Example:
 
 ```tsx
-import {useGetBookList} from './hooks';
+import { useGetBookList } from './hooks';
 
 export function Books() {
-  const {data, isLoading} = useGetBookList({
+  const { data, isLoading } = useGetBookList({
     payload: {
       page: 1,
       pageSize: 10,
@@ -1046,23 +1038,19 @@ export type Book = {
 ```ts
 // get-book-list.request.ts
 
-import {
-  PaginateRequest,
-  SortingRequest,
-  SearchingRequest,
-} from 'src/shared/types';
+import { PaginateRequest, SearchingRequest, SortingRequest } from 'src/shared/types';
 
 export type GetBookListRequest = PaginateRequest &
   SortingRequest &
   SearchingRequest & {
-  categoryId?: string;
-};
+    categoryId?: string;
+  };
 ```
 
 ```ts
 // get-book-list.response.ts
 
-import {Book} from './book.model';
+import { Book } from './book.model';
 
 export type GetBookListResponse = {
   data: Book[];
@@ -1083,7 +1071,7 @@ export type CreateBookRequest = {
 ```ts
 // create-book.response.ts
 
-import {Book} from './book.model';
+import { Book } from './book.model';
 
 export type CreateBookResponse = {
   data: Book;

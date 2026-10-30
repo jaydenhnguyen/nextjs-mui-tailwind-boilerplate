@@ -48,7 +48,7 @@ Backend API
 ### 1.2 Layer responsibilities
 
 | Layer          | Location                                          | Responsibility                                          |
-|----------------|---------------------------------------------------|---------------------------------------------------------|
+| -------------- | ------------------------------------------------- | ------------------------------------------------------- |
 | HTTP transport | `<root>/configs/` or `<root>/api/client/`         | Axios/fetch instance, auth, interceptors, global errors |
 | API clients    | `<root>/apis/<domain>/`                           | Typed HTTP calls per domain; no UI logic                |
 | Models/types   | `<root>/modules/<Feature>/models/`                | Request/response/UI types                               |
@@ -79,7 +79,7 @@ Backend API
 #### API functions
 
 | Action      | Pattern                       | Examples                        |
-|-------------|-------------------------------|---------------------------------|
+| ----------- | ----------------------------- | ------------------------------- |
 | List/read   | `getXList`, `fetchX`, `listX` | `getUserList`, `getEventDetail` |
 | Create      | `createX`                     | `createEvent`, `registerUser`   |
 | Update      | `updateX`                     | `updateProfile`                 |
@@ -89,7 +89,7 @@ Backend API
 #### React hooks
 
 | Type           | Pattern                                  | Examples                                  |
-|----------------|------------------------------------------|-------------------------------------------|
+| -------------- | ---------------------------------------- | ----------------------------------------- |
 | Read (list)    | `useGetXList`, `useGetX`                 | `useGetEvents`, `useGetUserList`          |
 | Read (detail)  | `useGetXDetail`                          | `useGetEventDetail`, `useGetClientDetail` |
 | Read (current) | `useGetCurrentXInfo`                     | `useGetCurrentUserInfo`                   |
@@ -204,7 +204,7 @@ module-local hooks.
 ### 3.4 What goes where (strict separation)
 
 | Concern                  | Belongs in                      | Does NOT belong in            |
-|--------------------------|---------------------------------|-------------------------------|
+| ------------------------ | ------------------------------- | ----------------------------- |
 | HTTP calls               | `<root>/apis/`                  | hooks, components, pages      |
 | Caching/fetch state      | hooks                           | API clients, components       |
 | Request/response types   | `models/`                       | API clients (import only)     |
@@ -242,7 +242,7 @@ Before adding API calls, identify these contracts in the target repo.
 **Typical input fields:**
 
 | Field         | Query param   | Description               |
-|---------------|---------------|---------------------------|
+| ------------- | ------------- | ------------------------- |
 | `page`        | `page`        | Page number               |
 | `pageSize`    | `pageSize`    | Items per page            |
 | `sortBy`      | `sortBy`      | Sort field                |
@@ -381,7 +381,7 @@ export * from './event';
 ### 6.1 File naming
 
 | Type           | Pattern                   | Example                     |
-|----------------|---------------------------|-----------------------------|
+| -------------- | ------------------------- | --------------------------- |
 | Request        | `<action>.request.ts`     | `get-user-list.request.ts`  |
 | Response       | `<action>.response.ts`    | `get-user-list.response.ts` |
 | UI/table model | `<entity>-table.model.ts` | `event-table.model.ts`      |
@@ -414,9 +414,11 @@ export type SearchingRequest = {
 Feature list requests typically extend shared types:
 
 ```typescript
-export type GetXListRequest = PaginateRequest & SortingRequest & SearchingRequest & {
-  // feature-specific filters
-};
+export type GetXListRequest = PaginateRequest &
+  SortingRequest &
+  SearchingRequest & {
+    // feature-specific filters
+  };
 ```
 
 ### 6.3 Model location rules
@@ -437,7 +439,7 @@ Assumes React + TanStack React Query. Adapt terminology if using SWR or another 
 If your repo uses a wrapper like `useAppQuery`, feature hooks should usually be simple one-liners:
 
 ```typescript
-export function useGetXList({payload}: { payload: GetXListRequest }) {
+export function useGetXList({ payload }: { payload: GetXListRequest }) {
   return useAppQuery<GetXListResponse>({
     queryKey: ['getXList', payload],
     queryFn: () => getXList(payload),
@@ -452,13 +454,13 @@ This keeps hook usage readable and ensures UI components always receive the same
 #### List hook
 
 ```typescript
-export function useGetXList({payload}: { payload: GetXListRequest }) {
-  const {data, status, error, isLoading, isFetching, refetch} = useQuery({
+export function useGetXList({ payload }: { payload: GetXListRequest }) {
+  const { data, status, error, isLoading, isFetching, refetch } = useQuery({
     queryKey: ['getXList', payload],
     queryFn: () => getXList(payload),
   });
 
-  return {data, status, error, isLoading, isFetching, refetch};
+  return { data, status, error, isLoading, isFetching, refetch };
 }
 ```
 
@@ -466,26 +468,26 @@ export function useGetXList({payload}: { payload: GetXListRequest }) {
 
 ```typescript
 export function useGetXDetail(id: string) {
-  const {data, status, error, isLoading, isFetching, refetch} = useQuery({
+  const { data, status, error, isLoading, isFetching, refetch } = useQuery({
     queryKey: ['getXDetail', id],
     queryFn: () => getXDetail(id),
     enabled: false,
   });
 
-  return {data: data?.data, status, error, isLoading, isFetching, refetch};
+  return { data: data?.data, status, error, isLoading, isFetching, refetch };
 }
 ```
 
 #### Dual-source hook (same UI, different API)
 
 ```typescript
-export function useGetXList({payload, variant}: { payload: GetXRequest; variant?: 'a' | 'b' }) {
-  const {data, status, error, isLoading, isFetching, refetch} = useQuery({
+export function useGetXList({ payload, variant }: { payload: GetXRequest; variant?: 'a' | 'b' }) {
+  const { data, status, error, isLoading, isFetching, refetch } = useQuery({
     queryKey: [variant === 'b' ? 'getBList' : 'getAList', payload],
     queryFn: () => (variant === 'b' ? getBList(payload) : getAList(payload)),
   });
 
-  return {data, status, error, isLoading, isFetching, refetch};
+  return { data, status, error, isLoading, isFetching, refetch };
 }
 ```
 
@@ -493,35 +495,32 @@ export function useGetXList({payload, variant}: { payload: GetXRequest; variant?
 
 ```typescript
 export function useCreateX(onSuccess?: () => void) {
-  const {mutate, status, error, isPending} = useMutation({
+  const { mutate, status, error, isPending } = useMutation({
     mutationFn: (data: CreateXRequest) => createX(data),
     onSuccess: () => {
-      notify({message: 'Create Success', type: ToastType.success});
+      notify({ message: 'Create Success', type: ToastType.success });
       onSuccess?.();
     },
     onError: (error: ErrorResponse) => {
-      notify({message: error.message || 'Failed', type: ToastType.error});
+      notify({ message: error.message || 'Failed', type: ToastType.error });
     },
   });
 
-  return {mutate, status, error, isLoading: isPending};
+  return { mutate, status, error, isLoading: isPending };
 }
 ```
 
 ### 7.3 Auth mutation hook
 
 ```typescript
-export function useLogin(
-  onLoginSuccess: (response: LoginResponse) => void,
-  onError?: (error: unknown) => void,
-) {
-  const {mutate, data, error, isPending} = useMutation({
+export function useLogin(onLoginSuccess: (response: LoginResponse) => void, onError?: (error: unknown) => void) {
+  const { mutate, data, error, isPending } = useMutation({
     mutationFn: (payload: LoginRequest) => login(payload),
     onSuccess: (data) => onLoginSuccess(data),
     onError,
   });
 
-  return {mutate, data, error, isPending};
+  return { mutate, data, error, isPending };
 }
 ```
 
@@ -538,7 +537,7 @@ export function useLogin(
 ### 7.5 Hook rules summary
 
 | Rule                    | Detail                                                                   |
-|-------------------------|--------------------------------------------------------------------------|
+| ----------------------- | ------------------------------------------------------------------------ |
 | `queryKey`              | Stable, descriptive: `['getXList', payload]`, `['getXDetail', id]`       |
 | On-demand fetch         | `enabled: false` + expose `refetch`                                      |
 | Return shape (query)    | `{ data, status, error, isLoading, isFetching, refetch }`                |
@@ -555,7 +554,7 @@ export function useLogin(
 ### 8.1 Types of constants
 
 | Type           | Pattern                   | Location                            |
-|----------------|---------------------------|-------------------------------------|
+| -------------- | ------------------------- | ----------------------------------- |
 | Endpoint paths | `<DOMAIN>_ENDPOINTS`      | `<root>/apis/<domain>/endpoints.ts` |
 | App routes     | `APP_ROUTES`              | `<root>/shared/constants/`          |
 | Auth/roles     | `AUTH_*`, `ROLES_*`       | `<root>/shared/constants/`          |
@@ -575,7 +574,7 @@ export function useLogin(
 ### 9.1 Layer responsibilities
 
 | Layer       | Responsibility                                                      |
-|-------------|---------------------------------------------------------------------|
+| ----------- | ------------------------------------------------------------------- |
 | HTTP client | Normalize error shape; handle 401 globally; reject with typed error |
 | API client  | Pass through; do not catch/swallow                                  |
 | Hook        | Handle user-facing errors (toasts, callbacks); check status codes   |
@@ -705,15 +704,15 @@ export const PRODUCT_ENDPOINTS = {
 **Step 2 — products.ts**
 
 ```typescript
-import {request} from '<root>/configs';
-import {buildListingRequestPayload} from '<root>/shared/util';
+import { request } from '<root>/configs';
 import {
+  CreateProductRequest,
+  CreateProductResponse,
   GetProductListRequest,
   GetProductListResponse,
-  CreateProductRequest,
-  CreateProductResponse
 } from '<root>/modules/Products';
-import {PRODUCT_ENDPOINTS} from './endpoints';
+import { buildListingRequestPayload } from '<root>/shared/util';
+import { PRODUCT_ENDPOINTS } from './endpoints';
 
 export const getProductList = async (payload: GetProductListRequest): Promise<GetProductListResponse> => {
   const url = `${PRODUCT_ENDPOINTS.GET_PRODUCT_LIST}?${buildListingRequestPayload(payload)}`;
@@ -733,34 +732,34 @@ export const createProduct = async (payload: CreateProductRequest): Promise<Crea
 **Step 3 — useGetProductList.ts**
 
 ```typescript
-import {useQuery} from '@tanstack/react-query';
-import {getProductList} from '<root>/apis';
-import {GetProductListRequest} from '../models';
+import { useQuery } from '@tanstack/react-query';
+import { getProductList } from '<root>/apis';
+import { GetProductListRequest } from '../models';
 
-export function useGetProductList({payload}: { payload: GetProductListRequest }) {
-  const {data, status, error, isLoading, isFetching, refetch} = useQuery({
+export function useGetProductList({ payload }: { payload: GetProductListRequest }) {
+  const { data, status, error, isLoading, isFetching, refetch } = useQuery({
     queryKey: ['getProductList', payload],
     queryFn: () => getProductList(payload),
   });
 
-  return {data, status, error, isLoading, isFetching, refetch};
+  return { data, status, error, isLoading, isFetching, refetch };
 }
 ```
 
 **Step 4 — useCreateProduct.ts**
 
 ```typescript
-import {useMutation} from '@tanstack/react-query';
-import {createProduct} from '<root>/apis';
-import {CreateProductRequest} from '../models';
+import { useMutation } from '@tanstack/react-query';
+import { createProduct } from '<root>/apis';
+import { CreateProductRequest } from '../models';
 
 export function useCreateProduct(onSuccess?: () => void) {
-  const {mutate, status, error, isPending} = useMutation({
+  const { mutate, status, error, isPending } = useMutation({
     mutationFn: (data: CreateProductRequest) => createProduct(data),
     onSuccess: () => onSuccess?.(),
   });
 
-  return {mutate, status, error, isLoading: isPending};
+  return { mutate, status, error, isLoading: isPending };
 }
 ```
 
@@ -786,7 +785,7 @@ When applying this template to a specific repo, generate a repo-specific doc wit
 Record project-specific deviations in **that repo's** `.cursor/` or README — not in this generic template.
 
 | Topic        | What to document                         |
-|--------------|------------------------------------------|
+| ------------ | ---------------------------------------- |
 | Routing      | Pages Router vs App Router; entry routes |
 | Auth         | Provider, guards, or none                |
 | API layer    | REST client path, or not used            |

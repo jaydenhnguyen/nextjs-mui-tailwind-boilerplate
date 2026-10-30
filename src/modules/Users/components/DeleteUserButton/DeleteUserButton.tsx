@@ -1,8 +1,8 @@
-import { IconButton, Tooltip } from '@mui/material';
 import DeleteOutlined from '@mui/icons-material/DeleteOutlined';
+import { IconButton, Tooltip } from '@mui/material';
 import { useConfirm } from 'src/components/ConfirmDialog';
-import { User } from '../../models';
 import { useDeleteUser } from '../../hooks';
+import { User } from '../../models';
 
 export function DeleteUserButton({ user }: { user: User }) {
   const confirm = useConfirm();

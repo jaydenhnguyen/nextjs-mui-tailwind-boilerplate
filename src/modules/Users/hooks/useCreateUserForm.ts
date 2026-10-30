@@ -1,7 +1,7 @@
 import { useZodForm } from 'src/components/Form';
 import { ROLES } from 'src/shared/enums';
-import { createUserSchema } from '../schema/create-user.schema';
 import { CreateUserFormValues } from '../models';
+import { createUserSchema } from '../schema/create-user.schema';
 
 export const initialCreateUserValues: CreateUserFormValues = {
   firstName: '',

@@ -1,6 +1,6 @@
+import { getCurrentUser } from 'src/apis/auth';
 import { apiConfig } from 'src/configs/api.config';
 import { tokenManager } from 'src/configs/tokenManager';
-import { getCurrentUser } from 'src/apis/auth';
 import { useAppQuery } from 'src/hooks/useAppQuery';
 import { AUTH_QUERY_KEYS } from '../constants';
 import { User } from '../models';

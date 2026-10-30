@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { Avatar, Divider, IconButton, ListItemIcon, Menu, MenuItem, Typography } from '@mui/material';
 import LogoutOutlined from '@mui/icons-material/LogoutOutlined';
+import { Avatar, Divider, IconButton, ListItemIcon, Menu, MenuItem, Typography } from '@mui/material';
 import { useAuth } from '../../hooks/useAuth';
 import { useLogout } from '../../hooks/useLogout';
 import classes from './UserMenu.module.scss';

@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { Button, InputAdornment, Pagination, TextField, Typography } from '@mui/material';
+import { m } from 'motion/react';
 import AddOutlined from '@mui/icons-material/AddOutlined';
 import SearchOutlined from '@mui/icons-material/SearchOutlined';
-import { m } from 'motion/react';
+import { Button, InputAdornment, Pagination, TextField, Typography } from '@mui/material';
 import { EmptyState } from 'src/components/EmptyState';
 import { QueryState } from 'src/components/QueryState';
 import { useDebounce, useOpenState, useQueryParams } from 'src/hooks';

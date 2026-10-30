@@ -1,7 +1,7 @@
 import * as React from 'react';
 import clsx from 'clsx';
-import { Typography } from '@mui/material';
 import InboxOutlined from '@mui/icons-material/InboxOutlined';
+import { Typography } from '@mui/material';
 import { FadeIn } from '../Motion';
 import classes from './EmptyState.module.scss';
 

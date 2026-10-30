@@ -1,5 +1,5 @@
-import { Button, Typography } from '@mui/material';
 import { FallbackProps } from 'react-error-boundary';
+import { Button, Typography } from '@mui/material';
 import classes from './ErrorFallback.module.scss';
 
 export function ErrorFallback({ error, resetErrorBoundary }: FallbackProps) {

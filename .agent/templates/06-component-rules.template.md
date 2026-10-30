@@ -68,7 +68,7 @@ Layout **shell files** only live in `src/layouts/<LayoutName>/` (exactly 3 files
 Examples:
 
 | Component         | Correct Location                                  |
-|-------------------|---------------------------------------------------|
+| ----------------- | ------------------------------------------------- |
 | `Card`            | `src/components/Card`                             |
 | `Modal`           | `src/components/Modal`                            |
 | `ProductCard`     | `src/modules/Products/components/ProductCard`     |
@@ -272,11 +272,9 @@ Reusable UI should wrap MUI primitives instead of reimplementing them.
 Correct:
 
 ```tsx
-import {Card} from 'src/components/Card';
+import { Card } from 'src/components/Card';
 
-<ProductCard>
-  ...
-</ProductCard>
+<ProductCard>...</ProductCard>;
 ```
 
 Incorrect:
@@ -376,15 +374,15 @@ src/modules/Products/
 Example:
 
 ```tsx
+import { ProductFilters } from './components/ProductFilters';
+import { ProductList } from './components/ProductList';
 import classes from './Products.module.scss';
-import {ProductFilters} from './components/ProductFilters';
-import {ProductList} from './components/ProductList';
 
 export function Products() {
   return (
     <section className={classes['products-wrapper']}>
-      <ProductFilters/>
-      <ProductList/>
+      <ProductFilters />
+      <ProductList />
     </section>
   );
 }
@@ -395,10 +393,10 @@ The page route should stay thin.
 Correct:
 
 ```tsx
-import {Products} from 'src/modules/Products';
+import { Products } from 'src/modules/Products';
 
 export default function ProductsPage() {
-  return <Products/>;
+  return <Products />;
 }
 ```
 
@@ -408,8 +406,8 @@ Incorrect:
 export default function ProductsPage() {
   return (
     <>
-      <ProductFilters/>
-      <ProductList/>
+      <ProductFilters />
+      <ProductList />
     </>
   );
 }
@@ -460,7 +458,7 @@ for trivial markup.
 # 9. Component File Naming Rules
 
 | Type             | Convention                  |
-|------------------|-----------------------------|
+| ---------------- | --------------------------- |
 | Component folder | PascalCase                  |
 | Component file   | Same as folder              |
 | SCSS module      | `ComponentName.module.scss` |
@@ -493,15 +491,13 @@ Use named exports.
 Correct:
 
 ```ts
-export function ProductCard() {
-}
+export function ProductCard() {}
 ```
 
 Incorrect:
 
 ```ts
-export default function ProductCard() {
-}
+export default function ProductCard() {}
 ```
 
 Exception:
@@ -536,21 +532,13 @@ Avoid:
 Bad:
 
 ```tsx
-<Card
-  isDark
-  isCompact
-  isBorderless
-  isHorizontal
-/>
+<Card isDark isCompact isBorderless isHorizontal />
 ```
 
 Good:
 
 ```tsx
-<Card
-  variant="compact"
-  orientation="horizontal"
-/>
+<Card variant="compact" orientation="horizontal" />
 ```
 
 ---
@@ -577,34 +565,34 @@ Avoid passing entire huge objects when only a few fields are needed.
 Use:
 
 | Type             | Convention |
-|------------------|------------|
+| ---------------- | ---------- |
 | Internal handler | `handleX`  |
 | Callback prop    | `onX`      |
 
 Examples:
 
 ```ts
-handleSubmit
-handleClose
-handleOpenModal
-handleToggleMenu
+handleSubmit;
+handleClose;
+handleOpenModal;
+handleToggleMenu;
 ```
 
 Callback props:
 
 ```ts
-onSubmit
-onClose
-onChange
-onSelect
+onSubmit;
+onClose;
+onChange;
+onSelect;
 ```
 
 Avoid vague names:
 
 ```ts
-submit
-click
-change
+submit;
+click;
+change;
 ```
 
 ---
@@ -620,11 +608,11 @@ Prefer:
 Correct:
 
 ```tsx
-if (isLoading) return <LoadingState/>;
-if (isError) return <ErrorState/>;
-if (!data?.length) return <EmptyState/>;
+if (isLoading) return <LoadingState />;
+if (isError) return <ErrorState />;
+if (!data?.length) return <EmptyState />;
 
-return <ProductList data={data}/>;
+return <ProductList data={data} />;
 ```
 
 Avoid nested ternaries:
@@ -670,12 +658,7 @@ Correct:
 Avoid fixed widths:
 
 ```scss
-width:
-
-1200
-px
-
-;
+width: 1200 px;
 ```
 
 unless truly required.
@@ -701,7 +684,7 @@ Prefer reusable wrappers over repeating MUI config.
 Correct:
 
 ```tsx
-import {Button} from 'src/components/Button';
+import { Button } from 'src/components/Button';
 ```
 
 instead of:
@@ -741,7 +724,7 @@ Prefer:
 # 16. Styling Ownership Rules
 
 | Concern                   | Owner        |
-|---------------------------|--------------|
+| ------------------------- | ------------ |
 | Global button style       | MUI theme    |
 | Card radius               | MUI theme    |
 | Feature layout spacing    | module SCSS  |
@@ -831,9 +814,9 @@ src/components/
 Correct:
 
 ```tsx
-if (isLoading) return <LoadingState/>;
-if (isError) return <ErrorState/>;
-if (!data?.length) return <EmptyState/>;
+if (isLoading) return <LoadingState />;
+if (isError) return <ErrorState />;
+if (!data?.length) return <EmptyState />;
 ```
 
 Avoid:
@@ -878,7 +861,7 @@ react-hook-form + zod
 Responsibility split:
 
 | Concern        | Location           |
-|----------------|--------------------|
+| -------------- | ------------------ |
 | schema         | module form/schema |
 | form hook      | module hooks       |
 | form fields UI | component          |
@@ -928,10 +911,7 @@ Dialog receives:
 Example:
 
 ```tsx
-<ConfirmDialog
-  open={open}
-  onClose={handleClose}
-/>
+<ConfirmDialog open={open} onClose={handleClose} />
 ```
 
 Avoid nested dialogs unless explicitly required.
@@ -948,18 +928,13 @@ Use:
 Correct:
 
 ```tsx
-products.map((product) => (
-  <ProductCard
-    key={product.id}
-    product={product}
-  />
-))
+products.map((product) => <ProductCard key={product.id} product={product} />);
 ```
 
 Avoid:
 
 ```tsx
-key = {index}
+key = { index };
 ```
 
 unless list is static and never reordered.
@@ -1020,7 +995,7 @@ Components should use:
 Correct:
 
 ```tsx
-const {data} = useGetProducts();
+const { data } = useGetProducts();
 ```
 
 Incorrect:
@@ -1046,13 +1021,13 @@ imports only.
 Correct:
 
 ```ts
-import {Card} from 'src/components/Card';
+import { Card } from 'src/components/Card';
 ```
 
 Incorrect:
 
 ```ts
-import {Card} from '@/components/Card';
+import { Card } from '@/components/Card';
 ```
 
 Import order:

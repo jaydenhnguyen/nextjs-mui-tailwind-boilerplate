@@ -1,7 +1,7 @@
 import * as React from 'react';
 import dynamic from 'next/dynamic';
-import { env } from 'src/configs/env';
 import { LoadingState } from 'src/components/LoadingState';
+import { env } from 'src/configs/env';
 import { MockBanner } from './MockBanner/MockBanner';
 
 // ssr: false keeps MSW's browser-only code out of the server build.

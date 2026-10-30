@@ -1,6 +1,6 @@
 import * as React from 'react';
-import isEqual from 'lodash/isEqual';
 import { useRouter } from 'next/router';
+import isEqual from 'lodash/isEqual';
 
 type ParamValue = string | number | boolean | null | undefined;
 

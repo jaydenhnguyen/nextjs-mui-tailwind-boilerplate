@@ -1,8 +1,8 @@
 import Link from 'next/link';
-import { Button, Paper, Typography } from '@mui/material';
 import ArrowForwardOutlined from '@mui/icons-material/ArrowForwardOutlined';
-import { APP_ROUTES } from 'src/shared/constants';
+import { Button, Paper, Typography } from '@mui/material';
 import { useAuth } from 'src/modules/Authentication';
+import { APP_ROUTES } from 'src/shared/constants';
 import classes from './Home.module.scss';
 
 export function Home() {

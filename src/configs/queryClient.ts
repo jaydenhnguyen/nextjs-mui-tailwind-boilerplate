@@ -1,7 +1,8 @@
-import { StatusCodes } from 'http-status-codes';
 import { MutationCache, QueryCache, QueryClient } from '@tanstack/react-query';
+import { StatusCodes } from 'http-status-codes';
 import { ApiError, toApiError } from 'src/shared/utils/apiError';
 import { notify } from 'src/shared/utils/notify';
+import { reportError } from 'src/shared/utils/telemetry';
 
 const MAX_RETRIES = 2;
 
@@ -17,11 +18,17 @@ function shouldToast(error: ApiError) {
   return error.kind !== 'canceled' && error.status !== StatusCodes.UNAUTHORIZED;
 }
 
+// 4xx responses are normal app behavior; only server failures and unexpected errors point at a real problem.
+function shouldReport(error: ApiError) {
+  return error.isServerError || error.kind === 'unknown';
+}
+
 export function createQueryClient() {
   return new QueryClient({
     queryCache: new QueryCache({
       onError: (error, query) => {
         const apiError = toApiError(error);
+        if (shouldReport(apiError)) reportError(apiError, { queryKey: query.queryKey });
         // A failed first load is shown by the page itself, so only failed background refetches get a toast.
         if (query.meta?.silent || query.state.data === undefined || !shouldToast(apiError)) return;
         notify.error(apiError.message);
@@ -34,6 +41,7 @@ export function createQueryClient() {
       },
       onError: (error, _variables, _context, mutation) => {
         const apiError = toApiError(error);
+        if (shouldReport(apiError)) reportError(apiError, { mutationKey: mutation.options.mutationKey });
         if (mutation.meta?.silent || !shouldToast(apiError)) return;
         notify.error(apiError.message);
       },

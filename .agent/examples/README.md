@@ -71,7 +71,7 @@ Examples should NOT:
 # Available Examples
 
 | File                       | Purpose                          |
-|----------------------------|----------------------------------|
+| -------------------------- | -------------------------------- |
 | `api-hook-example.md`      | API/query/mutation architecture  |
 | `feature-example.md`       | Full feature/module ownership    |
 | `page-module-example.md`   | Thin pages + module composition  |

@@ -53,7 +53,7 @@ by default.
 This boilerplate uses:
 
 | Technology   | Purpose                     |
-|--------------|-----------------------------|
+| ------------ | --------------------------- |
 | MUI          | design system               |
 | Tailwind     | layout/utilities            |
 | SCSS Modules | scoped styling              |
@@ -96,7 +96,7 @@ then patching mobile later.
 Recommended breakpoints:
 
 | Breakpoint | Usage        |
-|------------|--------------|
+| ---------- | ------------ |
 | default    | mobile       |
 | `sm:`      | large mobile |
 | `md:`      | tablet       |
@@ -175,7 +175,7 @@ Rules:
 Behavior:
 
 | Screen        | Columns |
-|---------------|---------|
+| ------------- | ------- |
 | mobile        | 1       |
 | small tablet  | 2       |
 | desktop       | 3       |
@@ -196,38 +196,25 @@ Rules:
 ```tsx
 import * as React from 'react';
 import { Typography } from '@mui/material';
-
 import { Card } from 'src/components/Card';
-
 import { Product } from '../../models';
-
 import classes from './ProductCard.module.scss';
 
 type Props = {
   product: Product;
 };
 
-export function ProductCard({
-  product,
-}: Props): React.ReactElement {
+export function ProductCard({ product }: Props): React.ReactElement {
   return (
     <Card className={classes['product-card']}>
       <div className={classes['product-card__image-wrapper']}>
-        <img
-          src={product.imageUrl}
-          alt={product.name}
-          className={classes['product-card__image']}
-        />
+        <img src={product.imageUrl} alt={product.name} className={classes['product-card__image']} />
       </div>
 
       <div className={classes['product-card__content']}>
-        <Typography variant="h6">
-          {product.name}
-        </Typography>
+        <Typography variant="h6">{product.name}</Typography>
 
-        <Typography variant="body2">
-          ${product.price}
-        </Typography>
+        <Typography variant="body2">${product.price}</Typography>
       </div>
     </Card>
   );
@@ -285,9 +272,7 @@ Correct:
 Better approach using theme variants:
 
 ```tsx
-<Typography variant="pageTitle">
-  Products
-</Typography>
+<Typography variant="pageTitle">Products</Typography>
 ```
 
 Configured in MUI theme.
@@ -335,11 +320,9 @@ Mobile → stacked cards
 Example:
 
 ```tsx
-{isMobile ? (
-  <ProductMobileList products={products} />
-) : (
-  <ProductTable products={products} />
-)}
+{
+  isMobile ? <ProductMobileList products={products} /> : <ProductTable products={products} />;
+}
 ```
 
 Use:
@@ -364,15 +347,9 @@ type UIContextValue = {
   isDesktop: boolean;
 };
 
-const UIContext = React.createContext<UIContextValue | undefined>(
-  undefined,
-);
+const UIContext = React.createContext<UIContextValue | undefined>(undefined);
 
-export function UIProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export function UIProvider({ children }: { children: React.ReactNode }) {
   const isMobile = useMediaQuery('(max-width:900px)');
   const isTablet = useMediaQuery('(min-width:901px) and (max-width:1200px)');
   const isDesktop = useMediaQuery('(min-width:1201px)');
@@ -386,11 +363,7 @@ export function UIProvider({
     [isMobile, isTablet, isDesktop],
   );
 
-  return (
-    <UIContext.Provider value={value}>
-      {children}
-    </UIContext.Provider>
-  );
+  return <UIContext.Provider value={value}>{children}</UIContext.Provider>;
 }
 
 export function useUI() {
@@ -462,7 +435,6 @@ Rules:
 import * as React from 'react';
 import MenuIcon from '@mui/icons-material/Menu';
 import { Drawer, IconButton } from '@mui/material';
-
 import { Sidebar } from '../Sidebar';
 
 export function MobileSidebarDrawer(): React.ReactElement {
@@ -482,11 +454,7 @@ export function MobileSidebarDrawer(): React.ReactElement {
         <MenuIcon />
       </IconButton>
 
-      <Drawer
-        anchor="left"
-        open={open}
-        onClose={handleClose}
-      >
+      <Drawer anchor="left" open={open} onClose={handleClose}>
         <Sidebar />
       </Drawer>
     </>

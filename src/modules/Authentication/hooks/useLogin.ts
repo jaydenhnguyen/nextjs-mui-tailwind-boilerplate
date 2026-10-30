@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
+import { login } from 'src/apis/auth';
 import { apiConfig } from 'src/configs/api.config';
 import { tokenManager } from 'src/configs/tokenManager';
-import { login } from 'src/apis/auth';
 import { useAppMutation } from 'src/hooks/useAppMutation';
 import { AUTH_QUERY_KEYS } from '../constants';
 import { LoginRequest } from '../models';

@@ -113,7 +113,7 @@ src/
 # Ownership Rules
 
 | Concern         | Owner                               |
-|-----------------|-------------------------------------|
+| --------------- | ----------------------------------- |
 | Form UI         | `src/modules/<Feature>/components/` |
 | Form state      | `useXForm`                          |
 | Validation      | zod schema                          |
@@ -156,7 +156,6 @@ Rules:
 
 ```ts
 import { z } from 'zod';
-
 import { createProductSchema } from '../schema/create-product.schema';
 
 // what onSubmit receives (price: number)
@@ -204,14 +203,13 @@ export const CREATE_PRODUCT_FIELD_NAMES = {
 If the project has `createFieldNames`, use it:
 
 ```ts
-export const CREATE_PRODUCT_FIELD_NAMES =
-  createFieldNames<CreateProductRequest>()({
-    name: 'name',
-    sku: 'sku',
-    price: 'price',
-    categoryId: 'categoryId',
-    isActive: 'isActive',
-  });
+export const CREATE_PRODUCT_FIELD_NAMES = createFieldNames<CreateProductRequest>()({
+  name: 'name',
+  sku: 'sku',
+  price: 'price',
+  categoryId: 'categoryId',
+  isActive: 'isActive',
+});
 ```
 
 Rules:
@@ -227,9 +225,8 @@ Rules:
 
 ```ts
 import { useZodForm } from 'src/components/Form';
-
-import { createProductSchema } from '../schema/create-product.schema';
 import { CreateProductFormValues } from '../models';
+import { createProductSchema } from '../schema/create-product.schema';
 
 export const initialCreateProductData: CreateProductFormValues = {
   name: '',
@@ -262,10 +259,8 @@ Rules:
 
 ```ts
 import { useQueryClient } from '@tanstack/react-query';
-
 import { createProduct } from 'src/apis/products';
 import { useAppMutation } from 'src/hooks';
-
 import { PRODUCT_QUERY_KEYS } from '../constants';
 import { CreateProductRequest } from '../models';
 
@@ -308,13 +303,10 @@ Their props are documented in `src/components/Form/README.md`. The reference imp
 ```tsx
 import * as React from 'react';
 import { Button } from '@mui/material';
-
 import { ControlErrorMessage, ControlSelect, ControlSwitch, ControlTextField, Form } from 'src/components/Form';
-
 import { CATEGORY_OPTIONS, CREATE_PRODUCT_FIELD_NAMES } from '../../constants';
 import { useCreateProduct, useCreateProductForm } from '../../hooks';
 import { CreateProductRequest } from '../../models';
-
 import classes from './CreateProductForm.module.scss';
 
 type Props = {
@@ -422,7 +414,6 @@ Rules:
 ```tsx
 import * as React from 'react';
 import { Dialog, DialogContent, DialogTitle } from '@mui/material';
-
 import { CreateProductForm } from '../CreateProductForm';
 
 type Props = {
@@ -430,10 +421,7 @@ type Props = {
   onClose: () => void;
 };
 
-export function CreateProductModal({
-  open,
-  onClose,
-}: Props): React.ReactElement {
+export function CreateProductModal({ open, onClose }: Props): React.ReactElement {
   const handleSuccess = React.useCallback(() => {
     onClose();
   }, [onClose]);
@@ -507,9 +495,7 @@ React.useEffect(() => {
 Mapper:
 
 ```ts
-export function mapProductToUpdateProductForm(
-  product: Product,
-): UpdateProductRequest {
+export function mapProductToUpdateProductForm(product: Product): UpdateProductRequest {
   return {
     name: product.name ?? '',
     sku: product.sku ?? '',
@@ -551,19 +537,15 @@ const { fields, append, remove } = useFieldArray({
 Render:
 
 ```tsx
-{fields.map((field, index) => (
-  <div key={field.id}>
-    <ControlTextField
-      control={control}
-      name={`variants.${index}.name`}
-      label="Variant name"
-    />
+{
+  fields.map((field, index) => (
+    <div key={field.id}>
+      <ControlTextField control={control} name={`variants.${index}.name`} label="Variant name" />
 
-    <Button onClick={() => remove(index)}>
-      Remove
-    </Button>
-  </div>
-))}
+      <Button onClick={() => remove(index)}>Remove</Button>
+    </div>
+  ));
+}
 ```
 
 Rules:
@@ -616,7 +598,7 @@ const { data, isFetching } = useSearchCategories({
       )}
     />
   )}
-/>
+/>;
 ```
 
 Rules:
@@ -636,10 +618,7 @@ export const uploadProductImageSchema = z.object({
   image: z
     .custom<FileList>()
     .refine((files) => files?.length === 1, 'Image is required')
-    .refine(
-      (files) => files?.[0]?.size <= 5_000_000,
-      'Maximum file size is 5MB',
-    ),
+    .refine((files) => files?.[0]?.size <= 5_000_000, 'Maximum file size is 5MB'),
 });
 ```
 
@@ -653,12 +632,7 @@ Field (a one-off; add a reusable `ControlFileUpload` when more than one form nee
     <>
       <Button component="label" variant="outlined">
         Upload image
-        <input
-          hidden
-          type="file"
-          accept="image/*"
-          onChange={(event) => onChange(event.target.files)}
-        />
+        <input hidden type="file" accept="image/*" onChange={(event) => onChange(event.target.files)} />
       </Button>
 
       <FormHelperText error>

@@ -17,6 +17,7 @@ Import from `src/components` (or the component's folder).
 | Forms                                                   | see `Form/README.md`                                          | `Form/`                    |
 | Render crash screen                                     | `ErrorFallback` (already wired in `AppProviders`)             | `ErrorFallback/`           |
 | Fade something in when it mounts                        | `<FadeIn y={4} delay={0.1}>...</FadeIn>`                      | `Motion/`                  |
+| Report an error or an analytics event                   | `reportError(error, context)`, `track('signed_up', props)`    | `src/shared/utils`         |
 
 `AppToaster`, `ConfirmProvider`, `MotionProvider` and `ErrorFallback` are mounted once in `src/providers/AppProviders.tsx`. Don't mount them again.
 

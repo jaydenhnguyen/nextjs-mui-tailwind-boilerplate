@@ -73,7 +73,7 @@ src/
 # Ownership Rules
 
 | Concern            | Owner               |
-|--------------------|---------------------|
+| ------------------ | ------------------- |
 | API request        | `src/apis`          |
 | Query hook         | feature hooks       |
 | Mutation hook      | feature hooks       |
@@ -150,10 +150,8 @@ export type GetProductsResponse = {
 
 ```ts
 import { http } from 'src/configs/request';
-
 import { GetProductsRequest } from 'src/modules/Products/models/get-products.request';
 import { GetProductsResponse } from 'src/modules/Products/models/get-products.response';
-
 import { PRODUCTS_ENDPOINTS } from './endpoints';
 
 export const getProducts = (params: GetProductsRequest, signal?: AbortSignal) =>
@@ -210,9 +208,7 @@ Rules:
 
 ```ts
 import { getProducts } from 'src/apis/products';
-
 import { useAppQuery } from 'src/hooks/useAppQuery';
-
 import { GetProductsRequest } from '../models/get-products.request';
 import { PRODUCTS_QUERY_KEYS } from './query-keys';
 
@@ -220,14 +216,9 @@ type Params = {
   payload: GetProductsRequest;
 };
 
-export function useGetProducts({
-  payload,
-}: Params) {
+export function useGetProducts({ payload }: Params) {
   return useAppQuery({
-    queryKey: [
-      PRODUCTS_QUERY_KEYS.GET_PRODUCTS,
-      payload,
-    ],
+    queryKey: [PRODUCTS_QUERY_KEYS.GET_PRODUCTS, payload],
     queryFn: () =>
       getProducts({
         payload,
@@ -289,31 +280,21 @@ directly inside features unless explicitly required.
 
 ```ts
 import { useQueryClient } from '@tanstack/react-query';
-import { useAppMutation } from 'src/hooks';
-
 import { createProduct } from 'src/apis/products';
-
+import { useAppMutation } from 'src/hooks';
 import { notify } from 'src/shared/utils/notify';
-
 import { CreateProductRequest } from '../models/create-product.request';
-
 import { PRODUCTS_QUERY_KEYS } from './query-keys';
 
-export function useCreateProduct(
-  onSuccessCallback?: () => void,
-) {
+export function useCreateProduct(onSuccessCallback?: () => void) {
   const queryClient = useQueryClient();
 
   return useAppMutation({
-    mutationFn: (
-      payload: CreateProductRequest,
-    ) => createProduct(payload),
+    mutationFn: (payload: CreateProductRequest) => createProduct(payload),
 
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [
-          PRODUCTS_QUERY_KEYS.GET_PRODUCTS,
-        ],
+        queryKey: [PRODUCTS_QUERY_KEYS.GET_PRODUCTS],
       });
 
       notify.success('Product created successfully');
@@ -360,16 +341,13 @@ Query keys should:
 Correct:
 
 ```ts
-queryKey: [
-  PRODUCTS_QUERY_KEYS.GET_PRODUCTS,
-  payload,
-]
+queryKey: [PRODUCTS_QUERY_KEYS.GET_PRODUCTS, payload];
 ```
 
 Incorrect:
 
 ```ts
-queryKey: ['products']
+queryKey: ['products'];
 ```
 
 for every query variation.
@@ -388,9 +366,7 @@ Example:
 
 ```ts
 queryClient.invalidateQueries({
-  queryKey: [
-    PRODUCTS_QUERY_KEYS.GET_PRODUCTS,
-  ],
+  queryKey: [PRODUCTS_QUERY_KEYS.GET_PRODUCTS],
 });
 ```
 
@@ -449,11 +425,7 @@ if (!data?.data?.length) {
 import { useGetProducts } from '../../hooks';
 
 export function ProductList() {
-  const {
-    data,
-    isLoading,
-    error,
-  } = useGetProducts({
+  const { data, isLoading, error } = useGetProducts({
     payload: {
       page: 1,
       pageSize: 10,
@@ -475,10 +447,7 @@ export function ProductList() {
   return (
     <div>
       {data.data.map((product) => (
-        <ProductCard
-          key={product.id}
-          product={product}
-        />
+        <ProductCard key={product.id} product={product} />
       ))}
     </div>
   );
@@ -508,10 +477,7 @@ server
 # Pagination Example
 
 ```ts
-const {
-  data,
-  isLoading,
-} = useGetProducts({
+const { data, isLoading } = useGetProducts({
   payload: {
     page,
     pageSize,
@@ -523,10 +489,7 @@ const {
 Query key:
 
 ```ts
-queryKey: [
-  PRODUCTS_QUERY_KEYS.GET_PRODUCTS,
-  payload,
-]
+queryKey: [PRODUCTS_QUERY_KEYS.GET_PRODUCTS, payload];
 ```
 
 This ensures:
@@ -567,25 +530,18 @@ Avoid:
 
 ```ts
 import { getProductDetail } from 'src/apis/products';
-
 import { useAppQuery } from 'src/hooks/useAppQuery';
-
 import { PRODUCTS_QUERY_KEYS } from './query-keys';
 
 type Params = {
   id: string;
 };
 
-export function useGetProductDetail({
-  id,
-}: Params) {
+export function useGetProductDetail({ id }: Params) {
   return useAppQuery({
     enabled: Boolean(id),
 
-    queryKey: [
-      PRODUCTS_QUERY_KEYS.GET_PRODUCT_DETAIL,
-      id,
-    ],
+    queryKey: [PRODUCTS_QUERY_KEYS.GET_PRODUCT_DETAIL, id],
 
     queryFn: () =>
       getProductDetail({

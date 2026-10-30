@@ -27,22 +27,22 @@ The signed-in user is **server state** in React Query (`['currentUser']`). There
 
 # 2. Where Things Live
 
-| Concern | Location |
-|---------|----------|
-| Auth API calls (`login`, `logout`, `getCurrentUser`) | `src/apis/auth/` |
-| Auth strategy, refresh path | `src/configs/api.config.ts` |
-| Token storage (bearer only) | `src/configs/tokenManager.ts`, cookie names in `src/shared/constants/auth.constant.ts` |
-| 401 → refresh → retry → expire | `src/configs/request.ts` (see `02-api-structure.template.md` §7) |
-| `User`, `LoginRequest`, `LoginResponse` | `src/modules/Authentication/models/` |
-| Login schema | `src/modules/Authentication/schema/login.schema.ts` |
-| Hooks: `useAuth`, `useCurrentUser`, `useLogin`, `useLogout`, `useLoginForm`, `usePermission` | `src/modules/Authentication/hooks/` |
-| Components: `Can`, `UserMenu`, `AuthActions`, `SessionWatcher` | `src/modules/Authentication/components/` |
-| `clearSession`, `getSafeRedirect` | `src/modules/Authentication/utils/session.ts` |
-| Roles | `src/shared/enums` (`ROLES`) |
-| Permissions and role → permission map | `src/modules/Authentication/constants/auth.constant.ts` |
-| Login screen | `src/modules/Authentication/Login/`, page `src/pages/login.tsx` |
-| Route guard | `src/layouts/PrivateLayout` |
-| Routes | `APP_ROUTES` in `src/shared/constants/routes.constant.ts` |
+| Concern                                                                                      | Location                                                                               |
+| -------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Auth API calls (`login`, `logout`, `getCurrentUser`)                                         | `src/apis/auth/`                                                                       |
+| Auth strategy, refresh path                                                                  | `src/configs/api.config.ts`                                                            |
+| Token storage (bearer only)                                                                  | `src/configs/tokenManager.ts`, cookie names in `src/shared/constants/auth.constant.ts` |
+| 401 → refresh → retry → expire                                                               | `src/configs/request.ts` (see `02-api-structure.template.md` §7)                       |
+| `User`, `LoginRequest`, `LoginResponse`                                                      | `src/modules/Authentication/models/`                                                   |
+| Login schema                                                                                 | `src/modules/Authentication/schema/login.schema.ts`                                    |
+| Hooks: `useAuth`, `useCurrentUser`, `useLogin`, `useLogout`, `useLoginForm`, `usePermission` | `src/modules/Authentication/hooks/`                                                    |
+| Components: `Can`, `UserMenu`, `AuthActions`, `SessionWatcher`                               | `src/modules/Authentication/components/`                                               |
+| `clearSession`, `getSafeRedirect`                                                            | `src/modules/Authentication/utils/session.ts`                                          |
+| Roles                                                                                        | `src/shared/enums` (`ROLES`)                                                           |
+| Permissions and role → permission map                                                        | `src/modules/Authentication/constants/auth.constant.ts`                                |
+| Login screen                                                                                 | `src/modules/Authentication/Login/`, page `src/pages/login.tsx`                        |
+| Route guard                                                                                  | `src/layouts/PrivateLayout`                                                            |
+| Routes                                                                                       | `APP_ROUTES` in `src/shared/constants/routes.constant.ts`                              |
 
 Import from `src/modules/Authentication`.
 
@@ -52,21 +52,21 @@ Import from `src/modules/Authentication`.
 
 Set once in `apiConfig.authStrategy`:
 
-| Strategy | Backend | Tokens | Requests |
-|----------|---------|--------|----------|
+| Strategy           | Backend                                         | Tokens                                                                           | Requests                        |
+| ------------------ | ----------------------------------------------- | -------------------------------------------------------------------------------- | ------------------------------- |
 | `bearer` (default) | returns `{ accessToken, refreshToken?, user? }` | `tokenManager` keeps them in JS-readable cookies (sameSite=lax, secure on https) | `Authorization: Bearer <token>` |
-| `cookie` | sets httpOnly cookies itself | the app never sees them | `withCredentials: true` |
+| `cookie`           | sets httpOnly cookies itself                    | the app never sees them                                                          | `withCredentials: true`         |
 
 `refreshPath` (default `/auth/refresh`) is called on a 401. Set it to `null` if the backend has no refresh endpoint; a 401 then ends the session immediately.
 
 Backend contract expected by the default code:
 
-| Endpoint | Request | Response |
-|----------|---------|----------|
-| `POST /auth/login` | `{ email, password }` | `{ accessToken?, refreshToken?, user? }` |
-| `GET /auth/me` | | `User` |
+| Endpoint             | Request                                     | Response                                 |
+| -------------------- | ------------------------------------------- | ---------------------------------------- |
+| `POST /auth/login`   | `{ email, password }`                       | `{ accessToken?, refreshToken?, user? }` |
+| `GET /auth/me`       |                                             | `User`                                   |
 | `POST /auth/refresh` | bearer: `{ refreshToken }`; cookie: no body | bearer: `{ accessToken, refreshToken? }` |
-| `POST /auth/logout` | | anything |
+| `POST /auth/logout`  |                                             | anything                                 |
 
 Different backend? Change `src/apis/auth/auth.ts`, the models, and (for refresh) `refreshSession` in `request.ts`. Nothing else needs to know.
 
@@ -78,13 +78,13 @@ Different backend? Change `src/apis/auth/auth.ts`, the models, and (for refresh)
 const { user, isAuthenticated, isChecking, sessionError, retry } = useAuth();
 ```
 
-| Field | Meaning |
-|-------|---------|
-| `user` | `User \| null` |
-| `isAuthenticated` | `!!user` |
-| `isChecking` | the first `/auth/me` check hasn't finished |
-| `sessionError` | the check failed for a reason other than 401 (offline, 5xx) |
-| `retry` | runs the check again |
+| Field             | Meaning                                                     |
+| ----------------- | ----------------------------------------------------------- |
+| `user`            | `User \| null`                                              |
+| `isAuthenticated` | `!!user`                                                    |
+| `isChecking`      | the first `/auth/me` check hasn't finished                  |
+| `sessionError`    | the check failed for a reason other than 401 (offline, 5xx) |
+| `retry`           | runs the check again                                        |
 
 Rules:
 
@@ -134,7 +134,7 @@ hasRole([ROLES.ADMIN, ROLES.SUPER_ADMIN]);
 
 <Can permission={PERMISSIONS.USERS_WRITE} fallback={<Typography>Read only</Typography>}>
   <Button>Edit user</Button>
-</Can>
+</Can>;
 ```
 
 - If the backend sends `user.permissions`, those are used as-is.
@@ -156,9 +156,9 @@ UI checks are for display only. The backend must enforce every permission too.
 
 # 9. Header Actions
 
-| Layout | Right side of header |
-|--------|----------------------|
-| `PublicLayout` | `AuthActions`: "Sign in" or "Open app" |
+| Layout          | Right side of header                        |
+| --------------- | ------------------------------------------- |
+| `PublicLayout`  | `AuthActions`: "Sign in" or "Open app"      |
 | `PrivateLayout` | `UserMenu`: avatar, name, email, "Sign out" |
 
 ---

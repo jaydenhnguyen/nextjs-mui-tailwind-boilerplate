@@ -213,6 +213,7 @@ Always read the relevant template files before implementation.
 | Form components                                                              | `src/components/Form/README.md`    |
 | Shared hooks and formatting                                                  | `src/hooks/README.md`              |
 | Mock API (`npm run dev:mock`)                                                | `src/mocks/README.md`              |
+| Tests (`npm test`)                                                           | `src/test/README.md`               |
 | Full CRUD reference (Users module)                                           | `examples/crud-flow-example.md`    |
 | Code generator (`npm run gen`)                                               | §9 Scaffolding, `scripts/gen.mjs`  |
 
@@ -363,6 +364,7 @@ The AI agent must verify:
 5. Styling follows MUI/Tailwind conventions
 6. New files follow naming conventions
 7. Feature ownership is respected
+8. `npm run check` passes (type-check, lint, tests, build)
 
 ---
 

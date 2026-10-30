@@ -1,6 +1,6 @@
-import { IconButton, Tooltip } from '@mui/material';
 import DarkModeOutlined from '@mui/icons-material/DarkModeOutlined';
 import LightModeOutlined from '@mui/icons-material/LightModeOutlined';
+import { IconButton, Tooltip } from '@mui/material';
 import { useThemeMode } from 'src/hooks';
 
 export function ThemeModeToggle() {

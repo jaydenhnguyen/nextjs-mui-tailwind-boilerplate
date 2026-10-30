@@ -99,15 +99,11 @@ Rules:
 ```ts
 import { getProducts } from 'src/apis/products';
 import { useAppQuery } from 'src/hooks/useAppQuery';
-
 import { PRODUCT_QUERY_KEYS } from './query-keys';
 
 export function useGetProducts(payload: GetProductsRequest) {
   return useAppQuery({
-    queryKey: [
-      PRODUCT_QUERY_KEYS.GET_PRODUCTS,
-      payload,
-    ],
+    queryKey: [PRODUCT_QUERY_KEYS.GET_PRODUCTS, payload],
 
     queryFn: () => getProducts(payload),
   });
@@ -121,18 +117,13 @@ export function useGetProducts(payload: GetProductsRequest) {
 Correct:
 
 ```ts
-queryKey: [
-  PRODUCT_QUERY_KEYS.GET_PRODUCTS,
-  payload,
-]
+queryKey: [PRODUCT_QUERY_KEYS.GET_PRODUCTS, payload];
 ```
 
 Wrong:
 
 ```ts
-queryKey: [
-  PRODUCT_QUERY_KEYS.GET_PRODUCTS,
-]
+queryKey: [PRODUCT_QUERY_KEYS.GET_PRODUCTS];
 ```
 
 Why?
@@ -171,17 +162,13 @@ Without payload:
 ```ts
 import { getProductDetail } from 'src/apis/products';
 import { useAppQuery } from 'src/hooks/useAppQuery';
-
 import { PRODUCT_QUERY_KEYS } from './query-keys';
 
 export function useGetProductDetail(id: string) {
   return useAppQuery({
     enabled: Boolean(id),
 
-    queryKey: [
-      PRODUCT_QUERY_KEYS.GET_PRODUCT_DETAIL,
-      id,
-    ],
+    queryKey: [PRODUCT_QUERY_KEYS.GET_PRODUCT_DETAIL, id],
 
     queryFn: () => getProductDetail(id),
   });
@@ -214,7 +201,7 @@ Example:
     pageSize: 10,
     searchValue: 'book',
   },
-]
+];
 ```
 
 This uniquely identifies:
@@ -232,10 +219,8 @@ This uniquely identifies:
 
 ```ts
 import { useQueryClient } from '@tanstack/react-query';
-import { useAppMutation } from 'src/hooks';
-
 import { createProduct } from 'src/apis/products';
-
+import { useAppMutation } from 'src/hooks';
 import { PRODUCT_QUERY_KEYS } from './query-keys';
 
 export function useCreateProduct() {
@@ -246,9 +231,7 @@ export function useCreateProduct() {
 
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [
-          PRODUCT_QUERY_KEYS.GET_PRODUCTS,
-        ],
+        queryKey: [PRODUCT_QUERY_KEYS.GET_PRODUCTS],
       });
     },
   });
@@ -269,10 +252,8 @@ Rules:
 
 ```ts
 import { useQueryClient } from '@tanstack/react-query';
-import { useAppMutation } from 'src/hooks';
-
 import { updateProduct } from 'src/apis/products';
-
+import { useAppMutation } from 'src/hooks';
 import { PRODUCT_QUERY_KEYS } from './query-keys';
 
 export function useUpdateProduct() {
@@ -283,16 +264,11 @@ export function useUpdateProduct() {
 
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: [
-          PRODUCT_QUERY_KEYS.GET_PRODUCTS,
-        ],
+        queryKey: [PRODUCT_QUERY_KEYS.GET_PRODUCTS],
       });
 
       queryClient.invalidateQueries({
-        queryKey: [
-          PRODUCT_QUERY_KEYS.GET_PRODUCT_DETAIL,
-          variables.id,
-        ],
+        queryKey: [PRODUCT_QUERY_KEYS.GET_PRODUCT_DETAIL, variables.id],
       });
     },
   });
@@ -313,10 +289,8 @@ Rules:
 
 ```ts
 import { useQueryClient } from '@tanstack/react-query';
-import { useAppMutation } from 'src/hooks';
-
 import { deleteProduct } from 'src/apis/products';
-
+import { useAppMutation } from 'src/hooks';
 import { PRODUCT_QUERY_KEYS } from './query-keys';
 
 export function useDeleteProduct() {
@@ -327,9 +301,7 @@ export function useDeleteProduct() {
 
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [
-          PRODUCT_QUERY_KEYS.GET_PRODUCTS,
-        ],
+        queryKey: [PRODUCT_QUERY_KEYS.GET_PRODUCTS],
       });
     },
   });
@@ -343,10 +315,7 @@ export function useDeleteProduct() {
 For infinite scroll:
 
 ```ts
-queryKey: [
-  PRODUCT_QUERY_KEYS.GET_PRODUCTS,
-  filters,
-]
+queryKey: [PRODUCT_QUERY_KEYS.GET_PRODUCTS, filters];
 ```
 
 Do NOT include:
@@ -360,10 +329,7 @@ Example:
 
 ```ts
 useInfiniteQuery({
-  queryKey: [
-    PRODUCT_QUERY_KEYS.GET_PRODUCTS,
-    filters,
-  ],
+  queryKey: [PRODUCT_QUERY_KEYS.GET_PRODUCTS, filters],
 
   queryFn: ({ pageParam = 1 }) =>
     getProducts({
@@ -371,10 +337,7 @@ useInfiniteQuery({
       page: pageParam,
     }),
 
-  getNextPageParam: (lastPage) =>
-    lastPage.pagination.hasNext
-      ? lastPage.pagination.page + 1
-      : undefined,
+  getNextPageParam: (lastPage) => (lastPage.pagination.hasNext ? lastPage.pagination.page + 1 : undefined),
 });
 ```
 
@@ -402,10 +365,7 @@ useGetProducts(payload);
 Query key:
 
 ```ts
-[
-  PRODUCT_QUERY_KEYS.GET_PRODUCTS,
-  payload,
-]
+[PRODUCT_QUERY_KEYS.GET_PRODUCTS, payload];
 ```
 
 Correct:
@@ -426,24 +386,20 @@ For larger projects:
 export const PRODUCT_QUERY_KEYS = {
   all: ['PRODUCTS'] as const,
 
-  lists: () =>
-    [...PRODUCT_QUERY_KEYS.all, 'LIST'] as const,
+  lists: () => [...PRODUCT_QUERY_KEYS.all, 'LIST'] as const,
 
-  list: (payload: GetProductsRequest) =>
-    [...PRODUCT_QUERY_KEYS.lists(), payload] as const,
+  list: (payload: GetProductsRequest) => [...PRODUCT_QUERY_KEYS.lists(), payload] as const,
 
-  details: () =>
-    [...PRODUCT_QUERY_KEYS.all, 'DETAIL'] as const,
+  details: () => [...PRODUCT_QUERY_KEYS.all, 'DETAIL'] as const,
 
-  detail: (id: string) =>
-    [...PRODUCT_QUERY_KEYS.details(), id] as const,
+  detail: (id: string) => [...PRODUCT_QUERY_KEYS.details(), id] as const,
 };
 ```
 
 Usage:
 
 ```ts
-queryKey: PRODUCT_QUERY_KEYS.list(payload)
+queryKey: PRODUCT_QUERY_KEYS.list(payload);
 ```
 
 This is useful for:
@@ -457,7 +413,7 @@ But for smaller/medium projects:
 ```ts
 const QUERY_KEYS = {
   GET_PRODUCTS: 'GET_PRODUCTS',
-}
+};
 ```
 
 is usually simpler and preferred.
@@ -474,9 +430,7 @@ Invalidate:
 
 ```ts
 invalidateQueries({
-  queryKey: [
-    PRODUCT_QUERY_KEYS.GET_PRODUCTS,
-  ],
+  queryKey: [PRODUCT_QUERY_KEYS.GET_PRODUCTS],
 });
 ```
 
@@ -491,10 +445,7 @@ Invalidate:
 
 ```ts
 invalidateQueries({
-  queryKey: [
-    PRODUCT_QUERY_KEYS.GET_PRODUCT_DETAIL,
-    id,
-  ],
+  queryKey: [PRODUCT_QUERY_KEYS.GET_PRODUCT_DETAIL, id],
 });
 ```
 
@@ -530,20 +481,20 @@ globally unless truly necessary.
 Good:
 
 ```ts
-GET_PRODUCTS
-GET_PRODUCT_DETAIL
-GET_BOOKINGS
-GET_BOOKING_DETAIL
-GET_USERS
+GET_PRODUCTS;
+GET_PRODUCT_DETAIL;
+GET_BOOKINGS;
+GET_BOOKING_DETAIL;
+GET_USERS;
 ```
 
 Bad:
 
 ```ts
-products
-productData
-query1
-fetchProducts
+products;
+productData;
+query1;
+fetchProducts;
 ```
 
 Rules:
@@ -608,7 +559,7 @@ Avoid:
 BAD:
 
 ```ts
-queryKey: ['products']
+queryKey: ['products'];
 ```
 
 for:
@@ -683,10 +634,7 @@ const payload = {
 Then:
 
 ```ts
-queryKey: [
-  PRODUCT_QUERY_KEYS.GET_PRODUCTS,
-  payload,
-]
+queryKey: [PRODUCT_QUERY_KEYS.GET_PRODUCTS, payload];
 ```
 
 Rules:
@@ -727,17 +675,13 @@ Only optimize if:
 Example:
 
 ```ts
-const {
-  data,
-  isLoading,
-  isFetching,
-} = useGetProducts(payload);
+const { data, isLoading, isFetching } = useGetProducts(payload);
 ```
 
 Difference:
 
 | State        | Meaning            |
-|--------------|--------------------|
+| ------------ | ------------------ |
 | `isLoading`  | first load         |
 | `isFetching` | background refetch |
 

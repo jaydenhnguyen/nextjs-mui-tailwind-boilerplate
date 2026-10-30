@@ -1,5 +1,5 @@
-import { Switch, SwitchProps } from '@mui/material';
 import { FieldValues } from 'react-hook-form';
+import { Switch, SwitchProps } from '@mui/material';
 import { ControlBooleanField, ControlBooleanFieldProps } from '../ControlBooleanField';
 
 type Props<T extends FieldValues, TOut = T> = ControlBooleanFieldProps<T, TOut> & {

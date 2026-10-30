@@ -1,7 +1,7 @@
 import * as React from 'react';
 import clsx from 'clsx';
-import { Button, Typography } from '@mui/material';
 import ErrorOutlineOutlined from '@mui/icons-material/ErrorOutlineOutlined';
+import { Button, Typography } from '@mui/material';
 import { toApiError } from 'src/shared/utils/apiError';
 import { FadeIn } from '../Motion';
 import classes from './ErrorState.module.scss';

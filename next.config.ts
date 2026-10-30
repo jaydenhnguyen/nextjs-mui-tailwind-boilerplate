@@ -32,6 +32,8 @@ const contentSecurityPolicy = [
 ].join('; ');
 
 const config: NextConfig = {
+  // The Dockerfile sets this to get a self-contained server in .next/standalone. Vercel doesn't need it.
+  output: process.env.NEXT_OUTPUT === 'standalone' ? 'standalone' : undefined,
   reactStrictMode: true,
   poweredByHeader: false,
   bundlePagesRouterDependencies: true,

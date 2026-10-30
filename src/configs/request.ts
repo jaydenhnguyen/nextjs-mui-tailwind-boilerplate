@@ -1,7 +1,7 @@
-import isPlainObject from 'lodash/isPlainObject';
 import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 import camelcaseKeys from 'camelcase-keys';
 import { StatusCodes } from 'http-status-codes';
+import isPlainObject from 'lodash/isPlainObject';
 import { toApiError } from 'src/shared/utils/apiError';
 import { apiConfig } from './api.config';
 import { tokenManager } from './tokenManager';

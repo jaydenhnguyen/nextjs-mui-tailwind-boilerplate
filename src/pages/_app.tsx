@@ -1,17 +1,17 @@
 import * as React from 'react';
-import Head from 'next/head';
 import { NextPage } from 'next';
 import { AppProps } from 'next/app';
+import Head from 'next/head';
 import { EmotionCache } from '@emotion/react';
 import { AppCacheProvider } from '@mui/material-nextjs/v16-pagesRouter';
 import 'src/styles/_app.scss';
 import 'src/styles/_core.scss';
 import 'src/styles/tailwind.scss';
+import { Seo } from 'src/components/Seo';
 import { setupZod, siteConfig } from 'src/configs';
+import { ApiMockingGate } from 'src/mocks';
 import { AppProviders } from 'src/providers';
 import { createAppEmotionCache } from 'src/theme';
-import { Seo } from 'src/components/Seo';
-import { ApiMockingGate } from 'src/mocks';
 
 export type NextPageWithLayout<P = object, IP = P> = NextPage<P, IP> & {
   getLayout?: (page: React.ReactElement) => React.ReactNode;
