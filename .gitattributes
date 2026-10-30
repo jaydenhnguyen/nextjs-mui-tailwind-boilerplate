@@ -1,0 +1,4 @@
+# Store text files with LF in the repo, whatever the OS. Git hooks must stay LF to run.
+* text=auto
+.husky/* text eol=lf
+*.sh text eol=lf

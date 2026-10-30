@@ -1,0 +1,19 @@
+.root {
+  @apply flex flex-col gap-6;
+}
+
+.header {
+  @apply flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between;
+}
+
+.search {
+  @apply w-full sm:max-w-sm;
+}
+
+.results {
+  @apply flex flex-col gap-4;
+}
+
+.pagination {
+  @apply self-center;
+}

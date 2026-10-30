@@ -1,13 +1,16 @@
-import * as React from 'react';
-import { Box, Typography } from '@mui/material';
+import { Typography } from '@mui/material';
+import { useAuth } from 'src/modules/Authentication';
 import classes from './Home.module.scss';
 
-export function Home(): React.ReactElement {
+export function Home() {
+  const { user } = useAuth();
+
   return (
-    <Box className={classes['wrapper']}>
-      <Typography variant="subtitle1" fontWeight={600}>
-        THIS IS PRIVATE HOME PAGE
+    <div className={classes['wrapper']}>
+      <Typography variant="h4" component="h1">
+        Welcome back{user ? `, ${user.firstName}` : ''}
       </Typography>
-    </Box>
+      <Typography color="text.secondary">Here&apos;s where your app starts.</Typography>
+    </div>
   );
 }

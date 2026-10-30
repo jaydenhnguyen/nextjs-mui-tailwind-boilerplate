@@ -1,4 +1,4 @@
-Read all files inside `.agent/templates/`.
+Read `.agent/MASTER_TEMPLATE.md` and the templates it lists for this kind of task.
 
 Strictly follow:
 
@@ -15,6 +15,8 @@ Strictly follow:
 
 Create a new feature module.
 
+Start from the generator: `npm run gen page <Name>` for a screen, or `npm run gen crud <Name>` for a resource with list/create/edit/delete. Add components and hooks inside it with `npm run gen component <Name> -- --module <Module>` and `npm run gen hook <useName> -- --module <Module>`.
+
 Requirements:
 
 - follow feature/module-first structure
@@ -27,7 +29,7 @@ Requirements:
 - keep business logic inside hooks/modules
 - use RHF + zod for forms
 - use `useAppQuery` for queries
-- use `useMutation` for writes
+- use `useAppMutation` for writes
 
 Before creating new files:
 

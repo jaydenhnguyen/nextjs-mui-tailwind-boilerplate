@@ -1,0 +1,4 @@
+.root {
+  // Sits above the Next.js dev indicator (bottom left) and the React Query devtools button (bottom right).
+  @apply pointer-events-none fixed bottom-16 left-3 z-[1200] max-w-[calc(100vw-1.5rem)] rounded-theme border border-solid border-warning-main bg-background-paper/90 px-3 py-2 shadow-sm backdrop-blur;
+}

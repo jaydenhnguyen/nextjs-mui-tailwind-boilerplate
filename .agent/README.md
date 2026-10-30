@@ -1,56 +1,30 @@
-# AI Agent Documentation
+# .agent
 
-Reusable architecture docs and prompts for Next.js + TypeScript projects using this boilerplate.
+Docs for building on this boilerplate, written for AI agents and people alike.
 
-**Start here:** [`MASTER_TEMPLATE.md`](./MASTER_TEMPLATE.md)
+**Start here:** [`MASTER_TEMPLATE.md`](./MASTER_TEMPLATE.md). It lists the rules, the workflow and which template to read for each task.
 
----
-
-## Canonical sources (do not duplicate elsewhere)
-
-| Topic | Source |
-|-------|--------|
-| Folder structure, routing, layouts, shared ownership | `templates/01-project-structure.template.md` |
-| API / hooks / HTTP clients | `templates/02-api-structure.template.md`, `API_STRUCTURE_TEMPLATE.md` |
-| Auth + layout guards | `templates/03-auth-flow.template.md` |
-| MUI theme | `templates/04-mui-theme.template.md` |
-| Tailwind + SCSS | `templates/05-tailwind-style.template.md` |
-| Components | `templates/06-component-rules.template.md` |
-| Forms (RHF + zod) | `templates/07-form-handling.template.md` |
-| Naming + code style | `templates/08-code-style.template.md` |
-| Layout `getLayout` examples | `examples/layout-example.md` |
-
-**Project-specific deviations** (auth stack, no API, single route, etc.) belong in that repo's `.cursor/` docs — not in `.agent/`.
-
----
-
-## Usage
-
-Before using any prompt:
-
-1. Read `MASTER_TEMPLATE.md`
-2. Read relevant files in `templates/`
-3. Inspect the target repo's existing code and `.cursor/` adaptation notes
-4. Reuse existing components, hooks, layouts, and utilities before creating new ones
-
----
+```txt
+.agent/
+├── MASTER_TEMPLATE.md   entry point: read first
+├── templates/           the rules, one topic per file (01 structure … 09 motion)
+├── examples/            walkthroughs that point at real code
+└── prompts/             ready-made task prompts
+```
 
 ## Prompts
 
-| Prompt | Purpose |
-|--------|---------|
-| `prompts/create-feature.prompt.md` | New feature module |
-| `prompts/create-page.prompt.md` | New route/page |
-| `prompts/create-crud.prompt.md` | CRUD module |
-| `prompts/create-form.prompt.md` | RHF + zod form |
-| `prompts/create-project.prompt.md` | Scaffold full project |
-| `prompts/refactor-feature.prompt.md` | Refactor existing feature |
+Paste one into your AI tool and add the specifics.
 
-Recommended flow:
+| Prompt                               | For                                                        |
+| ------------------------------------ | ---------------------------------------------------------- |
+| `prompts/create-project.prompt.md`   | Turning a fresh copy of the boilerplate into a new product |
+| `prompts/create-feature.prompt.md`   | A new feature module                                       |
+| `prompts/create-page.prompt.md`      | A new page                                                 |
+| `prompts/create-crud.prompt.md`      | A resource with list, create, edit, delete                 |
+| `prompts/create-form.prompt.md`      | A form                                                     |
+| `prompts/refactor-feature.prompt.md` | Bringing an existing feature in line with these rules      |
 
-```txt
-1. Read .agent/templates/*
-2. Read related existing feature/module
-3. Reuse existing patterns
-4. Generate minimal consistent implementation
-```
+## Keeping the docs true
+
+Docs describe the code that exists. When you change a pattern, change its template in the same commit. If a doc and the code disagree, the code wins; fix the doc.

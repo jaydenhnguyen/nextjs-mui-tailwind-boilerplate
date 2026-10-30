@@ -1,0 +1,7 @@
+.root {
+  @apply flex min-h-40 w-full items-center justify-center py-8;
+}
+
+.full-screen {
+  @apply min-h-dvh;
+}

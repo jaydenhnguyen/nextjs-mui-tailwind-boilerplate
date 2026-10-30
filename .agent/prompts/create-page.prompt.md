@@ -1,6 +1,8 @@
-Read all files inside `.agent/templates/`.
+Read `.agent/MASTER_TEMPLATE.md` and the templates it lists for this kind of task.
 
 Generate a new page route.
+
+Start by running `npm run gen page <Name>`. It creates the module, the page, the `APP_ROUTES` entry and the nav entry (`-- --public` for a public page, `-- --no-nav` to skip the nav).
 
 Requirements:
 

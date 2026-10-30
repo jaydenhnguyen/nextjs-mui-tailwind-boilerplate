@@ -1,0 +1,14 @@
+node_modules
+.next
+.git
+.github
+.husky
+.agent
+.idea
+.vscode
+coverage
+Dockerfile
+.dockerignore
+*.md
+# Local env files can hold secrets; pass public settings with --build-arg instead.
+.env*.local

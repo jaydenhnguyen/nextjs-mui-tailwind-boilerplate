@@ -1,10 +1,10 @@
-Read all files inside `.agent/templates/`.
+Read `.agent/MASTER_TEMPLATE.md`, `.agent/templates/07-form-handling.template.md` and `src/components/Form/README.md`.
 
 Generate a production-grade form using:
 
-- react-hook-form
-- zod
-- MUI
+- `useZodForm` (react-hook-form + zod) from `src/components/Form`
+- `<Form form onSubmit>` for submission
+- the `Control*` field components (MUI underneath)
 - SCSS Modules
 - Tailwind
 
@@ -43,3 +43,5 @@ Do NOT:
 - use any
 - hardcode field names repeatedly
 - bypass validation with getValues()
+- use `useForm` + `zodResolver`, raw `<form>` or raw MUI inputs when a `Control*` component exists
+- render error messages yourself (use the field's built-in message or `ControlErrorMessage`)

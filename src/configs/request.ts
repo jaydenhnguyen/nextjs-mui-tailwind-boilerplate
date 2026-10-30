@@ -1,120 +1,39 @@
-import qs from 'qs';
-import isNil from 'lodash/isNil';
-import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
+import axios, { AxiosRequestConfig } from 'axios';
 import camelcaseKeys from 'camelcase-keys';
-import { StatusCodes } from 'http-status-codes';
-import { envVariables } from './environment';
-import { tokenManager } from './tokensManager';
+import isPlainObject from 'lodash/isPlainObject';
+import { toApiError } from 'src/shared/utils/apiError';
+import { apiConfig } from './api.config';
+import { setupAuthInterceptors } from './auth';
+
+const toCamelCase = (data: unknown) =>
+  apiConfig.camelCaseResponse && (isPlainObject(data) || Array.isArray(data))
+    ? camelcaseKeys(data as Record<string, unknown>, { deep: true })
+    : data;
 
 export const request = axios.create({
-  timeout: 10000,
-  baseURL: envVariables.BASE_API_URL,
-  headers: {
-    Accept: 'application/json',
-    'Content-Type': 'application/json',
-    'Cache-Control': 'no-cache',
-    'X-Requested-With': 'XMLHttpRequest',
-  },
-  paramsSerializer: (params) => qs.stringify(params, { arrayFormat: 'brackets' }),
+  baseURL: apiConfig.baseURL,
+  timeout: apiConfig.timeout,
+  headers: { Accept: 'application/json' },
+  // Arrays go out as ids[]=1&ids[]=2. Use { indexes: null } for ids=1&ids=2 if the backend expects that.
+  paramsSerializer: { indexes: false },
 });
 
-function backToLogin() {
-  tokenManager.removeAllCredentials();
-  // window.location.href = APP_ROUTES.LOGIN;
-}
-
-request.interceptors.request.use((config) => {
-    const accessToken = tokenManager.getAccessToken();
-
-    if (!isNil(accessToken)) config.headers.Authorization = `Bearer ${accessToken}`;
-
-    return config;
-  },
-);
-
-
-let isRefreshingAccessToken = false;
-let queue: ((token: string) => void)[] = [];
-
-function subscribe(cb: (token: string) => void) {
-  queue.push(cb);
-}
-
-function flushQueue(token: string) {
-  queue.forEach((cb) => cb(token));
-  queue = [];
-}
-
-async function refreshTokenFlow(refreshToken: string, originalRequest: InternalAxiosRequestConfig) {
-  // If already refreshing, add this request to queue
-  if (isRefreshingAccessToken) {
-    return new Promise((resolve) => {
-      subscribe((newToken) => {
-        originalRequest.headers.Authorization = `Bearer ${newToken}`;
-        resolve(request(originalRequest));
-      });
-    });
-  }
-
-  try {
-    isRefreshingAccessToken = true;
-
-    const response = await axios.post(`${envVariables.BASE_API_URL}/auth/refresh`, {
-      refreshToken,
-    });
-
-    const { accessToken: newAccessToken, refreshToken: newRefreshToken } = response.data;
-
-    tokenManager.storeTokens({ accessToken: newAccessToken, refreshToken: newRefreshToken });
-
-    return { newAccessToken, newRefreshToken };
-  } catch (e) {
-    throw e;
-  } finally {
-    isRefreshingAccessToken = false;
-  }
-}
-
 request.interceptors.response.use(
-  (response) => camelcaseKeys(response.data),
-
-  async (error: AxiosError) => {
-    const originalRequest = error.config;
-
-    const errorResponse = error.response as {
-      status: number;
-      data: {
-        code: string;
-        message: string;
-      };
-    };
-    const status = errorResponse?.status;
-
-    if (status !== StatusCodes.UNAUTHORIZED) {
-      return Promise.reject(error.response?.data);
-    }
-
-    const refreshToken = tokenManager.getRefreshToken();
-
-    // If no refresh token → force logout
-    if (isNil(refreshToken) || isNil(originalRequest)) {
-      backToLogin();
-      return Promise.reject(error.response?.data);
-    }
-
-    try {
-      const { newAccessToken } = await refreshTokenFlow(refreshToken, originalRequest) as {
-        newAccessToken: string,
-        newRefreshToken: string
-      };
-
-      flushQueue(newAccessToken);
-
-      originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-      return request(originalRequest);
-    } catch (err) {
-      tokenManager.removeAllCredentials();
-      return Promise.reject(error.response?.data);
-    }
+  (response) => (response.config.responseType === 'blob' ? response.data : toCamelCase(response.data)),
+  (error: unknown) => {
+    if (axios.isAxiosError(error) && error.response) error.response.data = toCamelCase(error.response.data);
+    throw toApiError(error);
   },
 );
+
+setupAuthInterceptors(request);
+
+export const http = {
+  get: <T>(url: string, config?: AxiosRequestConfig) => request.get<T, T>(url, config),
+  delete: <T = void>(url: string, config?: AxiosRequestConfig) => request.delete<T, T>(url, config),
+  post: <T, B = unknown>(url: string, body?: B, config?: AxiosRequestConfig) =>
+    request.post<T, T, B>(url, body, config),
+  put: <T, B = unknown>(url: string, body?: B, config?: AxiosRequestConfig) => request.put<T, T, B>(url, body, config),
+  patch: <T, B = unknown>(url: string, body?: B, config?: AxiosRequestConfig) =>
+    request.patch<T, T, B>(url, body, config),
+};

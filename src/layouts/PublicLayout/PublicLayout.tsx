@@ -1,57 +1,26 @@
-import React from 'react';
+import * as React from 'react';
 import { useRouter } from 'next/router';
-import { Box, Container, Typography } from '@mui/material';
-import { tokenManager } from 'src/configs';
+import { FadeIn } from 'src/components/Motion';
+import { navigationConfig } from 'src/configs';
+import { AuthActions } from 'src/modules/Authentication';
+import { APP_ROUTES } from 'src/shared/constants';
+import { DURATION } from 'src/theme/motion';
+import { Footer, Header, MAIN_CONTENT_ID, SkipLink } from '../components';
 import classes from './PublicLayout.module.scss';
 
-export function PublicLayout({ children }: { children: React.ReactElement }): React.ReactElement | null {
-  const router = useRouter();
-  const [isClient, setIsClient] = React.useState(false);
+export function PublicLayout({ children }: { children: React.ReactNode }) {
+  const { pathname } = useRouter();
 
-  const isAuthenticated = tokenManager.isAuthenticated();
-
-  React.useEffect(() => setIsClient(true), []);
-
-  React.useEffect(() => {
-    if (isAuthenticated) {
-      router.replace('/home').then();
-    }
-  }, [isAuthenticated, router]);
-
-  return isClient && !isAuthenticated ? (
-    <Box className={classes['wrapper']}>
-      {/* Header */}
-      <Box component="header">
-        <Typography variant="subtitle1" fontWeight={600}>
-          THIS IS PUBLIC HEADER
-        </Typography>
-      </Box>
-
-      {/* Main content */}
-      <Box component="main" flex={1} className={classes['main-wrapper']}>
-        <Container maxWidth="lg" style={{ padding: 0 }}>
+  return (
+    <div className={classes['root']}>
+      <SkipLink />
+      <Header navItems={navigationConfig.public} homeHref={APP_ROUTES.LANDING} actions={<AuthActions />} />
+      <main id={MAIN_CONTENT_ID} tabIndex={-1} className={classes['main']}>
+        <FadeIn key={pathname} y={8} duration={DURATION.medium}>
           {children}
-        </Container>
-      </Box>
-
-      {/* Footer */}
-      <Box
-        component="footer"
-        className={classes['footer-wrapper']}
-        sx={{ boxShadow: '0 -4px 12px rgba(0, 0, 0, 0.05)' }}
-      >
-        <Container maxWidth="lg">
-          <Box className={classes['footer-content']}>
-            <Typography variant="caption" display="block" textAlign="center" mt={3}>
-              THIS IS FOOTER
-            </Typography>
-
-            <Typography variant="caption" display="block" textAlign="center" mt={3}>
-              Powered by Jayden
-            </Typography>
-          </Box>
-        </Container>
-      </Box>
-    </Box>
-  ) : null;
+        </FadeIn>
+      </main>
+      <Footer />
+    </div>
+  );
 }

@@ -1,67 +1,60 @@
-import { themeConfig } from './src/theme/core/_config';
+import type { Config } from 'tailwindcss';
+import { BREAKPOINTS } from './src/theme/core/breakpoints';
 
-const SCREENS = {
-  xs: 480,
-  sm: 576,
-  md: 768,
-  lg: 992,
-  xl: 1200,
-  '2xl': 1600,
-  '3xl': 1920,
-};
+// Colors point at MUI's CSS variables, so every Tailwind color follows light/dark mode automatically.
+const withAlpha = (name: string) => `rgb(var(--mui-palette-${name}Channel) / <alpha-value>)`;
+const plain = (name: string) => `var(--mui-palette-${name})`;
 
-function screenToPx(screen: number) {
-  return `${screen}px`;
-}
+const scale = (color: string) => ({
+  lighter: plain(`${color}-lighter`),
+  light: withAlpha(`${color}-light`),
+  main: withAlpha(`${color}-main`),
+  dark: withAlpha(`${color}-dark`),
+  darker: plain(`${color}-darker`),
+  contrast: withAlpha(`${color}-contrastText`),
+});
 
-function screenUp(screen: number) {
-  return { min: screenToPx(screen) };
-}
+const greyShades = ['50', '100', '200', '300', '400', '500', '600', '700', '800', '900'] as const;
 
-function screenDown(screen: number) {
-  return { max: screenToPx(screen - 1) };
-}
+const screens = Object.fromEntries(
+  Object.entries(BREAKPOINTS)
+    .filter(([key]) => key !== 'xs')
+    .map(([key, px]) => [key, `${px}px`]),
+);
 
-module.exports = {
+const config: Config = {
   content: ['./src/**/*.{js,ts,jsx,tsx}'],
+  darkMode: 'selector',
   theme: {
+    screens,
     extend: {
       colors: {
-        ...themeConfig.palette,
-        'hero-bg': '#f8faff',
-        'app-primary-dtxt': themeConfig.darkText.primary,
-        'app-secondary-dtxt': themeConfig.darkText.secondary,
-        'app-disabled-dtxt': themeConfig.darkText.disabled,
+        primary: scale('primary'),
+        secondary: scale('secondary'),
+        info: scale('info'),
+        success: scale('success'),
+        warning: scale('warning'),
+        error: scale('error'),
+        grey: Object.fromEntries(greyShades.map((shade) => [shade, plain(`grey-${shade}`)])),
+        common: { black: plain('common-black'), white: plain('common-white') },
+        background: { default: withAlpha('background-default'), paper: withAlpha('background-paper') },
+        text: {
+          primary: withAlpha('text-primary'),
+          secondary: withAlpha('text-secondary'),
+          disabled: plain('text-disabled'),
+        },
+        divider: plain('divider'),
       },
       fontFamily: {
-        roboto: ['Roboto', 'sans-serif'],
-        poppins: ['Poppins', 'sans-serif'],
-        sans: ['var(--font-geist-sans)', 'sans-serif'],
-        mono: ['var(--font-geist-mono)', 'monospace'],
+        sans: ['var(--font-sans)'],
+        mono: ['var(--font-mono)'],
+      },
+      borderRadius: {
+        theme: 'var(--mui-shape-borderRadius)',
       },
     },
-    screens: {
-      xs: screenToPx(SCREENS.xs),
-      sm: screenToPx(SCREENS.sm),
-      md: screenToPx(SCREENS.md),
-      lg: screenToPx(SCREENS.lg),
-      xl: screenToPx(SCREENS.xl),
-      '2xl': screenToPx(SCREENS['2xl']),
-      '3xl': screenToPx(SCREENS['3xl']),
-
-      xsDown: screenDown(SCREENS.xs),
-      smDown: screenDown(SCREENS.sm),
-      mdDown: screenDown(SCREENS.md),
-      lgDown: screenDown(SCREENS.lg),
-      xlDown: screenDown(SCREENS.xl),
-
-      xsUp: screenUp(SCREENS.xs),
-      smUp: screenUp(SCREENS.sm),
-      mdUp: screenUp(SCREENS.md),
-      lgUp: screenUp(SCREENS.lg),
-      xlUp: screenUp(SCREENS.xl),
-    },
   },
-  plugins: [],
   corePlugins: { preflight: false },
 };
+
+export default config;

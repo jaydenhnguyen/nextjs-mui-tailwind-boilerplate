@@ -1,15 +1,12 @@
 import * as React from 'react';
-import Head from 'next/head';
+import { Seo } from 'src/components/Seo';
 import { PrivateLayout } from 'src/layouts';
 import { Home } from 'src/modules/Home';
 
-export default function HomePage(): React.ReactElement {
+export default function HomePage() {
   return (
     <>
-      <Head>
-        <title>Home Page</title>
-      </Head>
-
+      <Seo title="Home" noIndex />
       <Home />
     </>
   );

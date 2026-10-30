@@ -1,0 +1,11 @@
+.root {
+  @apply mx-auto flex max-w-md flex-col items-center gap-2 px-4 py-12 text-center;
+}
+
+.icon {
+  @apply mb-2 text-5xl text-error-main;
+}
+
+.action {
+  @apply mt-4;
+}

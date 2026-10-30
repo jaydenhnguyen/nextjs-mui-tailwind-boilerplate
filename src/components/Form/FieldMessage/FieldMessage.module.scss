@@ -1,0 +1,15 @@
+.root {
+  @apply block;
+}
+
+.reserved {
+  @apply min-h-[1lh];
+}
+
+.text {
+  @apply block;
+}
+
+.clip {
+  @apply overflow-hidden;
+}

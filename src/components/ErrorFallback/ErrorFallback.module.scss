@@ -1,0 +1,7 @@
+.root {
+  @apply mx-auto flex min-h-[50vh] max-w-xl flex-col items-center justify-center gap-4 px-4 py-12 text-center;
+}
+
+.details {
+  @apply w-full overflow-auto rounded-theme border border-divider bg-background-paper p-4 text-left font-mono text-xs text-text-secondary;
+}
