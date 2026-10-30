@@ -102,7 +102,7 @@ notify.success('Profile updated');
 notify.error('Could not upload the file');
 ```
 
-API errors already show a toast automatically (see `02-api-structure.template.md` §15), so don't call `notify.error` for them. For a mutation's success toast, prefer `meta: { successMessage }`. The same message shown twice in a row only appears once. Toasts follow light/dark mode.
+API errors already show a toast automatically (see `02-api-structure.template.md` §4), so don't call `notify.error` for them. For a mutation's success toast, prefer `meta: { successMessage }`. The same message shown twice in a row only appears once. Toasts follow light/dark mode.
 
 ---
 

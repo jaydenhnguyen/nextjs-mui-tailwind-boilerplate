@@ -1,86 +1,51 @@
 # CRUD Flow Example
 
-The repo ships a complete, working CRUD feature: **Users** (`/users`). Copy its shape for any new resource. Run it with `npm run dev:mock` and sign in as `admin@example.com` / `password`.
-
-It covers: list with search and pagination kept in the URL, loading/empty/error states, create in a dialog with validation and server field errors, delete with confirm, permission-based UI, cache invalidation, and success/error toasts.
+How to add a resource with a list, create, edit and delete. Needs the `api` pack (and `auth` for private pages).
 
 ---
 
-## Files
-
-```txt
-src/apis/users/
-├── endpoints.ts                 USER_ENDPOINTS
-├── users.ts                     getUserList, createUser, deleteUser
-└── index.ts
-
-src/modules/Users/
-├── Users.tsx                    screen: header, search, QueryState, table, pagination, dialog
-├── Users.module.scss
-├── index.ts
-├── models/user.model.ts         GetUserListRequest/Response, CreateUserFormValues, CreateUserRequest
-├── schema/create-user.schema.ts
-├── constants/users.constant.ts  query key, page size, role labels/options
-├── hooks/
-│   ├── useGetUserList.ts        useAppQuery + keepPreviousData
-│   ├── useCreateUser.ts         useAppMutation + invalidate
-│   ├── useDeleteUser.ts         useAppMutation + invalidate
-│   └── useCreateUserForm.ts     useZodForm + defaults
-└── components/
-    ├── UserTable/               responsive table, permission-gated actions
-    ├── CreateUserDialog/        form in a dialog, submit button in the footer
-    └── DeleteUserButton/        useConfirm → mutate
-
-src/pages/users/index.tsx        Seo + PrivateLayout
-src/mocks/handlers/users.handlers.ts
-```
-
-Shared types used: `PaginationRequest`, `PaginatedResponse<T>`, `User` from `src/shared/types`.
-
----
-
-## Building a new resource, step by step
-
-Say the resource is **Products**. Start with the generator, it does steps 1 to 7 and 9 for you:
+## 1. Generate it
 
 ```bash
-npm run gen crud Products
+npm run gen crud Products                       # private page, in the menu
+npm run gen crud People -- --singular Person    # when the singular guess is wrong
+npm run gen crud Posts -- --public --no-nav     # public, indexable, not in the menu
+npm run gen crud Products -- --dry-run          # just show the files
 ```
 
-It creates the API, models, schema, query keys, list/create/update/delete hooks, a screen with search and pagination, a table, a create/edit dialog, a delete button with confirm, the page, a mock handler with seed data, and adds the route and nav entry. The result type-checks, lints and works under `npm run dev:mock` right away. The item has `name` and `description` fields, so change them to the real ones in: schema, model, `use<Item>Form`, table, form dialog and mock handler.
+It writes, all wired together, type-checked and linted:
 
-Options: `--public` (PublicLayout, indexable), `--no-nav`, `--singular Person` when the singular guess is wrong (e.g. `People`), `--dry-run`. Pass them after `--`: `npm run gen crud People -- --singular Person`.
+```txt
+src/apis/products/                 endpoints.ts, products.ts (getProductList, createProduct, updateProduct, deleteProduct)
+src/modules/Products/
+├── Products.tsx                   screen: header, search, list, pagination, dialog
+├── schema/product.schema.ts       zod schema (name, description to start with)
+├── models/product.model.ts        Product, GetProductListRequest/Response, ProductFormValues, Create/UpdateProductRequest
+├── constants/products.constant.ts PRODUCT_QUERY_KEYS, PRODUCT_LIST_PAGE_SIZE
+├── hooks/                         useGetProductList, useCreateProduct, useUpdateProduct, useDeleteProduct, useProductForm
+└── components/                    ProductTable, ProductFormDialog (create + edit), DeleteProductButton
+src/pages/products/index.tsx       Seo + layout
+src/mocks/handlers/products.handlers.ts   seed data + list/create/update/delete (mock-api pack)
++ APP_ROUTES, NO_INDEX_ROUTES or SITEMAP_ROUTES, menu entry, barrels
+```
 
-What the generator leaves to you, and what each step means if you build by hand:
-
-1. **Types** – `src/modules/Products/models/product.model.ts`: `Product`, `GetProductListRequest = PaginationRequest & { search?: string }`, `GetProductListResponse = PaginatedResponse<Product>`, request types for create/update.
-2. **Schema** – `schema/create-product.schema.ts` with zod. Only write messages that need to be more specific than the defaults in `setupZod`.
-3. **API** – `src/apis/products/` with `endpoints.ts` and `products.ts` using `http.get/post/put/delete`. GETs take `signal`.
-4. **Query keys** – `constants/products.constant.ts`: `PRODUCT_QUERY_KEYS = { GET_PRODUCT_LIST: 'getProductList', GET_PRODUCT_DETAIL: 'getProductDetail' }`.
-5. **Hooks** – copy the four Users hooks. List queries use `placeholderData: keepPreviousData` so pagination never flashes a spinner. Mutations invalidate `[PRODUCT_QUERY_KEYS.GET_PRODUCT_LIST]` and set `meta: { successMessage }`.
-6. **Screen** – copy `Users.tsx`: `useQueryParams` for search/page, `useDebounce` for the search box, `QueryState` for states, `useOpenState` for the dialog, `<Can>` around write actions.
-7. **Page** – `src/pages/products/index.tsx` with `<Seo noIndex />` and `PrivateLayout`; add the route to `APP_ROUTES`, `NO_INDEX_ROUTES` and `navigationConfig.private`.
-8. **Permissions** (not generated) – add `PRODUCTS_READ` / `PRODUCTS_WRITE` to `PERMISSIONS` and `ROLE_PERMISSIONS`, wrap write actions in `<Can>`, and check them in the mock handler with `hasPermission`, like Users does.
-9. **Mock** – `src/mocks/handlers/products.handlers.ts` with its seed data, registered in `handlers/index.ts`, so `dev:mock` keeps working.
+Try it right away with `npm run dev:mock`.
 
 ---
 
-## Key patterns from the Users code
+## 2. Make it real
 
-List hook:
+1. **Fields.** Replace `name` / `description` with the real fields in: the schema, `Product` model, `useProductForm` (initial values + `toProductFormValues`), `ProductTable` columns, `ProductFormDialog` fields, and the mock handler's seed data and validation.
+2. **Backend shape.** Check `products.ts` against the real API (paths, PUT vs PATCH, list response shape). If the list comes back differently, adjust `GetProductListResponse` or unwrap with `select` in `useGetProductList`.
+3. **Permissions** (auth pack). Add `PRODUCTS_READ` / `PRODUCTS_WRITE` to `PERMISSIONS` and `ROLE_PERMISSIONS`, wrap the write buttons in `<Can permission={PERMISSIONS.PRODUCTS_WRITE}>`, and check it in the mock handler with `hasPermission`.
+4. **Extras the generator doesn't make:** a detail page (`npm run gen page ProductDetail`, `useGetProduct(id)`), more filters (more keys in `useQueryParams`), bulk actions.
+5. **Tests** (tests pack). Copy the shape of an existing screen test: render the screen, find rows, search, create through the dialog. See `src/test/README.md`.
 
-```ts
-export function useGetUserList(params: GetUserListRequest, { enabled = true }: { enabled?: boolean } = {}) {
-  return useAppQuery({
-    queryKey: [USER_QUERY_KEYS.GET_USER_LIST, params],
-    queryFn: ({ signal }) => getUserList(params, signal),
-    placeholderData: keepPreviousData,
-    enabled,
-  });
-}
-```
+---
 
-Search + page in the URL (the search box only writes to the URL after typing stops):
+## 3. Patterns it uses (keep them when editing)
+
+List: search and page live in the URL, the search writes after typing stops, and the old page stays visible (dimmed) while the next loads.
 
 ```tsx
 const { params, setParams, isReady } = useQueryParams<'search' | 'page'>();
@@ -92,44 +57,44 @@ React.useEffect(() => {
 }, [debouncedSearch, setParams]);
 
 const page = Math.max(1, Number(params.page) || 1);
-const usersQuery = useGetUserList({ page, pageSize: USER_LIST_PAGE_SIZE, search: params.search }, { enabled: isReady });
+const productsQuery = useGetProductList(
+  { page, pageSize: PRODUCT_LIST_PAGE_SIZE, search: params.search },
+  { enabled: isReady },
+);
 ```
-
-Create in a dialog, mapping the form shape to the API shape and server errors back onto the form:
 
 ```tsx
-const handleSubmit = ({ role, ...values }: z.output<typeof createUserSchema>) =>
-  createUser(
-    { ...values, roles: [role] },
-    {
-      onSuccess: onClose,
-      onError: (error) => applyApiErrorToForm(setError, error),
-    },
-  );
+<QueryState query={productsQuery} isEmpty={(response) => response.data.length === 0} empty={...}>
+  {(response) => (
+    <m.div initial={false} animate={{ opacity: productsQuery.isPlaceholderData ? 0.6 : 1 }} transition={moveTransition()}>
+      <ProductTable products={response.data} onEdit={...} />
+    </m.div>
+  )}
+</QueryState>
 ```
 
-The dialog resets the form after its close animation (`slotProps.transition.onExited`), so the fields don't visibly clear while it fades out.
-
-Delete with confirm:
+Create and edit share one dialog. The form resets when the dialog opens, and server field errors land on the fields:
 
 ```tsx
-const confirmed = await confirm({
-  title: `Delete ${fullName}?`,
-  description: "They'll lose access right away. This can't be undone.",
-  confirmText: 'Delete',
-  destructive: true,
-});
-if (confirmed) deleteUser(user.id);
+<Dialog open={open} onClose={isPending ? undefined : onClose}
+  slotProps={{ transition: { onEnter: () => reset(product ? toProductFormValues(product) : initialProductValues) } }}>
 ```
+
+```tsx
+createProduct(values, { onSuccess: onClose, onError: (error) => applyApiErrorToForm(setError, error) });
+```
+
+Delete asks first:
+
+```tsx
+if (await confirm({ title: `Delete ${product.name}?`, confirmText: 'Delete', destructive: true }))
+  deleteProduct(product.id);
+```
+
+Mutations invalidate the list (`[PRODUCT_QUERY_KEYS.GET_PRODUCT_LIST]`) and set `meta.successMessage`; create and update are `silent` because the dialog shows their errors.
 
 ---
 
-## Rules
+## 4. A finished example
 
-- One folder per resource in `src/apis` and one module in `src/modules`.
-- Components never call API functions; they use the hooks.
-- Lists: `QueryState` + `keepPreviousData`; filters and page in the URL.
-- Writes: `useAppMutation`, invalidate the list, `meta.successMessage`; form errors with `applyApiErrorToForm`.
-- Destructive actions: `useConfirm` with `destructive: true`.
-- Write actions are wrapped in `<Can permission=...>`; the backend still enforces it.
-- Every endpoint has a mock handler.
+The `examples` pack ships **Users** (`src/modules/Users`, `/users`), built the same way plus permissions, a role select, a viewer account that can't write, and tests. Sign in with `npm run dev:mock` as `admin@example.com` / `password`. Remove it with `npm run features remove examples` once the project has its own features.

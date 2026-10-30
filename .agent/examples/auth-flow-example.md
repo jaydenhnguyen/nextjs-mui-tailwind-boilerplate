@@ -9,7 +9,7 @@ The working auth flow is in the repo. Read the code instead of re-creating it:
 | Session hooks                                | `src/modules/Authentication/hooks/`                     |
 | Route guard                                  | `src/layouts/PrivateLayout/PrivateLayout.tsx`           |
 | Session expiry                               | `src/modules/Authentication/components/SessionWatcher/` |
-| 401 → refresh → retry                        | `src/configs/request.ts`                                |
+| 401 → refresh → retry                        | `src/configs/auth/interceptors.ts`                      |
 
 Below are the recipes people need most often.
 

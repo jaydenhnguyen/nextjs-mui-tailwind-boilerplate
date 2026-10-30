@@ -126,5 +126,5 @@ import { enterTransition, exitTransition } from 'src/theme/motion';
 # 7. Reference Implementations
 
 - `src/components/Form/FieldMessage`: reserves one line under each field so an error never pushes content down; fades in with a 4px slide using `enterTransition()`, fades out faster with `exitTransition()`, and `AnimatePresence` keeps the text until the fade finishes. Without the reserved line it animates `height` with the text instead.
-- `src/components/Motion/FadeIn`: mount animation that never hides server-rendered content on the first load.
-- `src/modules/Users/Users.tsx`: dims the current page with `moveTransition()` while the next page loads.
+- `src/components/Motion/FadeIn.tsx`: mount animation that never hides server-rendered content on the first load.
+- The list screen from `npm run gen crud` (and `src/modules/Users/Users.tsx` in the examples pack): dims the current page with `moveTransition()` while the next page loads.

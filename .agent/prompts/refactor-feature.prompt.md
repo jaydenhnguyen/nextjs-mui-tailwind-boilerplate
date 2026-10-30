@@ -1,4 +1,4 @@
-Read all files inside `.agent/templates/`.
+Read `.agent/MASTER_TEMPLATE.md` and the templates it lists for this kind of task.
 
 Refactor the target feature to align with the current boilerplate architecture.
 

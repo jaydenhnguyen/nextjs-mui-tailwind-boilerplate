@@ -23,6 +23,14 @@ const arrayItem = (file, item) => ({
   replace: arrayGlue,
 });
 const edit = (file, find, replace = '', { optional = false } = {}) => ({ file, find, replace, optional });
+// Removes the first line containing `text`, for table rows in docs. People edit docs, so a miss never blocks a removal.
+const docLine = (file, text) => ({
+  file,
+  find: new RegExp(`^.*${escapeRegex(text)}.*\\r?\\n`, 'm'),
+  replace: '',
+  optional: true,
+});
+const docText = (file, text) => edit(file, text, '', { optional: true });
 // Drops `import { name } from '...'` once the earlier edits left nothing in the file using `name`.
 const unusedImport = (file, name) => ({
   file,
@@ -59,6 +67,12 @@ const PACKS = {
       line('src/modules/Authentication/constants/auth.constant.ts', "USERS_READ: 'users:read',"),
       line('src/modules/Authentication/constants/auth.constant.ts', "USERS_WRITE: 'users:write',"),
       edit('src/modules/Authentication/constants/auth.constant.ts', '[PERMISSIONS.USERS_READ]', '[]'),
+      edit('.agent/examples/crud-flow-example.md', /\r?\n---\r?\n\r?\n## 4\. A finished example[\s\S]*$/, '\n', {
+        optional: true,
+      }),
+      docText('.agent/examples/README.md', '; `src/modules/Users` (examples pack)'),
+      docLine('.agent/examples/README.md', '`src/modules/Users/Users.test.tsx`'),
+      docText('.agent/templates/09-motion.template.md', ' (and `src/modules/Users/Users.tsx` in the examples pack)'),
     ],
   },
 
@@ -119,6 +133,10 @@ const PACKS = {
       line('src/test/index.ts', "export * from './session';"),
       line('src/test/setup.ts', "import { tokenManager } from 'src/configs/auth';"),
       line('src/test/setup.ts', 'tokenManager.removeAllCredentials();'),
+      docLine('.agent/MASTER_TEMPLATE.md', '`templates/03-auth-flow.template.md`'),
+      docLine('.agent/MASTER_TEMPLATE.md', '`examples/auth-flow-example.md`'),
+      docLine('.agent/examples/README.md', '(./auth-flow-example.md)'),
+      docLine('.agent/examples/README.md', '`src/modules/Authentication/Login`'),
     ],
   },
 
@@ -152,6 +170,10 @@ const PACKS = {
       line(ENV, 'API_MOCKING: process.env.NEXT_PUBLIC_API_MOCKING,'),
       line(ENV_TYPES, "NEXT_PUBLIC_API_MOCKING?: 'enabled' | 'disabled';"),
       edit('.env.example', /(\r?\n)?\r?\n# "enabled" answers API calls[\s\S]*?NEXT_PUBLIC_API_MOCKING=.*\r?\n/, '\n'),
+      docLine('.agent/MASTER_TEMPLATE.md', '`src/mocks/README.md`'),
+      docLine('README.md', '| `npm run dev:mock`'),
+      docLine('AGENTS.md', 'npm run dev:mock'),
+      docText('AGENTS.md', ', `src/mocks`'),
     ],
     scripts: ['dev:mock'],
     packageKeys: ['msw'],
@@ -175,9 +197,8 @@ const PACKS = {
       'src/shared/types/pagination.type.ts',
       'src/components/QueryState',
       '.agent/templates/02-api-structure.template.md',
-      '.agent/API_STRUCTURE_TEMPLATE.md',
-      '.agent/examples/api-hook-example.md',
-      '.agent/examples/query-key-example.md',
+      '.agent/examples/crud-flow-example.md',
+      '.agent/prompts/create-crud.prompt.md',
     ],
     edits: [
       line('src/configs/index.ts', "export * from './api.config';"),
@@ -198,6 +219,14 @@ const PACKS = {
       edit('next.config.ts', /const originOf = [\s\S]*?\r?\n\};\r?\n\r?\n/),
       edit('next.config.ts', ' ${originOf(process.env.NEXT_PUBLIC_API_URL)}', ''),
       line('Dockerfile', 'ARG NEXT_PUBLIC_API_URL'),
+      docLine('.agent/MASTER_TEMPLATE.md', '`templates/02-api-structure.template.md`'),
+      docLine('.agent/MASTER_TEMPLATE.md', '`examples/crud-flow-example.md`'),
+      docLine('.agent/examples/README.md', '(./crud-flow-example.md)'),
+      docLine('src/components/README.md', '`QueryState/`'),
+      edit('src/components/README.md', /## QueryState\r?\n[\s\S]*?(?=## )/, '', { optional: true }),
+      docLine('src/hooks/README.md', '`useAppQuery(options)`'),
+      docLine('src/hooks/README.md', '`useAppMutation(options)`'),
+      docLine('.agent/README.md', '`prompts/create-crud.prompt.md`'),
     ],
     dependencies: [
       'axios',
@@ -213,7 +242,13 @@ const PACKS = {
     requires: ['mock-api'],
     detect: 'vitest.config.mts',
     files: ['vitest.config.mts', 'src/test', '**/*.test.ts', '**/*.test.tsx'],
-    edits: [line('.github/workflows/ci.yml', '- run: npm test')],
+    edits: [
+      line('.github/workflows/ci.yml', '- run: npm test'),
+      docLine('.agent/MASTER_TEMPLATE.md', '`src/test/README.md`'),
+      docLine('README.md', '| `npm test`'),
+      docText('AGENTS.md', ', `src/test`'),
+      docText('.agent/MASTER_TEMPLATE.md', ' (type-check, lint, tests, build)'),
+    ],
     scripts: ['test', 'test:watch'],
     scriptEdits: { check: [' && npm run test', ''] },
     devDependencies: [

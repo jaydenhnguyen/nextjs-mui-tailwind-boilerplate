@@ -1,475 +1,163 @@
-# Frontend Boilerplate
+# Next.js + MUI + Tailwind Boilerplate
 
-A scalable frontend boilerplate built with:
+A starting point for web apps and sites. The infrastructure is done (data fetching, auth, forms, theming, motion, SEO, tests, tooling), so a new project only needs its own UI, colors and business logic. Optional parts are packs you can remove with one command.
 
-- Next.js Pages Router
-- TypeScript
-- MUI
-- Tailwind CSS
-- SCSS Modules
-- TanStack Query
-- react-hook-form + zod
-
-Designed for:
-
-- e-commerce platforms
-- booking systems
-- admin portals
-- content websites
-- hybrid mobile-web applications
+**Stack:** Next.js 16 (Pages Router) · React 19 · TypeScript · MUI 7 · Tailwind 3 + SCSS modules · motion · TanStack Query 5 · axios · react-hook-form + zod · MSW · Vitest
 
 ---
 
-# Features
+## What's inside
 
-- Feature/module-first architecture
-- Mobile-first responsive UI
-- Reusable UI component system
-- Centralized API layer
-- TanStack Query integration
-- MUI design system
-- Tailwind + SCSS Modules styling architecture
-- RHF + zod form handling
-- Authentication-ready architecture
-- Layout-based route structure
-- AI-agent-friendly engineering standards
-
----
-
-# Tech Stack
-
-## Core
-
-- Next.js Pages Router
-- React
-- TypeScript
+| Area           | You get                                                                                                                   |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Data           | axios client, React Query defaults, one `ApiError` type, automatic error/success toasts, retries                          |
+| Auth           | bearer or httpOnly-cookie sessions, token refresh, guarded layout, roles and permissions, login page                      |
+| UI             | MUI theme with light/dark mode, Tailwind colors that follow the theme, loading/empty/error states, confirm dialog, toasts |
+| Forms          | `useZodForm` + `Control*` fields: validation, server errors on fields, no layout jumps                                    |
+| Motion         | `motion` with shared timing tokens, smooth enter/exit, reduced-motion support                                             |
+| SEO            | `<Seo />`, sitemap, robots.txt, web manifest, Open Graph                                                                  |
+| Dev experience | mock backend (`dev:mock`), code generator (`gen`), removable packs (`features`), tests, git hooks, CI, Docker             |
+| AI agents      | `AGENTS.md` / `CLAUDE.md` and `.agent/`: rules, examples and prompts that match the code                                  |
 
 ---
 
-## UI
+## Quick start
 
-- MUI
-- Tailwind CSS
-- SCSS Modules
-- Framer Motion
-
----
-
-## Data & Forms
-
-- TanStack Query
-- react-hook-form
-- zod
-
----
-
-## Utilities
-
-- classnames / clsx
-- date-fns / dayjs (project-dependent)
-
----
-
-# Quick Start
-
-## Install dependencies
+Needs Node 22.22+ or 24.15+ (`nvm use` reads `.nvmrc`).
 
 ```bash
-npm install
+npm ci
+cp .env.example .env.local     # optional: everything has a default
+npm run dev:mock               # runs with the fake backend
 ```
 
----
+Open http://localhost:3000 and sign in as `admin@example.com` / `password` (or `viewer@example.com`, read-only).
 
-## Start development server
-
-```bash
-npm run dev
-```
+With a real backend, set `NEXT_PUBLIC_API_URL` in `.env.local` and run `npm run dev`.
 
 ---
 
-## Build production
+## Start a new project from this boilerplate
 
-```bash
-npm run build
-```
+Copy it (GitHub "Use this template", or clone and delete `.git`), then:
 
----
+1. **Remove what you don't need.** `npm run features list`, then e.g. `npm run features remove examples auth` for a site without sign-in. [Packs](#packs) below.
+2. **Name it.** `package.json` name, `src/configs/site.config.ts` (name, description, URL, socials, icons), `NEXT_PUBLIC_APP_KEY` in `.env.local`.
+3. **Brand it.** Colors and radius in `src/theme/core/_config.ts`, fonts in `src/theme/fonts/index.ts`.
+4. **Connect the backend** (if any). `NEXT_PUBLIC_API_URL`; auth strategy in `src/configs/auth/auth.config.ts`; the error body parser in `src/shared/utils/apiError.ts`.
+5. **Build features.** `npm run gen crud Products` or `npm run gen page About`, then replace the placeholder fields and copy.
+6. **Check.** `npm run check` before every commit you care about.
+7. **Deploy.** [Below](#deploy).
 
-## Start production server
-
-```bash
-npm run start
-```
-
----
-
-# Project Structure
-
-```txt
-src/
-├── apis/
-├── components/
-├── configs/
-├── contexts/
-├── hooks/
-├── layouts/
-├── models/
-├── modules/
-├── pages/
-├── shared/
-├── styles/
-├── theme/
-└── utils/
-```
+Using an AI agent? Give it `.agent/prompts/create-project.prompt.md` with your brief. It walks through the same steps and asks what it needs.
 
 ---
 
-# Architecture Philosophy
+## Scripts
 
-## Thin Pages
-
-Pages inside:
-
-```txt
-src/pages/
-```
-
-should remain thin wrappers.
-
-Pages should:
-
-- define route entry
-- optionally define SEO
-- optionally define `getLayout`
-- render feature module root
-
-Business logic should stay inside feature modules.
-
----
-
-## Feature-first Structure
-
-Feature/domain logic belongs inside:
-
-```txt
-src/modules/<Feature>
-```
-
-Example:
-
-```txt
-src/modules/
-├── Authentication/
-├── Products/
-├── Orders/
-├── Booking/
-```
-
-Each feature owns:
-
-- components
-- hooks
-- forms
-- schemas
-- models
-- constants
-- utilities
-
----
-
-## Shared Reusable UI
-
-Reusable generic UI belongs in:
-
-```txt
-src/components
-```
-
-Examples:
-
-```txt
-Button
-Card
-Modal
-Table
-Form
-LoadingState
-ErrorState
-```
-
-Feature-specific UI should remain inside feature modules.
-
----
-
-## API Layer
-
-API clients belong in:
-
-```txt
-src/apis/
-```
-
-Components should NEVER call APIs directly.
-
-Query hooks:
-
-- use `useAppQuery`
-
-Mutation hooks:
-
-- use `useMutation`
-
----
-
-# Styling System
-
-This boilerplate uses:
-
-```txt
-MUI            → design system + UI primitives
-Tailwind       → layout + utility classes
-SCSS Modules   → scoped styling
-MUI sx         → theme-aware one-off styling
-```
-
-Preferred styling pattern:
-
-```txt
-SCSS Modules + Tailwind @apply
-```
-
----
-
-# Routing Strategy
-
-- Next.js Pages Router
-- thin pages
-- `getLayout` pattern
-- centralized `APP_ROUTES`
-- layout-based auth structure
-
-Layouts live in:
-
-```txt
-src/layouts/
-```
-
----
-
-# State Management Strategy
-
-Preferred order:
-
-```txt
-Local state
-    ↓
-Feature state
-    ↓
-Context
-    ↓
-Zustand
-    ↓
-Redux
-```
-
-Use the simplest solution first.
-
----
-
-# Responsive Design
-
-All UI should be:
-
-- mobile-first
-- responsive by default
-- tablet-friendly
-- desktop-enhanced
-
-Avoid:
-
-- fixed desktop layouts
-- non-responsive components
-- desktop-only assumptions
-
----
-
-# Engineering Standards
-
-## Components
-
-- reusable UI → `src/components`
-- feature UI → `src/modules/<Feature>/components`
-- named exports only
-- avoid giant components
-
----
-
-## Forms
-
-- RHF + zod
-- schemas outside TSX
-- mutation-based submission
-- reusable `Control*` fields
-
----
-
-## APIs
-
-- centralized API clients
-- endpoint constants
-- typed requests/responses
-- normalized error handling
-
----
-
-## Styling
-
-- SCSS Modules + Tailwind `@apply`
-- MUI theme tokens
-- avoid raw hex colors
-- avoid feature global CSS
-
----
-
-## TypeScript
-
-- strict typing
-- avoid `any`
-- typed boundaries everywhere
-- feature-local ownership first
-
----
-
-# Environment Variables
-
-Environment access should be centralized.
-
-Recommended:
-
-```txt
-src/configs/environment.ts
-```
-
-Client variables must use:
-
-```txt
-NEXT_PUBLIC_
-```
-
----
-
-# Available Scripts
-
-| Script               | Description                                                                     |
+| Script               | Does                                                                            |
 | -------------------- | ------------------------------------------------------------------------------- |
-| `npm run dev`        | Start development server                                                        |
-| `npm run build`      | Build production app                                                            |
-| `npm run start`      | Start production server                                                         |
-| `npm run lint`       | Run ESLint                                                                      |
-| `npm run type-check` | Run TypeScript checks                                                           |
-| `npm test`           | Run the tests once (`npm run test:watch` to rerun on save), see `src/test`      |
+| `npm run dev`        | Dev server                                                                      |
+| `npm run dev:mock`   | Dev server with the mock API (`src/mocks`)                                      |
+| `npm run build`      | Production build                                                                |
+| `npm run start`      | Serve the production build                                                      |
 | `npm run check`      | Type-check, lint, test and build: what CI runs                                  |
-| `npm run format`     | Format everything with Prettier (also sorts imports and Tailwind classes)       |
-| `npm run analyze`    | Open the interactive bundle analyzer                                            |
-| `npm run dev:mock`   | Dev server with the mock API                                                    |
+| `npm run type-check` | TypeScript                                                                      |
+| `npm run lint`       | ESLint                                                                          |
+| `npm test`           | Tests once (`npm run test:watch` to rerun on save), see `src/test`              |
+| `npm run format`     | Prettier on everything (also sorts imports and Tailwind classes)                |
+| `npm run analyze`    | Interactive bundle analyzer                                                     |
 | `npm run gen`        | Scaffold a CRUD resource, page, component or hook (`npm run gen crud Products`) |
 | `npm run features`   | List or remove optional packs (`npm run features remove examples docker`)       |
 
 ---
 
-# AI Agent Support
+## Packs
 
-This boilerplate includes:
-
-```txt
-.ai/
+```bash
+npm run features list                              # what's installed
+npm run features remove docker -- --dry-run        # preview
+npm run features remove examples auth              # remove (needs a clean git tree)
 ```
 
-which contains:
+| Pack        | What it is                                                      | Needs     |
+| ----------- | --------------------------------------------------------------- | --------- |
+| `api`       | axios client, React Query, `ApiError`, `QueryState`, `src/apis` |           |
+| `auth`      | sign-in, token refresh, `PrivateLayout`, roles/permissions      | api       |
+| `mock-api`  | MSW fake backend for `dev:mock` and tests                       | api       |
+| `examples`  | the Users CRUD demo                                             | api, auth |
+| `tests`     | Vitest + Testing Library, `src/test`, `*.test.tsx`              | mock-api  |
+| `ci`        | GitHub Actions and Dependabot                                   |           |
+| `git-hooks` | Husky + lint-staged, gitmoji commit messages                    |           |
+| `docker`    | `Dockerfile` with standalone output                             |           |
 
-- architecture templates
-- engineering conventions
-- AI generation rules
-- deterministic frontend patterns
-
-Recommended for:
-
-- Cursor
-- Claude Code
-- OpenAI agents
-- Copilot Workspace
-
----
-
-# Contributing
-
-Before contributing:
-
-1. Follow existing architecture patterns.
-2. Reuse existing components/hooks/utilities when possible.
-3. Keep feature logic inside modules.
-4. Avoid introducing new conventions unnecessarily.
-5. Keep components mobile-first and responsive.
+Removing a pack deletes its files, edits the shared files that mention it, drops its scripts and npm packages, and refuses to break a pack that depends on it.
 
 ---
 
-# Golden Rules
-
-- Components never call APIs directly
-- Pages stay thin
-- Feature logic stays inside modules
-- Shared UI remains generic
-- Prefer explicit architecture over hidden abstractions
-- Mobile-first by default
-
----
-
-# Anti-patterns
-
-Do NOT:
-
-- use `@/` imports
-- call APIs inside components
-- use raw `useQuery` in components
-- use Formik
-- create giant components
-- duplicate styling systems
-- create unnecessary Context
-- hardcode routes repeatedly
-- introduce new architecture patterns casually
-
----
-
-# Future AI System Extensions
+## Project structure
 
 ```txt
-.ai/
-├── templates/
-├── prompts/
-└── context/
+src/
+├── apis/         HTTP functions per backend domain
+├── components/   shared UI (see src/components/README.md)
+├── configs/      env, site, navigation, request client, query client, auth
+├── hooks/        shared hooks (see src/hooks/README.md)
+├── layouts/      PublicLayout, PrivateLayout, header/footer
+├── mocks/        mock backend
+├── modules/      features: screens, their components, hooks, models, schemas
+├── pages/        thin route files
+├── providers/    app-wide providers
+├── shared/       constants (routes), types, utils
+├── styles/       global SCSS + Tailwind
+├── test/         test setup and helpers
+└── theme/        MUI theme, fonts, motion tokens
 ```
 
-Potential future additions:
-
-```txt
-.ai/prompts/
-├── create-feature.prompt.md
-├── create-page.prompt.md
-├── create-crud.prompt.md
-└── create-admin-module.prompt.md
-```
+Details and rules: `.agent/templates/01-project-structure.template.md`.
 
 ---
 
-# Goal
+## Environment variables
 
-This boilerplate is designed to remain:
+All optional, validated at startup in `src/configs/env.ts`. They end up in the browser, so never put secrets in them.
 
-- scalable
-- predictable
-- reusable
-- mobile-friendly
-- production-grade
-- AI-agent-friendly
-- easy to extend across many projects
+| Variable                                                         | Default                        | Used for                                   |
+| ---------------------------------------------------------------- | ------------------------------ | ------------------------------------------ |
+| `NEXT_PUBLIC_APP_KEY`                                            | `app`                          | prefix for cookies and storage keys        |
+| `NEXT_PUBLIC_SITE_URL`                                           | `http://localhost:3000`        | canonical URLs, sitemap, Open Graph        |
+| `NEXT_PUBLIC_API_URL`                                            | `http://localhost:3001/api/v1` | backend base URL                           |
+| `NEXT_PUBLIC_ACCESS_TOKEN_TTL` / `NEXT_PUBLIC_REFRESH_TOKEN_TTL` | `3600` / `604800`              | token cookie lifetimes in seconds          |
+| `NEXT_PUBLIC_API_MOCKING`                                        | `disabled`                     | `enabled` answers API calls with the mocks |
+
+---
+
+## Deploy
+
+**Vercel:** import the repo, add the env vars above, deploy. Nothing else to configure.
+
+**Docker:**
+
+```bash
+docker build -t my-app --build-arg NEXT_PUBLIC_SITE_URL=https://example.com --build-arg NEXT_PUBLIC_API_URL=https://api.example.com .
+docker run -p 3000:3000 my-app
+```
+
+Security headers are set in `next.config.ts`. A starter Content-Security-Policy is there too, off until you list the outside origins your app uses (`ENABLE_CSP`).
+
+---
+
+## Conventions
+
+The short version (the full rules are in `.agent/`):
+
+- Pages are thin; features live in `src/modules/<Feature>`; components never call the API directly.
+- Every data view handles loading, error and empty states.
+- Theme tokens only, mobile first, light and dark mode both work.
+- Anything that appears or disappears animates smoothly without jumping the layout.
+- Comments explain why, not what.
+- Commits start with a gitmoji: `:sparkles: add product filters`.
+
+## Working with AI agents
+
+`AGENTS.md` (and `CLAUDE.md`, which points to it) is what Claude Code, Cursor, Codex and similar tools read first. It sends them to `.agent/MASTER_TEMPLATE.md`, which lists the rules, the generator, the packs and the checks to run. Keep the docs in `.agent/` true to the code: when a pattern changes, update its template in the same commit.

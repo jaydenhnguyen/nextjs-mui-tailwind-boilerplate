@@ -2,7 +2,7 @@
 
 How authentication works in this boilerplate. This describes the code that exists in the repo; extend it rather than building a parallel system.
 
-**Apps without authentication:** delete `src/modules/Authentication`, `src/apis/auth`, `src/pages/login.tsx` and `PrivateLayout`, remove `SessionWatcher` from `AppProviders` and `AuthActions` from `PublicLayout`, and use `PublicLayout` only.
+Part of the `auth` pack. Apps without sign-in: `npm run features remove examples auth` (the Users example needs auth), then use `PublicLayout` only.
 
 ---
 
@@ -27,22 +27,22 @@ The signed-in user is **server state** in React Query (`['currentUser']`). There
 
 # 2. Where Things Live
 
-| Concern                                                                                      | Location                                                         |
-| -------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| Auth API calls (`login`, `logout`, `getCurrentUser`)                                         | `src/apis/auth/`                                                 |
-| Auth strategy, refresh path                                                                  | `src/configs/api.config.ts`                                      |
-| Token storage (bearer only)                                                                  | `src/configs/auth/tokenManager.ts` (cookie names too)            |
-| 401 → refresh → retry → expire                                                               | `src/configs/request.ts` (see `02-api-structure.template.md` §7) |
-| `User`, `LoginRequest`, `LoginResponse`                                                      | `src/modules/Authentication/models/`                             |
-| Login schema                                                                                 | `src/modules/Authentication/schema/login.schema.ts`              |
-| Hooks: `useAuth`, `useCurrentUser`, `useLogin`, `useLogout`, `useLoginForm`, `usePermission` | `src/modules/Authentication/hooks/`                              |
-| Components: `Can`, `UserMenu`, `AuthActions`, `SessionWatcher`                               | `src/modules/Authentication/components/`                         |
-| `clearSession`, `getSafeRedirect`                                                            | `src/modules/Authentication/utils/session.ts`                    |
-| Roles                                                                                        | `src/shared/enums` (`ROLES`)                                     |
-| Permissions and role → permission map                                                        | `src/modules/Authentication/constants/auth.constant.ts`          |
-| Login screen                                                                                 | `src/modules/Authentication/Login/`, page `src/pages/login.tsx`  |
-| Route guard                                                                                  | `src/layouts/PrivateLayout`                                      |
-| Routes                                                                                       | `APP_ROUTES` in `src/shared/constants/routes.constant.ts`        |
+| Concern                                                                                      | Location                                                        |
+| -------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| Auth API calls (`login`, `logout`, `getCurrentUser`)                                         | `src/apis/auth/`                                                |
+| Auth strategy, refresh path                                                                  | `src/configs/auth/auth.config.ts`                               |
+| Token storage (bearer only)                                                                  | `src/configs/auth/tokenManager.ts` (cookie names too)           |
+| 401 → refresh → retry → expire                                                               | `src/configs/auth/interceptors.ts`                              |
+| `User`, `LoginRequest`, `LoginResponse`                                                      | `src/modules/Authentication/models/`                            |
+| Login schema                                                                                 | `src/modules/Authentication/schema/login.schema.ts`             |
+| Hooks: `useAuth`, `useCurrentUser`, `useLogin`, `useLogout`, `useLoginForm`, `usePermission` | `src/modules/Authentication/hooks/`                             |
+| Components: `Can`, `UserMenu`, `AuthActions`, `SessionWatcher`                               | `src/modules/Authentication/components/`                        |
+| `clearSession`, `getSafeRedirect`                                                            | `src/modules/Authentication/utils/session.ts`                   |
+| Roles                                                                                        | `src/shared/enums` (`ROLES`)                                    |
+| Permissions and role → permission map                                                        | `src/modules/Authentication/constants/auth.constant.ts`         |
+| Login screen                                                                                 | `src/modules/Authentication/Login/`, page `src/pages/login.tsx` |
+| Route guard                                                                                  | `src/layouts/PrivateLayout`                                     |
+| Routes                                                                                       | `APP_ROUTES` in `src/shared/constants/routes.constant.ts`       |
 
 Import from `src/modules/Authentication`.
 
@@ -68,7 +68,7 @@ Backend contract expected by the default code:
 | `POST /auth/refresh` | bearer: `{ refreshToken }`; cookie: no body | bearer: `{ accessToken, refreshToken? }` |
 | `POST /auth/logout`  |                                             | anything                                 |
 
-Different backend? Change `src/apis/auth/auth.ts`, the models, and (for refresh) `refreshSession` in `request.ts`. Nothing else needs to know.
+Different backend? Change `src/apis/auth/auth.ts`, the models, and (for refresh) `refreshSession` in `src/configs/auth/interceptors.ts`. Nothing else needs to know.
 
 ---
 
@@ -194,7 +194,7 @@ Adapt to a different backend:
 1. `authConfig.strategy`, `authConfig.refreshPath`
 2. `src/apis/auth/endpoints.ts` and `auth.ts`
 3. `User` / `LoginResponse` models
-4. `refreshSession` in `request.ts` if the refresh contract differs
+4. `refreshSession` in `src/configs/auth/interceptors.ts` if the refresh contract differs
 5. `ROLES`, `PERMISSIONS`, `ROLE_PERMISSIONS`
 
 ---

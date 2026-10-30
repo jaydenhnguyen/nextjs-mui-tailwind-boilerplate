@@ -1,464 +1,119 @@
-# AI Agent Master Template
+# Master Template
 
-This folder is the source of truth for how this boilerplate should be used, extended, and refactored.
+The entry point for anyone, person or AI agent, building on this boilerplate. Read this first, then only the templates your task needs.
 
-Before making any implementation, the AI agent must:
-
-1. Read this `MASTER_TEMPLATE.md`
-2. Read the relevant files inside `.agent/templates`
-3. Inspect the existing codebase patterns before introducing new patterns
+The stack: Next.js (Pages Router) · React · TypeScript (strict) · MUI · Tailwind 3 + SCSS modules · motion · TanStack Query · axios · react-hook-form + zod · MSW · Vitest.
 
 ---
 
-# 1. Main Goal
+## 1. Before you start
 
-The purpose of this boilerplate is to maintain:
-
-- Consistent architecture
-- Predictable folder structure
-- Scalable feature organization
-- Reusable patterns
-- Strict separation of concerns
-- AI-agent-friendly conventions
-
-Every new feature should feel like it belongs to the same codebase.
+1. Run `npm run features list` to see which packs this project still has. Ignore docs and rules for packs that are removed.
+2. Read the templates for your task (table below). Don't read them all.
+3. Look at the nearest existing code that does something similar, and match it.
+4. If the task needs a new library, a new top-level folder or a different architecture, ask the user first.
 
 ---
 
-# 2. Priority Order
+## 2. Where the rules are
 
-When making decisions, follow this order strictly:
-
-1. Existing codebase conventions
-2. Rules inside `.agent/templates`
-3. Existing examples inside `.agent/examples`
-4. General best practices
-
-Do not introduce a new architecture unless explicitly requested.
-
----
-
-# 3. Core Architecture Rules
-
-## 3.1 Feature-first architecture
-
-The app uses a feature/module-based structure.
-
-Each feature owns:
-
-- hooks
-- models
-- feature components
-- constants
-
-Reusable utilities, domain services, and app context live outside modules — see `01-project-structure.template.md` §3.6, §3.11, §9.
-
-Example:
-
-```txt
-src/modules/Books/
-├── components/
-├── hooks/
-├── models/
-├── constants/
-├── Books.tsx
-└── index.ts
-```
-
-Avoid placing feature-specific logic in global folders.
+| Topic                                                      | Read                                         |
+| ---------------------------------------------------------- | -------------------------------------------- |
+| Folders, ownership, pages, layouts, imports, state         | `templates/01-project-structure.template.md` |
+| API functions, query and mutation hooks, errors            | `templates/02-api-structure.template.md`     |
+| Sign-in, session, guards, permissions                      | `templates/03-auth-flow.template.md`         |
+| Theme, colors, fonts, light/dark                           | `templates/04-mui-theme.template.md`         |
+| Tailwind, SCSS modules, responsive                         | `templates/05-tailwind-style.template.md`    |
+| Components, screens, dialogs, accessibility                | `templates/06-component-rules.template.md`   |
+| Forms and validation                                       | `templates/07-form-handling.template.md`     |
+| Naming, TypeScript, comments, tooling                      | `templates/08-code-style.template.md`        |
+| Animation and transitions                                  | `templates/09-motion.template.md`            |
+| Adding a CRUD resource                                     | `examples/crud-flow-example.md`              |
+| Auth recipes                                               | `examples/auth-flow-example.md`              |
+| Shared components (Seo, QueryState, useConfirm, notify...) | `src/components/README.md`                   |
+| Form components and props                                  | `src/components/Form/README.md`              |
+| Shared hooks and formatters                                | `src/hooks/README.md`                        |
+| Mock API (`npm run dev:mock`)                              | `src/mocks/README.md`                        |
+| Tests (`npm test`)                                         | `src/test/README.md`                         |
+| Starting a new project from this boilerplate               | `prompts/create-project.prompt.md`           |
 
 ---
 
-## 3.2 Thin pages
+## 3. How work gets done here
 
-Pages are routing wrappers only.
-
-Pages should:
-
-- handle route params
-- attach layouts
-- render module components
-
-Pages must NOT:
-
-- call APIs directly
-- contain business logic
-- contain large UI logic
-
-Example:
-
-```tsx
-export default function BooksPage() {
-  return <Books />;
-}
-```
-
----
-
-## 3.2 Routing & layouts
-
-This boilerplate uses **Next.js Pages Router** and standard layouts **`PublicLayout`** / **`PrivateLayout`** (plus optional **`AdminLayout`**).
-
-**Canonical rules:** `01-project-structure.template.md` §1.1 (routing), §3.8 (layouts). **Examples:** `examples/layout-example.md`.
-
-Summary:
-
-- Routes in `src/pages/` with `_app.tsx`, `_document.tsx`, and `Page.getLayout`
-- No `src/app/` or App Router route files unless explicitly requested
-- Layout folders: exactly 3 files each; header/footer/sidebar chrome in `src/components/`
-- With auth: `PublicLayout` + `PrivateLayout`; without auth: `PublicLayout` only
-
----
-
-## 3.3 Shared vs feature ownership
-
-**Canonical rules:** `01-project-structure.template.md` §3.6 (`context/`), §3.10–§3.11 (`services/`, `shared/`), §9 (decision rules).
-
-Summary:
-
-- Modules own UI, hooks, models, constants
-- `src/shared/utils/`, `src/shared/services/`, `src/context/` hold reusable or app-level logic
-- Do not nest `context/`, domain `services/`, or promotable `utils/` inside modules
-
-### Feature-specific logic belongs inside modules
-
-Example:
-
-```txt
-modules/Books/components/BookCard
-modules/Books/hooks/useGetBooks
-```
-
-NOT:
-
-```txt
-components/BookCard
-hooks/useGetBooks
-```
-
-unless truly reusable across multiple features.
-
----
-
-## 3.4 API flow
-
-All API calls must follow this flow:
-
-```txt
-Component/Page
-    ↓
-Feature Hook
-    ↓
-API Client
-    ↓
-Shared Request Client
-    ↓
-Backend
-```
-
-Components and pages must never call HTTP directly.
-
----
-
-## 3.5 Styling (summary)
-
-MUI + Tailwind + SCSS Modules. Full rules: `04-mui-theme.template.md`, `05-tailwind-style.template.md`.
-
-Motion is mandatory: anything that appears, disappears or changes size must be smooth and must never make the layout jump. Reserve space up front or animate it, fade in with `ease-out`, fade out faster with `ease-in`, and respect reduced motion. Animations use `motion` (`m.*`, `FadeIn`, tokens in `src/theme/motion.ts`), not CSS keyframes. Full rules: `09-motion.template.md`.
-
----
-
-# 4. Current Expected Project Structure
-
-Example (see `01-project-structure.template.md` for ownership rules):
-
-```txt
-src/
-├── apis/
-├── components/
-├── configs/
-├── context/
-├── hooks/
-├── layouts/
-├── modules/
-├── pages/
-├── providers/
-├── shared/
-│   ├── constants/
-│   ├── utils/
-│   └── services/
-├── styles/
-└── theme/
-```
-
----
-
-# 5. Required Template Files
-
-Always read the relevant template files before implementation.
-
-| Concern                                                                      | Template                           |
-| ---------------------------------------------------------------------------- | ---------------------------------- |
-| Project structure, routing, layouts                                          | `01-project-structure.template.md` |
-| API architecture                                                             | `02-api-structure.template.md`     |
-| Authentication                                                               | `03-auth-flow.template.md`         |
-| MUI theme usage                                                              | `04-mui-theme.template.md`         |
-| Tailwind/SCSS usage                                                          | `05-tailwind-style.template.md`    |
-| Component architecture                                                       | `06-component-rules.template.md`   |
-| Forms & validation                                                           | `07-form-handling.template.md`     |
-| Naming/import/code style                                                     | `08-code-style.template.md`        |
-| Animation & transitions                                                      | `09-motion.template.md`            |
-| Layout `getLayout` examples                                                  | `examples/layout-example.md`       |
-| Shared components (Seo, QueryState, useConfirm, notify, layouts, navigation) | `src/components/README.md`         |
-| Form components                                                              | `src/components/Form/README.md`    |
-| Shared hooks and formatting                                                  | `src/hooks/README.md`              |
-| Mock API (`npm run dev:mock`)                                                | `src/mocks/README.md`              |
-| Tests (`npm test`)                                                           | `src/test/README.md`               |
-| Full CRUD reference (Users module)                                           | `examples/crud-flow-example.md`    |
-| Code generator (`npm run gen`)                                               | §9 Scaffolding, `scripts/gen.mjs`  |
-
----
-
-# 6. Naming Rules
-
-## Components
-
-Use PascalCase.
-
-Example:
-
-```txt
-BookCard.tsx
-UserProfileModal.tsx
-```
-
----
-
-## Hooks
-
-Use:
-
-```txt
-useX.ts
-```
-
-Examples:
-
-```txt
-useGetBooks.ts
-useCreateOrder.ts
-useLoginForm.ts
-```
-
----
-
-## API functions
-
-Use verb-based naming.
-
-Examples:
-
-```txt
-getBooks
-getBookDetail
-createOrder
-updateProfile
-login
-logout
-```
-
----
-
-## Constants
-
-Use:
-
-```txt
-SCREAMING_SNAKE_CASE
-```
-
-Examples:
-
-```txt
-BOOK_ENDPOINTS
-APP_ROUTES
-USER_STATUS
-```
-
----
-
-# 7. Shared Hook Rules
-
-Global hooks inside `src/hooks` must be generic and reusable.
-
-Allowed examples:
-
-```txt
-useDebounce
-useOpenState
-usePagination
-useWindowSize
-```
-
-Feature-specific hooks must stay inside modules.
-
----
-
-# 8. Styling Rules
-
-See §3.5 and `04-mui-theme.template.md`, `05-tailwind-style.template.md`.
-
----
-
-# 9. AI Agent Workflow
-
-## Before coding
-
-The AI agent must:
-
-1. Read `MASTER_TEMPLATE.md`
-2. Read all relevant templates
-3. Inspect existing implementation patterns
-4. Identify reusable hooks/components/utils/constants
-5. Explain the planned structure briefly
-
----
-
-## Scaffolding
-
-Start new code from the generator instead of writing the boilerplate by hand, then fill in the real fields and logic:
+**Generate, then fill in.** Don't hand-write boilerplate the generator already makes:
 
 ```bash
-npm run gen crud Products          # full CRUD resource: API, module, page, mock, route, nav
-npm run gen page Settings          # module + page + route + nav
-npm run gen component StatCard     # src/components/StatCard (add -- --module Home to put it in a module)
+npm run gen crud Products          # API, module, hooks, table, dialog, page, mock, route, menu
+npm run gen page Settings          # module + page + route + menu
+npm run gen component StatCard     # src/components/StatCard (-- --module Home to put it in a module)
 npm run gen hook useInterval       # src/hooks/useInterval.ts (or -- --module Home)
-npm run gen                        # all options
+npm run gen                        # all options; add -- --dry-run to preview
 ```
 
-Use `-- --dry-run` to see the files first. The generator never overwrites existing files.
+The generator never overwrites files and wires routes, menus, barrels and mocks for you.
 
-Optional parts are packs that can be removed when a project doesn't need them:
+**Packs.** Optional parts can be removed in one command:
 
 ```bash
-npm run features list                         # what's installed
-npm run features remove examples -- --dry-run # preview
-npm run features remove examples auth         # remove (needs a clean git tree)
+npm run features list
+npm run features remove examples auth -- --dry-run
 ```
 
-Packs: `api`, `auth`, `mock-api`, `examples`, `tests`, `ci`, `git-hooks`, `docker`. Each one's files and edits are listed at the top of `scripts/features.mjs`. When you add code that belongs to a pack (a new auth file, a new env var for docker), add it to that pack's list too, so removal stays complete.
+Packs: `api`, `auth`, `mock-api`, `examples`, `tests`, `ci`, `git-hooks`, `docker`. Each pack's files and edits are listed at the top of `scripts/features.mjs`. When you add code that belongs to a pack (an auth env var, a file only tests use), add it to that pack's list too, so removal stays complete.
+
+**Finish with `npm run check`** (type-check, lint, tests, build). It must pass before you say the work is done.
 
 ---
 
-## During coding
+## 4. Non-negotiables
 
-The AI agent must:
+Architecture
 
-1. Follow existing patterns
-2. Keep files small and focused
-3. Avoid duplicate abstractions
-4. Reuse shared infrastructure
-5. Keep business logic inside modules/hooks
-6. Use explicit TypeScript types at API boundaries
+- Pages are thin: SEO, layout, one module. No logic, no data fetching.
+- Components never call APIs. Data flows component → module hook → `src/apis` → `http`.
+- Feature code stays in its module until a second feature needs it.
+- Pages Router only. `src/` imports, never `@/`.
+- No new state library, styling system, HTTP client or form library.
 
----
+UI
 
-## After coding
+- Every data view handles loading, error and empty (`QueryState`).
+- Mobile first; nothing breaks at 360px wide.
+- Theme tokens only: no raw hex colors, no Tailwind default palette.
+- Anything that appears, disappears or changes size animates smoothly and never jumps the layout (`09-motion.template.md`). Use `motion` (`FadeIn`, `m.*`), not CSS keyframes.
+- Destructive actions ask first (`useConfirm`). Success and failure are visible (toasts or inline).
+- Keyboard and screen reader friendly: real buttons and links, labels, visible focus.
 
-The AI agent must verify:
+Code
 
-1. No component calls HTTP directly
-2. Pages remain thin wrappers
-3. API calls follow the correct architecture
-4. Imports do not create circular dependencies
-5. Styling follows MUI/Tailwind conventions
-6. New files follow naming conventions
-7. Feature ownership is respected
-8. `npm run check` passes (type-check, lint, tests, build)
-
----
-
-# 10. Strict Rules
-
-Do NOT:
-
-- Call APIs directly inside components/pages
-- Put business logic inside pages
-- Use App Router (`src/app/`, `layout.tsx`, `page.tsx` as route files)
-- Create one-off HTTP clients
-- Create duplicate hooks/utilities
-- Hardcode API paths
-- Hardcode colors if theme values exist
-- Ignore existing MUI theme configuration
-- Put feature logic into shared folders unnecessarily
-- Use `any` without justification
-- Create inconsistent folder structures
-- Introduce a different architecture style
+- TypeScript strict, no `any`. Types at boundaries; derive the rest.
+- Comments only for the why, in plain English. No JSDoc on everything, no commented-out code (`08-code-style.template.md` §4).
+- Reuse before writing: check `src/components/README.md` and `src/hooks/README.md`.
+- No secrets in `NEXT_PUBLIC_*` vars, no tokens or personal data in web storage.
 
 ---
 
-# 11. Preferred Engineering Style
+## 5. When you finish
 
-Prefer:
-
-- readable code
-- predictable patterns
-- composition over complexity
-- reusable abstractions
-- explicit naming
-- small focused files
-- strict ownership boundaries
-
-Avoid:
-
-- over-engineering
-- deeply nested logic
-- giant components
-- giant hooks
-- magic abstractions
-- premature genericization
-
----
-
-# 12. Completion Output Format
-
-When completing a task, respond with:
+Report back briefly:
 
 ```md
-## Summary
+## What changed
 
-Brief explanation of what was implemented.
+One or two sentences.
 
-## Files Created
+## Files
 
-- ...
+- created: ...
+- changed: ...
+- removed: ...
 
-## Files Modified
+## Checks
 
-- ...
+`npm run check`: pass / what failed and why
 
-## Reused Existing Patterns
+## Notes
 
-- ...
-
-## Template Rules Followed
-
-- ...
-
-## Notes / Assumptions
-
-- ...
+Assumptions, anything left for the user, anything you couldn't verify (e.g. not tested in a browser).
 ```
-
----
-
-# 13. Final Instruction
-
-This boilerplate prioritizes:
-
-- consistency
-- scalability
-- maintainability
-- deterministic AI generation
-
-Every implementation should look like it was written by the same engineering team.

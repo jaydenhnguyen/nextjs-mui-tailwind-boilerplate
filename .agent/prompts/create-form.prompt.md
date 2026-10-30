@@ -1,4 +1,4 @@
-Read all files inside `.agent/templates/` and `src/components/Form/README.md`.
+Read `.agent/MASTER_TEMPLATE.md`, `.agent/templates/07-form-handling.template.md` and `src/components/Form/README.md`.
 
 Generate a production-grade form using:
 
