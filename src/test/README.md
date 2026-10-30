@@ -32,7 +32,7 @@ import { screen } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
 import mockRouter from 'next-router-mock';
 import { describe, expect, it } from 'vitest';
-import { apiUrl } from 'src/mocks/session';
+import { apiUrl } from 'src/mocks/apiUrl';
 import { renderWithProviders, server, signInAs } from 'src/test';
 import { Products } from './Products';
 

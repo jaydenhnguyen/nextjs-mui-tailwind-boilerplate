@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { onSessionExpired } from 'src/configs/request';
+import { onSessionExpired } from 'src/configs/auth';
 import { notify } from 'src/shared/utils/notify';
 import { AUTH_QUERY_KEYS } from '../../constants';
 import { clearSession } from '../../utils/session';

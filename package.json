@@ -17,6 +17,7 @@
     "format": "prettier --write .",
     "analyze": "next analyze",
     "gen": "node scripts/gen.mjs",
+    "features": "node scripts/features.mjs",
     "check": "npm run type-check && npm run lint && npm run test && npm run build",
     "prepare": "husky"
   },

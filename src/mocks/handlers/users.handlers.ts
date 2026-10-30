@@ -2,8 +2,9 @@ import { delay, http, HttpResponse } from 'msw';
 import { PERMISSIONS } from 'src/modules/Authentication/constants';
 import { hasPermission } from 'src/modules/Authentication/utils/permission';
 import { ROLES } from 'src/shared/enums';
+import { apiUrl } from '../apiUrl';
 import { db } from '../db';
-import { apiUrl, forbidden, getRequestUser, unauthorized } from '../session';
+import { forbidden, getRequestUser, unauthorized } from '../session';
 
 type CreateUserBody = { firstName?: string; lastName?: string; email?: string; roles?: ROLES[] };
 

@@ -1,6 +1,7 @@
 import { delay, http, HttpResponse } from 'msw';
+import { apiUrl } from '../apiUrl';
 import { db, MOCK_PASSWORD } from '../db';
-import { apiUrl, getRequestUser, getUserFromRefreshToken, issueTokens, unauthorized } from '../session';
+import { getRequestUser, getUserFromRefreshToken, issueTokens, unauthorized } from '../session';
 
 type LoginBody = { email?: string; password?: string };
 

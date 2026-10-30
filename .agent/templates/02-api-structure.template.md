@@ -38,7 +38,7 @@ Do not introduce a new API pattern unless explicitly requested.
 | Endpoint constants                                    | `src/apis/<domain>/endpoints.ts`                                |
 | Shared HTTP client + `http` helpers                   | `src/configs/request.ts`                                        |
 | API settings (auth strategy, refresh path, camelCase) | `src/configs/api.config.ts`                                     |
-| Token manager                                         | `src/configs/tokenManager.ts`                                   |
+| Token manager                                         | `src/configs/auth/tokenManager.ts`                              |
 | Cookies                                               | `src/configs/cookies.ts`                                        |
 | Query client config (defaults, global toasts)         | `src/configs/queryClient.ts`                                    |
 | `ApiError`, error messages, `applyApiErrorToForm`     | `src/shared/utils/apiError.ts`                                  |
@@ -221,7 +221,7 @@ src/configs/request.ts
 The request client already handles:
 
 - base URL and timeout (`apiConfig` in `src/configs/api.config.ts`)
-- auth: `Authorization: Bearer` header (`authStrategy: 'bearer'`) or httpOnly cookies via `withCredentials` (`authStrategy: 'cookie'`)
+- auth: `Authorization: Bearer` header (`authConfig.strategy: 'bearer'`) or httpOnly cookies via `withCredentials` (`'cookie'`), added by `src/configs/auth/interceptors.ts`
 - deep camelCase of response bodies (`camelCaseResponse`)
 - turning **every** failure into an `ApiError` (see §24)
 - `401`: refreshes the session once (parallel requests share one refresh call), retries the request once, and if that fails calls the handler registered with `onSessionExpired()`

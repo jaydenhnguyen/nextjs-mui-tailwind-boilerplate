@@ -338,6 +338,16 @@ npm run gen                        # all options
 
 Use `-- --dry-run` to see the files first. The generator never overwrites existing files.
 
+Optional parts are packs that can be removed when a project doesn't need them:
+
+```bash
+npm run features list                         # what's installed
+npm run features remove examples -- --dry-run # preview
+npm run features remove examples auth         # remove (needs a clean git tree)
+```
+
+Packs: `api`, `auth`, `mock-api`, `examples`, `tests`, `ci`, `git-hooks`, `docker`. Each one's files and edits are listed at the top of `scripts/features.mjs`. When you add code that belongs to a pack (a new auth file, a new env var for docker), add it to that pack's list too, so removal stays complete.
+
 ---
 
 ## During coding

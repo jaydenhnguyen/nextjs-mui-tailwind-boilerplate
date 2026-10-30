@@ -29,7 +29,8 @@ A small "Mock API" badge in the corner shows when mocks are on.
 ```txt
 src/mocks/
 ├── db.ts                  seed data, demo accounts
-├── session.ts             fake tokens, current user, 401/403 helpers
+├── apiUrl.ts              apiUrl('/users') → full URL from NEXT_PUBLIC_API_URL
+├── session.ts             fake tokens, current user, 401/403 helpers (auth)
 ├── handlers/
 │   ├── auth.handlers.ts   login, me, refresh, logout
 │   ├── users.handlers.ts  list (search + pagination), create, delete
@@ -49,7 +50,8 @@ src/mocks/
 
 ```ts
 import { delay, http, HttpResponse } from 'msw';
-import { apiUrl, getRequestUser, unauthorized } from '../session';
+import { apiUrl } from '../apiUrl';
+import { getRequestUser, unauthorized } from '../session';
 
 export const productsHandlers = [
   http.get(apiUrl('/products'), async ({ request }) => {

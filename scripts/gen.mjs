@@ -160,6 +160,7 @@ function fail(message) {
 
 // ---------- shared wiring ----------
 
+const hasApi = () => exists('src/configs/request.ts');
 const hasAuth = () => exists('src/modules/Authentication');
 const hasMocks = () => exists('src/mocks/handlers/index.ts');
 
@@ -168,14 +169,24 @@ function addRoute(names, { isPrivate, nav }) {
   addObjectEntry(routes, 'APP_ROUTES', `${names.constant}: '/${names.kebab}'`);
   addArrayItem(
     routes,
-    isPrivate ? /(NO_INDEX_ROUTES = \[)([\s\S]*?)(\];)/ : /(SITEMAP_ROUTES = \[)([\s\S]*?)(\];)/,
+    isPrivate ? /(NO_INDEX_ROUTES[^=]*= \[)([\s\S]*?)(\];)/ : /(SITEMAP_ROUTES[^=]*= \[)([\s\S]*?)(\];)/,
     `APP_ROUTES.${names.constant}`,
   );
   if (nav) {
+    const navFile = 'src/configs/navigation.config.ts';
     addArrayItem(
-      'src/configs/navigation.config.ts',
+      navFile,
       new RegExp(`(\\b${isPrivate ? 'private' : 'public'}: \\[)([\\s\\S]*?)(\\] as NavItem\\[\\])`),
       `{ label: '${names.label}', href: APP_ROUTES.${names.constant} }`,
+    );
+    // `npm run features remove auth` drops this import when the menu no longer uses it.
+    update(
+      navFile,
+      (content) =>
+        /import \{[^}]*\bAPP_ROUTES\b/.test(content)
+          ? content
+          : `import { APP_ROUTES } from 'src/shared/constants/routes.constant';\n${content}`,
+      "import { APP_ROUTES } from 'src/shared/constants/routes.constant'",
     );
   }
 }
@@ -291,6 +302,7 @@ export function ${hookName}() {
 // ---------- crud ----------
 
 function genCrud(p, s, options) {
+  if (!hasApi()) fail('crud needs the api pack (src/configs/request.ts), which was removed. Use `page` instead.');
   checkModuleName(p);
   if (exists(`src/apis/${p.kebab}`)) fail(`src/apis/${p.kebab} already exists.`);
   if (exists(`src/mocks/handlers/${p.kebab}.handlers.ts`))
@@ -860,7 +872,7 @@ export function ${p.pascal}() {
 function genCrudMocks(p, s) {
   const withAuth = hasAuth();
   const guard = withAuth ? `\n    if (!getRequestUser(request)) return unauthorized();` : '';
-  const sessionImports = withAuth ? 'apiUrl, getRequestUser, unauthorized' : 'apiUrl';
+  const sessionImport = withAuth ? `\nimport { getRequestUser, unauthorized } from '../session';` : '';
   const file = `src/mocks/handlers/${p.kebab}.handlers.ts`;
 
   create(
@@ -868,7 +880,7 @@ function genCrudMocks(p, s) {
     `
 import { delay, http, HttpResponse } from 'msw';
 import { ${s.pascal} } from 'src/modules/${p.pascal}/models';
-import { ${sessionImports} } from '../session';
+import { apiUrl } from '../apiUrl';${sessionImport}
 
 type ${s.pascal}Body = { name?: string; description?: string };
 
@@ -951,7 +963,7 @@ export const ${p.camel}Handlers = [
   update(
     index,
     (content) => {
-      const match = /(export const handlers = \[)([\s\S]*?)(\];)/.exec(content);
+      const match = /(export const handlers[^=]*= \[)([\s\S]*?)(\];)/.exec(content);
       if (!match) return null;
       const items = match[2].trim().replace(/,$/, '');
       const importLine = `import { ${p.camel}Handlers } from './${p.kebab}.handlers';`;

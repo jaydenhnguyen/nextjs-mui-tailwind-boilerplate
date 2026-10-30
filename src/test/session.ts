@@ -1,4 +1,4 @@
-import { tokenManager } from 'src/configs/tokenManager';
+import { tokenManager } from 'src/configs/auth';
 import { db, MOCK_ACCOUNTS } from 'src/mocks/db';
 import { issueTokens } from 'src/mocks/session';
 

@@ -27,22 +27,22 @@ The signed-in user is **server state** in React Query (`['currentUser']`). There
 
 # 2. Where Things Live
 
-| Concern                                                                                      | Location                                                                               |
-| -------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| Auth API calls (`login`, `logout`, `getCurrentUser`)                                         | `src/apis/auth/`                                                                       |
-| Auth strategy, refresh path                                                                  | `src/configs/api.config.ts`                                                            |
-| Token storage (bearer only)                                                                  | `src/configs/tokenManager.ts`, cookie names in `src/shared/constants/auth.constant.ts` |
-| 401 → refresh → retry → expire                                                               | `src/configs/request.ts` (see `02-api-structure.template.md` §7)                       |
-| `User`, `LoginRequest`, `LoginResponse`                                                      | `src/modules/Authentication/models/`                                                   |
-| Login schema                                                                                 | `src/modules/Authentication/schema/login.schema.ts`                                    |
-| Hooks: `useAuth`, `useCurrentUser`, `useLogin`, `useLogout`, `useLoginForm`, `usePermission` | `src/modules/Authentication/hooks/`                                                    |
-| Components: `Can`, `UserMenu`, `AuthActions`, `SessionWatcher`                               | `src/modules/Authentication/components/`                                               |
-| `clearSession`, `getSafeRedirect`                                                            | `src/modules/Authentication/utils/session.ts`                                          |
-| Roles                                                                                        | `src/shared/enums` (`ROLES`)                                                           |
-| Permissions and role → permission map                                                        | `src/modules/Authentication/constants/auth.constant.ts`                                |
-| Login screen                                                                                 | `src/modules/Authentication/Login/`, page `src/pages/login.tsx`                        |
-| Route guard                                                                                  | `src/layouts/PrivateLayout`                                                            |
-| Routes                                                                                       | `APP_ROUTES` in `src/shared/constants/routes.constant.ts`                              |
+| Concern                                                                                      | Location                                                         |
+| -------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Auth API calls (`login`, `logout`, `getCurrentUser`)                                         | `src/apis/auth/`                                                 |
+| Auth strategy, refresh path                                                                  | `src/configs/api.config.ts`                                      |
+| Token storage (bearer only)                                                                  | `src/configs/auth/tokenManager.ts` (cookie names too)            |
+| 401 → refresh → retry → expire                                                               | `src/configs/request.ts` (see `02-api-structure.template.md` §7) |
+| `User`, `LoginRequest`, `LoginResponse`                                                      | `src/modules/Authentication/models/`                             |
+| Login schema                                                                                 | `src/modules/Authentication/schema/login.schema.ts`              |
+| Hooks: `useAuth`, `useCurrentUser`, `useLogin`, `useLogout`, `useLoginForm`, `usePermission` | `src/modules/Authentication/hooks/`                              |
+| Components: `Can`, `UserMenu`, `AuthActions`, `SessionWatcher`                               | `src/modules/Authentication/components/`                         |
+| `clearSession`, `getSafeRedirect`                                                            | `src/modules/Authentication/utils/session.ts`                    |
+| Roles                                                                                        | `src/shared/enums` (`ROLES`)                                     |
+| Permissions and role → permission map                                                        | `src/modules/Authentication/constants/auth.constant.ts`          |
+| Login screen                                                                                 | `src/modules/Authentication/Login/`, page `src/pages/login.tsx`  |
+| Route guard                                                                                  | `src/layouts/PrivateLayout`                                      |
+| Routes                                                                                       | `APP_ROUTES` in `src/shared/constants/routes.constant.ts`        |
 
 Import from `src/modules/Authentication`.
 
@@ -50,14 +50,14 @@ Import from `src/modules/Authentication`.
 
 # 3. Auth Strategy
 
-Set once in `apiConfig.authStrategy`:
+Set once in `authConfig.strategy` (`src/configs/auth/auth.config.ts`):
 
 | Strategy           | Backend                                         | Tokens                                                                           | Requests                        |
 | ------------------ | ----------------------------------------------- | -------------------------------------------------------------------------------- | ------------------------------- |
 | `bearer` (default) | returns `{ accessToken, refreshToken?, user? }` | `tokenManager` keeps them in JS-readable cookies (sameSite=lax, secure on https) | `Authorization: Bearer <token>` |
 | `cookie`           | sets httpOnly cookies itself                    | the app never sees them                                                          | `withCredentials: true`         |
 
-`refreshPath` (default `/auth/refresh`) is called on a 401. Set it to `null` if the backend has no refresh endpoint; a 401 then ends the session immediately.
+`authConfig.refreshPath` (default `/auth/refresh`) is called on a 401. Set it to `null` if the backend has no refresh endpoint; a 401 then ends the session immediately.
 
 Backend contract expected by the default code:
 
@@ -149,7 +149,7 @@ UI checks are for display only. The backend must enforce every permission too.
 # 8. Logout and Session Expiry
 
 - `useLogout()` calls `POST /auth/logout`, and **always** (even if that fails) clears the session and goes to `APP_ROUTES.LOGIN`. `UserMenu` already uses it.
-- When a refresh fails, `request.ts` calls the `onSessionExpired` handler. `SessionWatcher` (mounted once in `AppProviders`) registers it: it clears the session and, if someone was signed in, shows "Your session has expired". `PrivateLayout` then redirects to login with `?redirect=`.
+- When a refresh fails, `src/configs/auth/interceptors.ts` calls the `onSessionExpired` handler. `SessionWatcher` (mounted once in `AppProviders`) registers it: it clears the session and, if someone was signed in, shows "Your session has expired". `PrivateLayout` then redirects to login with `?redirect=`.
 - `clearSession` removes tokens, sets the current user to `null`, and drops every other cached query so the next user never sees the previous user's data.
 
 ---
@@ -191,7 +191,7 @@ Add a protected page:
 
 Adapt to a different backend:
 
-1. `apiConfig.authStrategy`, `refreshPath`
+1. `authConfig.strategy`, `authConfig.refreshPath`
 2. `src/apis/auth/endpoints.ts` and `auth.ts`
 3. `User` / `LoginResponse` models
 4. `refreshSession` in `request.ts` if the refresh contract differs

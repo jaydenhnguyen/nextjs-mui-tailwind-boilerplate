@@ -1,5 +1,5 @@
 import { QueryClient } from '@tanstack/react-query';
-import { tokenManager } from 'src/configs/tokenManager';
+import { tokenManager } from 'src/configs/auth';
 import { AUTH_QUERY_KEYS } from '../constants';
 
 // The current user is set to null rather than removed, so guards watching it react and redirect right away.

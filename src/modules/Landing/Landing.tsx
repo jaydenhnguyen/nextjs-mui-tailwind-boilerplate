@@ -1,7 +1,5 @@
-import Link from 'next/link';
-import { Button, Typography } from '@mui/material';
+import { Typography } from '@mui/material';
 import { siteConfig } from 'src/configs';
-import { APP_ROUTES } from 'src/shared/constants';
 import classes from './Landing.module.scss';
 
 export function Landing() {
@@ -13,9 +11,6 @@ export function Landing() {
       <Typography color="text.secondary" className={classes['description']}>
         {siteConfig.description}
       </Typography>
-      <Button component={Link} href={APP_ROUTES.LOGIN} variant="contained" size="large">
-        Sign in
-      </Button>
     </section>
   );
 }

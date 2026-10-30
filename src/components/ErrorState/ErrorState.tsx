@@ -2,7 +2,6 @@ import * as React from 'react';
 import clsx from 'clsx';
 import ErrorOutlineOutlined from '@mui/icons-material/ErrorOutlineOutlined';
 import { Button, Typography } from '@mui/material';
-import { toApiError } from 'src/shared/utils/apiError';
 import { FadeIn } from '../Motion';
 import classes from './ErrorState.module.scss';
 
@@ -15,7 +14,7 @@ type Props = {
 };
 
 export function ErrorState({ error, title = 'Something went wrong', description, onRetry, className }: Props) {
-  const message = description ?? (error ? toApiError(error).message : undefined);
+  const message = description ?? (error instanceof Error ? error.message : undefined);
 
   return (
     <FadeIn y={4} role="alert" className={clsx(classes['root'], className)}>

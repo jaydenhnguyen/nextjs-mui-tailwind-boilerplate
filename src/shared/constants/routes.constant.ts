@@ -6,6 +6,6 @@ export const APP_ROUTES = {
   USERS: '/users',
 };
 
-export const SITEMAP_ROUTES = [APP_ROUTES.LANDING];
+export const SITEMAP_ROUTES: string[] = [APP_ROUTES.LANDING];
 
-export const NO_INDEX_ROUTES = [APP_ROUTES.HOME, APP_ROUTES.USERS];
+export const NO_INDEX_ROUTES: string[] = [APP_ROUTES.HOME, APP_ROUTES.USERS];

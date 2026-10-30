@@ -374,6 +374,7 @@ NEXT_PUBLIC_
 | `npm run analyze`    | Open the interactive bundle analyzer                                            |
 | `npm run dev:mock`   | Dev server with the mock API                                                    |
 | `npm run gen`        | Scaffold a CRUD resource, page, component or hook (`npm run gen crud Products`) |
+| `npm run features`   | List or remove optional packs (`npm run features remove examples docker`)       |
 
 ---
 

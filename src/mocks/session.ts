@@ -1,12 +1,9 @@
 import { HttpResponse } from 'msw';
-import { env } from 'src/configs/env';
 import { User } from 'src/shared/types';
 import { db } from './db';
 
 // Short on purpose, so the refresh-token flow actually runs while you click around.
 const ACCESS_TOKEN_LIFETIME_MS = 5 * 60 * 1000;
-
-export const apiUrl = (path: string) => `${env.API_URL}${path}`;
 
 export const issueTokens = (userId: string) => ({
   accessToken: `mock-access.${userId}.${Date.now()}`,

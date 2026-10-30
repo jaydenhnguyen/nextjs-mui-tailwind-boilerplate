@@ -3,7 +3,7 @@ import { cleanup } from '@testing-library/react';
 import { MotionGlobalConfig } from 'motion/react';
 import mockRouter from 'next-router-mock';
 import { afterAll, afterEach, beforeAll, vi } from 'vitest';
-import { tokenManager } from 'src/configs/tokenManager';
+import { tokenManager } from 'src/configs/auth';
 import { setupZod } from 'src/configs/zod';
 import { server } from './server';
 
