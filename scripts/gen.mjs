@@ -561,7 +561,8 @@ export function Delete${s.pascal}Button({ ${s.camel} }: { ${s.camel}: ${s.pascal
     `${mod}/components/${s.pascal}Table/${s.pascal}Table.module.scss`,
     `
 .container {
-  @apply overflow-x-auto rounded-theme border border-solid border-divider;
+  // relative: the visually hidden header label is absolutely positioned and would otherwise widen the page on phones.
+  @apply relative overflow-x-auto rounded-theme border border-solid border-divider;
 }
 
 .name {
@@ -676,7 +677,7 @@ export function ${s.pascal}FormDialog({ open, ${s.camel}, onClose }: Props) {
   const formId = React.useId();
   const titleId = React.useId();
   const form = use${s.pascal}Form();
-  const { control, reset, setError } = form;
+  const { control, reset, setError, setFocus } = form;
   const create${s.pascal} = useCreate${s.pascal}();
   const update${s.pascal} = useUpdate${s.pascal}();
   const isPending = create${s.pascal}.isPending || update${s.pascal}.isPending;
@@ -694,13 +695,19 @@ export function ${s.pascal}FormDialog({ open, ${s.camel}, onClose }: Props) {
       maxWidth="sm"
       fullWidth
       aria-labelledby={titleId}
-      // Fills the form before the dialog paints, so old values never flash while it opens.
-      slotProps={{ transition: { onEnter: () => reset(${s.camel} ? to${s.pascal}FormValues(${s.camel}) : initial${s.pascal}Values) } }}
+      // Fills the form before the dialog paints, so old values never flash while it opens. Focus waits for the open
+      // animation: autoFocus fires before the focus trap, which blurs the field and shows its error too early.
+      slotProps={{
+        transition: {
+          onEnter: () => reset(${s.camel} ? to${s.pascal}FormValues(${s.camel}) : initial${s.pascal}Values),
+          onEntered: () => setFocus('name'),
+        },
+      }}
     >
       <DialogTitle id={titleId}>{${s.camel} ? 'Edit ${s.lower}' : 'New ${s.lower}'}</DialogTitle>
       <DialogContent>
         <Form id={formId} form={form} onSubmit={handleSubmit} className={classes['form']}>
-          <ControlTextField control={control} name="name" label="Name" autoFocus fullWidth />
+          <ControlTextField control={control} name="name" label="Name" fullWidth />
           <ControlTextField control={control} name="description" label="Description" multiline minRows={3} fullWidth />
           <ControlErrorMessage control={control} name="root.server" />
         </Form>

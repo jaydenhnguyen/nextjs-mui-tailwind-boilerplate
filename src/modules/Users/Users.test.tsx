@@ -53,7 +53,10 @@ describe('Users', () => {
 
     await user.click(await screen.findByRole('button', { name: 'New user' }));
     const dialog = await screen.findByRole('dialog');
-    await user.type(within(dialog).getByLabelText('First name'), 'Test');
+    const firstName = within(dialog).getByLabelText('First name');
+    // The first field gets focus once the open animation ends; typing earlier would be interrupted by that.
+    await waitFor(() => expect(firstName).toHaveFocus());
+    await user.type(firstName, 'Test');
     await user.type(within(dialog).getByLabelText('Last name'), 'Person');
     await user.type(within(dialog).getByLabelText('Email'), 'test.person@example.com');
     await user.click(within(dialog).getByRole('button', { name: 'Create user' }));

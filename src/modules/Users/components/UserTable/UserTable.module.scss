@@ -1,5 +1,6 @@
 .container {
-  @apply overflow-x-auto rounded-theme border border-solid border-divider;
+  // relative: the visually hidden header label is absolutely positioned and would otherwise widen the page on phones.
+  @apply relative overflow-x-auto rounded-theme border border-solid border-divider;
 }
 
 .person {

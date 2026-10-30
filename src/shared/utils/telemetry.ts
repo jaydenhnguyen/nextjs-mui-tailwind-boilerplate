@@ -4,7 +4,8 @@ const isDev = process.env.NODE_ENV === 'development';
 
 // The one place to plug in an error tracker (Sentry, etc.). Render crashes and failed API calls already call it.
 export function reportError(error: unknown, context?: Properties) {
-  if (isDev) console.error('[reportError]', error, context ?? '');
+  // warn, not error: Next's dev overlay pops up for every console.error, even for errors the UI already handles.
+  if (isDev) console.warn('[reportError]', error, context ?? '');
 }
 
 // The one place to plug in analytics (PostHog, Google Analytics, etc.).

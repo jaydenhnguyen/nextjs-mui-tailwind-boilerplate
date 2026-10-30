@@ -19,6 +19,8 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
   const resolveRef = React.useRef<((confirmed: boolean) => void) | null>(null);
   const titleId = React.useId();
   const descriptionId = React.useId();
+  const cancelRef = React.useRef<HTMLButtonElement>(null);
+  const confirmRef = React.useRef<HTMLButtonElement>(null);
 
   const confirm = React.useCallback<Confirm>((nextOptions) => {
     resolveRef.current?.(false);
@@ -45,8 +47,14 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
         fullWidth
         aria-labelledby={titleId}
         aria-describedby={options?.description ? descriptionId : undefined}
-        // Content stays until the close animation ends, so the text doesn't vanish mid-fade.
-        slotProps={{ transition: { onExited: () => setOptions(null) } }}
+        slotProps={{
+          transition: {
+            // autoFocus runs before the dialog's focus trap, which then moves focus to the dialog itself.
+            onEntered: () => (options?.destructive ? cancelRef : confirmRef).current?.focus(),
+            // Content stays until the close animation ends, so the text doesn't vanish mid-fade.
+            onExited: () => setOptions(null),
+          },
+        }}
       >
         <DialogTitle id={titleId}>{options?.title}</DialogTitle>
         {options?.description && (
@@ -55,14 +63,14 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
           </DialogContent>
         )}
         <DialogActions>
-          <Button onClick={() => close(false)} autoFocus={options?.destructive}>
+          <Button ref={cancelRef} onClick={() => close(false)}>
             {options?.cancelText ?? 'Cancel'}
           </Button>
           <Button
+            ref={confirmRef}
             variant="contained"
             color={options?.destructive ? 'error' : 'primary'}
             onClick={() => close(true)}
-            autoFocus={!options?.destructive}
           >
             {options?.confirmText ?? 'Confirm'}
           </Button>

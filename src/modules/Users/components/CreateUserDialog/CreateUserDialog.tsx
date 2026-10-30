@@ -17,7 +17,7 @@ export function CreateUserDialog({ open, onClose }: Props) {
   const formId = React.useId();
   const titleId = React.useId();
   const form = useCreateUserForm();
-  const { control, reset, setError } = form;
+  const { control, reset, setError, setFocus } = form;
   const { mutate: createUser, isPending } = useCreateUser();
 
   const handleSubmit = ({ role, ...values }: z.output<typeof createUserSchema>) =>
@@ -36,13 +36,15 @@ export function CreateUserDialog({ open, onClose }: Props) {
       maxWidth="sm"
       fullWidth
       aria-labelledby={titleId}
-      slotProps={{ transition: { onExited: () => reset() } }}
+      // Focus waits for the open animation: autoFocus fires before the dialog's focus trap, which blurs the
+      // field and shows its "required" error before anyone typed.
+      slotProps={{ transition: { onEntered: () => setFocus('firstName'), onExited: () => reset() } }}
     >
       <DialogTitle id={titleId}>New user</DialogTitle>
       <DialogContent>
         <Form id={formId} form={form} onSubmit={handleSubmit} className={classes['form']}>
           <div className={classes['row']}>
-            <ControlTextField control={control} name="firstName" label="First name" autoFocus fullWidth />
+            <ControlTextField control={control} name="firstName" label="First name" fullWidth />
             <ControlTextField control={control} name="lastName" label="Last name" fullWidth />
           </div>
           <ControlTextField control={control} name="email" label="Email" type="email" fullWidth />

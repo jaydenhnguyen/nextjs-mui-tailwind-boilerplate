@@ -50,7 +50,9 @@ export function Users() {
             Users
           </Typography>
           <Typography color="text.secondary">
-            {usersQuery.data ? `${formatNumber(total)} people` : 'Everyone with access to the app'}
+            {usersQuery.data
+              ? `${formatNumber(total)} ${total === 1 ? 'person' : 'people'}`
+              : 'Everyone with access to the app'}
           </Typography>
         </div>
         {newUserButton}

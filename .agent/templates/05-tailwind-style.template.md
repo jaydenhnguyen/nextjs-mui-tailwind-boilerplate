@@ -73,7 +73,7 @@ Breakpoints are the theme's: `sm` 640, `md` 768, `lg` 1024, `xl` 1280, `2xl` 153
 
 - No fixed widths for content (`w-[960px]`). Use `max-w-*` with `w-full`.
 - Full-height areas use `min-h-dvh`, not `min-h-screen` (mobile address bars).
-- Wide tables scroll inside their container (`overflow-x-auto`), never the page.
+- Wide tables scroll inside their container (`relative overflow-x-auto`), never the page. `relative` matters: without it, absolutely positioned children like an `sr-only` header label escape the container and widen the page.
 - Hide secondary columns on small screens (`hidden md:table-cell`) instead of squeezing them.
 - Tap targets are at least 40px; MUI buttons already are.
 - Use `useBreakpoint()` only when behavior changes (drawer vs dialog), never for layout.

@@ -98,6 +98,7 @@ Split a component when it passes ~150 lines, has more than one reason to change,
 
 - Dialog open state: `useOpenState()`. Pass `open` and `onClose` to the dialog component.
 - A form in a dialog: the form has an `id`, the submit button in `DialogActions` uses `form={formId}`, and the form resets in the transition's `onExited` (or `onEnter` for edit dialogs) so it doesn't visibly clear while closing.
+- Focus the first field with `setFocus` in the transition's `onEntered`, not `autoFocus`: `autoFocus` runs before the dialog's focus trap, so the field blurs and shows its error before anyone typed.
 - Don't close a dialog while its mutation is pending (`onClose={isPending ? undefined : onClose}`).
 - Destructive actions ask first: `await confirm({ ..., destructive: true })`.
 - Lists use a stable `key` from the data (`item.id`), never the index.
